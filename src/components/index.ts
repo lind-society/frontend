@@ -11,3 +11,4 @@ export * from "./background";
 export * from "./protected-route";
 export * from "./images360";
 export * from "./upload-photo";
+export * from "./google-map";

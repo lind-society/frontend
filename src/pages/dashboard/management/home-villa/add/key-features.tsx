@@ -1,14 +1,16 @@
 import * as React from "react";
 
+import { useGetApi, usePersistentData } from "../../../../../hooks";
+
 import { Button, Modal } from "../../../../../components";
+
+import toast from "react-hot-toast";
+import IconifyPicker from "@zunicornshift/mui-iconify-picker";
 
 import { GrPowerReset } from "react-icons/gr";
 import { IoClose } from "react-icons/io5";
-
-import IconifyPicker from "@zunicornshift/mui-iconify-picker";
-
 import { FaPlus } from "react-icons/fa";
-import { useGetApi, usePersistentData } from "../../../../../hooks";
+
 import { Data, Payload, Villa } from "../../../../../types";
 
 interface Facilities {
@@ -25,7 +27,7 @@ interface Facilities {
 export const KeyFeatures = () => {
   const [facilities, setFacilities] = React.useState<Facilities[]>([]);
   const [idIcon, setIdIcon] = React.useState<string>();
-  const [modalFeature, setModalFacility] = React.useState<boolean>(false);
+  const [modalFeature, setModalFeature] = React.useState<boolean>(false);
 
   const { data: responseFacilities } = useGetApi<Payload<Data<Villa["facilities"]>>>({ key: ["facilities"], url: "facilities", params: { limit: "20" } });
 
@@ -35,12 +37,12 @@ export const KeyFeatures = () => {
 
   // const addFacility = () => {
   //   setFacilities((prevFacilities) => [{ id: crypto.randomUUID(), name: "", icon: { url: "", key: "" }, description: "", includeDescription: true }, ...prevFacilities]);
-  //   setModalFacility(false);
+  //   setModalFeature(false);
   // };
 
   const addOtherFacility = (facilityId: string, name: string, icon: Facilities["icon"]) => {
     setFacilities((prevFacilities) => [{ id: facilityId, name, icon, description: "", includeDescription: true }, ...prevFacilities]);
-    setModalFacility(false);
+    setModalFeature(false);
   };
 
   const deleteFacility = (id: string) => {
@@ -70,6 +72,10 @@ export const KeyFeatures = () => {
     };
 
     setData(formattedData);
+    toast("Success saving services feature", { style: { borderRadius: "5px", background: "#22c55e", color: "#fff" } });
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   React.useEffect(() => {
@@ -98,15 +104,15 @@ export const KeyFeatures = () => {
 
   return (
     <>
-      <div className="p-8 space-y-8 border rounded-b bg-light border-dark/20">
+      <div className="p-8 space-y-8 border rounded-b bg-light border-dark/30">
         <div className="flex items-center justify-between">
           <h2 className="heading">Key Features</h2>
-          <Button onClick={() => setModalFacility(true)} className="flex items-center gap-2 btn-primary">
+          <Button onClick={() => setModalFeature(true)} className="flex items-center gap-2 btn-primary">
             <FaPlus /> Add Key Features
           </Button>
         </div>
         {facilities.map((facility) => (
-          <div key={facility.id} className="flex items-center gap-4 p-4 mt-4 border-b border-dark/20">
+          <div key={facility.id} className="flex items-center gap-4 p-4 mt-4 border-b border-dark/30">
             <div className="space-y-2">
               <label className="block text-sm whitespace-nowrap">Icon *</label>
               <div onClick={() => setIdIcon(facility.id)}>
@@ -175,7 +181,7 @@ export const KeyFeatures = () => {
           </Button>
         </div>
       </div>
-      <Modal isVisible={modalFeature} onClose={() => setModalFacility(false)}>
+      <Modal isVisible={modalFeature} onClose={() => setModalFeature(false)}>
         <h2 className="text-lg font-bold">Add Key Features</h2>
         <div className="mt-4 overflow-y-auto border border-dark/30">
           {responseFacilities?.data.data

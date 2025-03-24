@@ -37,7 +37,7 @@ export const VillaPolicies = () => {
   };
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/20">
+    <div className="p-8 border rounded-b bg-light border-dark/30">
       <div className="flex items-center justify-between">
         <h2 className="heading">House Rules</h2>
         <Button onClick={() => setModalFeatures(true)} className="btn-primary">

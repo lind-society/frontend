@@ -28,13 +28,7 @@ export const useUploads = <T>(): UseFileUpload<T> => {
         },
       });
 
-      toast("Success upload file", {
-        style: {
-          borderRadius: "5px",
-          background: "#15803d",
-          color: "#fff",
-        },
-      });
+      toast("Success upload file", { style: { borderRadius: "5px", background: "#0d9488", color: "#fff" } });
 
       loading = false;
       return { response: resData.data, loading };

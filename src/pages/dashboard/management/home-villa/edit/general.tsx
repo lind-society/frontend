@@ -46,10 +46,10 @@ export const General = () => {
   };
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/20">
+    <div className="p-8 border rounded-b bg-light border-dark/30">
       <div className="flex items-center justify-between">
         <h2 className="heading">General</h2>
-        <Button onClick={() => setIsEdit((prev) => !prev)} className={`flex items-center gap-2 border border-dark/20 ${isEdit ? "bg-light text-primary" : "bg-primary text-light"}`}>
+        <Button onClick={() => setIsEdit((prev) => !prev)} className={`flex items-center gap-2 border border-dark/30 ${isEdit ? "bg-light text-primary" : "bg-primary text-light"}`}>
           <FaRegEdit /> Edit
         </Button>
       </div>

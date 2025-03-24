@@ -10,7 +10,7 @@ export const Location = () => {
   const [postalCode, setPostalCode] = React.useState<string>("");
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/20">
+    <div className="p-8 border rounded-b bg-light border-dark/30">
       <h2 className="heading">Location</h2>
       <form className="mt-6 space-y-6">
         {/* Location name */}
@@ -64,7 +64,7 @@ export const Location = () => {
 
       {/* Nearest Place */}
       <h2 className="mt-8 heading">Nearest Place</h2>
-      <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/20">
+      <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/30">
         <input type="text" placeholder="Search place" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" onClick={() => setModalInput(true)} readOnly />
         <button className="flex items-center justify-center h-10 text-light bg-primary w-14">
           <IoMdSearch size={25} />
@@ -100,7 +100,7 @@ export const Location = () => {
         </span>
       </div>
       <Modal isVisible={modalInput} onClose={() => setModalInput(false)}>
-        <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/20">
+        <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/30">
           <input type="text" placeholder="Search place" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" onClick={() => setModalInput(false)} readOnly />
           <button className="flex items-center justify-center h-10 text-light bg-primary w-14">
             <IoMdSearch size={25} />

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useCreateApi, usePersistentData, useUploads } from "../hooks";
+import { useCreateApi, useUploads } from "../hooks";
 
 import { Img } from "./image";
 import { Images360 } from "./images360";
@@ -8,14 +8,9 @@ import { Images360 } from "./images360";
 import { FaUpload } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 
-import { FileData, Payload, UploadPhotoProps, Villa } from "../types";
+import { FileData, Payload, UploadPhotoProps } from "../types";
 
 export const UploadPhoto = ({ type, title, description, fileUrl, setFileUrl }: UploadPhotoProps) => {
-  const useStore = usePersistentData<Partial<Villa>>("add-villa");
-  const { data } = useStore();
-
-  const [files, setFiles] = React.useState<string[]>([]);
-
   const { uploadFile } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi("storages", [type]);
 
@@ -23,12 +18,8 @@ export const UploadPhoto = ({ type, title, description, fileUrl, setFileUrl }: U
     const files = e.target.files ? Array.from(e.target.files) : [];
     const { response } = await uploadFile(files!, "villa", type);
 
-    const newMedia = files.map((file) => URL.createObjectURL(file));
-
     const uploadedUrls = response?.data.successFiles.map((file) => file.url) || [];
 
-    // Append new media without deleting previous ones
-    setFiles((prevFiles) => [...prevFiles, ...newMedia]);
     setFileUrl((prevUrls) => [...prevUrls, ...uploadedUrls]);
   };
 
@@ -37,20 +28,13 @@ export const UploadPhoto = ({ type, title, description, fileUrl, setFileUrl }: U
 
     deleteFile({ key: fileUrl[index] });
 
-    setFiles((prev) => prev.filter((_, i) => i !== index));
     setFileUrl((prev) => prev.filter((_, i) => i !== index));
   };
-
-  React.useEffect(() => {
-    if (data && type) {
-      setFiles([...files, ...(data[type] || [])]);
-    }
-  }, []);
 
   return (
     <div className="space-y-4">
       <div className="space-y-4">
-        <h2 className="text-xl font-bold whitespace-nowrap min-w-60">{title}</h2>
+        <h2 className="heading whitespace-nowrap min-w-60">{title}</h2>
         <div className="flex items-center">
           <p className="whitespace-nowrap min-w-60">{description}</p>
           <div className="relative">
@@ -65,7 +49,7 @@ export const UploadPhoto = ({ type, title, description, fileUrl, setFileUrl }: U
       <div className="grid grid-cols-3 gap-2 2xl:grid-cols-4">
         {type === "photos" && (
           <>
-            {files.map((image, index) => (
+            {fileUrl.map((image, index) => (
               <div key={index} className="relative">
                 <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full -top-2 -right-2 z-1 bg-secondary">
                   <IoCloseOutline className="text-light" />
@@ -77,7 +61,7 @@ export const UploadPhoto = ({ type, title, description, fileUrl, setFileUrl }: U
         )}
         {type === "videos" && (
           <>
-            {files.map((video, index) => (
+            {fileUrl.map((video, index) => (
               <div key={index} className="relative">
                 <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full -top-2 -right-2 z-1 bg-secondary">
                   <IoCloseOutline className="text-light" />
@@ -89,9 +73,9 @@ export const UploadPhoto = ({ type, title, description, fileUrl, setFileUrl }: U
         )}
         {type === "video360s" && (
           <>
-            {files.map((video, index) => (
+            {fileUrl.map((video, index) => (
               <div key={index} className="relative">
-                <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full z-1000 -top-2 -right-2 bg-secondary">
+                <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full z-100 -top-2 -right-2 bg-secondary">
                   <IoCloseOutline className="text-light" />
                 </button>
                 <Images360 src={video} />

@@ -19,7 +19,7 @@ export const PropertyPage = () => {
   return (
     <Layout>
       {/* Header */}
-      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/20">
+      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="text-2xl font-bold">Property Management</h1>
 
         {activeTab === "Management" ? (
@@ -35,7 +35,7 @@ export const PropertyPage = () => {
 
       <div className="flex">
         {tabs.map((tab) => (
-          <button key={tab} className={`px-4 py-1.5 border border-dark/20 rounded-t-md ${activeTab === tab && "bg-primary text-light"}`} onClick={() => setActiveTab(tab)}>
+          <button key={tab} className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab && "bg-primary text-light"}`} onClick={() => setActiveTab(tab)}>
             {tab}
           </button>
         ))}

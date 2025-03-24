@@ -80,7 +80,7 @@ export const Media = () => {
   };
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/20">
+    <div className="p-8 border rounded-b bg-light border-dark/30">
       <form className="space-y-8">
         {/* Catalog Photo */}
         <UploadPhoto title="Photo" description="Catalog Photo *" />

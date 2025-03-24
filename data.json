@@ -1,108 +1,16 @@
 {
   "state": {
     "data": {
-      "address": "jln. soekarno hatta 123",
-      "postalCode": "123213",
-      "mapLink": "https://maps.app.goo.gl/tqc6AGwonhtQfV5E7",
-      "checkOutHour": "12:00",
-      "checkInHour": "11:00",
-      "country": "Indonesia",
-      "state": "JAWA TIMUR",
-      "city": "KABUPATEN TRENGGALEK",
-      "placeNearby": [
-        { "name": "Uluwatu", "distance": 300 },
-        { "name": "Kuta", "distance": 100 }
-      ],
-      "name": "urrna",
-      "secondaryName": "cangau",
-      "highlight": "Tristique mauris habitasse purus pretium fusce. Placerat aptent torquent metus tempor per mus eros. Facilisi est orci finibus eget velit sociosqu. Enim velit iaculis ad platea cubilia ullamcorper finibus dolor pharetra lorem sed. Penatibus rutrum ante commodo vestibulum aptent ullamcorper fames.",
-      "currencyId": "6558102a-3237-4f71-bc3f-addea8a51a56",
-      "availabilityPerPrice": [
-        { "quota": 5, "availability": "monthly" },
-        { "quota": 6, "availability": "yearly" }
-      ],
-      "availability": ["daily", "monthly", "yearly"],
-      "priceDaily": 49970,
-      "priceMonthly": 500000,
-      "priceYearly": 5000000,
-      "discountDaily": 10,
-      "discountMonthly": 20,
-      "discountYearly": 30,
       "additionals": [
-        { "name": "test", "type": "bedrooms", "description": "king bed", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/suzy-1742715771140.jpeg"] },
-        { "name": "testttsts", "type": "outdoor areas", "description": "single", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/suzy-1742715800115.jpg"] },
-        { "name": "tesdfads", "type": "indoor areas", "description": "bathroam", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/suzy-2-1742715821579.jpg"] },
-        {
-          "name": "adfasdfsa",
-          "type": "more pictures",
-          "description": "bathhhhh",
-          "photos": [
-            "https://storage.googleapis.com/lind-society-dev/villa/bae-suzy-profile-and-facts-updated---kpop-profiles-1742715827251.jfif",
-            "https://storage.googleapis.com/lind-society-dev/villa/download-1742715827252.jfif"
-          ]
-        }
+        { "name": "test", "type": "bedrooms", "description": "stsdf", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/fotootooodsaf-1742830575574.jpg"] },
+        { "name": "stewfd", "type": "outdoor areas", "description": "fwefasdf", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/login-background-1742830592360.png"] },
+        { "name": "uyiuiu", "type": "indoor areas", "description": "werwqer", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/login-background-1742830606477.png"] },
+        { "name": "fwqef", "type": "more pictures", "description": "adsfqwefdsf", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/image-1742830624201.jpg"] },
+        { "name": "fwqfwqef", "type": "more pictures", "description": "qwefasdf", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/fotootooodsaf-1742830632332.jpg"] }
       ],
-      "photos": [
-        "https://storage.googleapis.com/lind-society-dev/villa/suzy-1742715713237.jfif",
-        "https://storage.googleapis.com/lind-society-dev/villa/bae-suzy-lee-doona-1742715713251.jfif",
-        "https://storage.googleapis.com/lind-society-dev/villa/bae-suzy-profile-and-facts-updated---kpop-profiles-1742715713252.jfif"
-      ],
-      "videos": ["https://storage.googleapis.com/lind-society-dev/villa/villa-1742715720656.mp4"],
-      "video360s": ["https://storage.googleapis.com/lind-society-dev/villa/test-pano-1742715732126.jpg"],
-      "facilities": [
-        { "facilityId": "e3453623-4098-4344-a898-5caf4685c133", "description": "hayyy" },
-        { "facilityId": "56162125-f04a-42fe-b32e-4d79545cc6db", "description": "holaaa" },
-        { "facilityId": "04834e5e-d9a7-4bad-bf00-372acc303293", "description": "ahkkh" },
-        { "facilityId": "5a195708-60ff-4482-9111-006311d3a6dc", "description": "babii" },
-        { "facilityId": "3e70696a-cd91-4109-9821-9891969d2d6b", "description": "taiii" }
-      ],
-      "features": [
-        {
-          "name": "jajhaksd",
-          "icon": { "key": "mdi:office-building", "url": "https://api.iconify.design/mdi/office-building.svg" },
-          "type": "Facilities",
-          "free": false,
-          "price": 80024,
-          "discountType": "percentage",
-          "discount": 0,
-          "currencyId": "6558102a-3237-4f71-bc3f-addea8a51a56"
-        },
-
-        {
-          "name": "afjnbwklejf",
-          "icon": { "key": "mdi:movie-outline", "url": "https://api.iconify.design/mdi/movie-outline.svg" },
-          "type": "Entertainment",
-          "free": false,
-          "price": 36,
-          "discountType": "percentage",
-          "discount": 0,
-          "currencyId": "bca0e8ac-7e7e-44de-9076-72c52d493f27"
-        },
-        {
-          "name": "football",
-          "icon": { "key": "mdi:soccer", "url": "https://api.iconify.design/mdi/soccer.svg" },
-          "type": "Sport",
-          "free": false,
-          "price": 50018,
-          "discountType": "percentage",
-          "discount": 0,
-          "currencyId": "6558102a-3237-4f71-bc3f-addea8a51a56"
-        },
-        {
-          "name": "beverageee",
-          "icon": { "key": "mdi:food", "url": "https://api.iconify.design/mdi/food.svg" },
-          "type": "Food & Beverage",
-          "free": true,
-          "price": 0,
-          "discountType": "percentage",
-          "discount": 0,
-          "currencyId": "6558102a-3237-4f71-bc3f-addea8a51a56"
-        }
-      ],
-      "policies": [
-        { "name": "Add check in rules", "type": "house rules", "description": "test", "icon": { "key": "mdi:office-building", "url": "https://api.iconify.design/mdi/office-building.svg" } },
-        { "name": "Terms 3", "type": "payment terms", "description": "test", "icon": { "key": "mdi:office-building", "url": "https://api.iconify.design/mdi/office-building.svg" } }
-      ]
+      "photos": ["https://storage.googleapis.com/lind-society-dev/villa/login-background-1742830546793.png"],
+      "videos": ["https://storage.googleapis.com/lind-society-dev/villa/villa-1742830538522.mp4"],
+      "video360s": ["https://storage.googleapis.com/lind-society-dev/villa/test-pano-1742830555749.jpg"]
     }
   },
   "version": 0

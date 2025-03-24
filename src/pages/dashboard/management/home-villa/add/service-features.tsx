@@ -5,6 +5,7 @@ import { useGetApi, usePersistentData } from "../../../../../hooks";
 import IconifyPicker from "@zunicornshift/mui-iconify-picker";
 
 import Select from "react-select";
+import toast from "react-hot-toast";
 
 import { Button, Modal } from "../../../../../components";
 
@@ -106,9 +107,7 @@ export const ServiceFeatures = () => {
   const addItem = (featureId: string) => {
     setFeatures((prevFeatures) =>
       prevFeatures.map((feature) =>
-        feature.id === featureId
-          ? { ...feature, items: [...feature.items, { id: crypto.randomUUID(), title: "", free: false, price: "", hidden: false, currency: { label: "", value: "" } }] }
-          : feature
+        feature.id === featureId ? { ...feature, items: [...feature.items, { id: crypto.randomUUID(), title: "", free: false, price: "", hidden: false, currency: null }] } : feature
       )
     );
   };
@@ -132,9 +131,7 @@ export const ServiceFeatures = () => {
         feature.id === featureId
           ? {
               ...feature,
-              items: feature.items.map((item) =>
-                item.id === itemId ? { id: item.id, title: "", free: false, price: "", icon: { url: "", value: "" }, currency: { label: "", value: "" }, hidden: false } : item
-              ),
+              items: feature.items.map((item) => (item.id === itemId ? { id: item.id, title: "", free: false, price: "", icon: { url: "", value: "" }, currency: null, hidden: false } : item)),
             }
           : feature
       )
@@ -152,21 +149,27 @@ export const ServiceFeatures = () => {
 
     const formattedData = {
       features: features.flatMap((feature) =>
-        feature.items.map((item) => ({
-          name: item.title,
-          icon: feature.icon,
-          type: feature.name,
-          free: item.free,
-          price: item.free ? 0 : +item.price,
-          discountType: "percentage",
-          discount: null,
-          currencyId: item.currency?.value,
-          currencyCode: item.currency?.label,
-        }))
+        feature.items
+          .filter((item) => item.title !== "")
+          .map((item) => ({
+            name: item.title,
+            icon: feature.icon,
+            type: feature.name,
+            free: item.free,
+            price: item.free ? 0 : +item.price,
+            discountType: "percentage",
+            discount: null,
+            currencyId: item.currency?.value,
+            currencyCode: item.currency?.label,
+          }))
       ) as Villa["features"],
     };
 
     setData(formattedData);
+    toast("Success saving services & features", { style: { borderRadius: "5px", background: "#22c55e", color: "#fff" } });
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   React.useEffect(() => {
@@ -187,7 +190,7 @@ export const ServiceFeatures = () => {
 
   return (
     <>
-      <div className="p-8 space-y-8 border rounded-b bg-light border-dark/20">
+      <div className="p-8 space-y-8 border rounded-b bg-light border-dark/30">
         <div className="flex items-center justify-between">
           <h2 className="heading">Service & Features</h2>
           <Button onClick={() => setModalFeature(true)} className="flex items-center justify-center gap-2 btn-primary">
@@ -195,7 +198,7 @@ export const ServiceFeatures = () => {
           </Button>
         </div>
         {features.map((feature) => (
-          <div key={feature.id} className="p-4 mt-4 border-b border-dark/20">
+          <div key={feature.id} className="p-4 mt-4 border-b border-dark/30">
             <div className="flex items-center justify-between min-h-10">
               {feature.isEditing ? (
                 <div className="flex items-center gap-4 max-w-80">
@@ -234,10 +237,10 @@ export const ServiceFeatures = () => {
             </div>
             <div className="space-y-4">
               {feature.items.map((item) => (
-                <div key={item.id} className="flex w-full gap-12 p-2 mt-2">
+                <div key={item.id} className="flex w-full gap-8 p-2 mt-2">
                   <div className="w-full space-y-1">
                     <label className="block text-sm">Title *</label>
-                    <input type="text" placeholder="Title" value={item.title} onChange={(e) => updateItems(feature.id, item.id, "title", e.target.value)} className="input-text" />
+                    <input type="text" placeholder="Title" value={item.title} onChange={(e) => updateItems(feature.id, item.id, "title", e.target.value)} className="input-text" required />
                   </div>
                   <div className="space-y-1">
                     <label className="block text-sm">Free *</label>
@@ -254,16 +257,18 @@ export const ServiceFeatures = () => {
                     <label className="block text-sm">Price *</label>
                     <div className="flex items-center w-full gap-2">
                       <Select
-                        className="w-full"
+                        className="w-full text-sm"
                         options={currencies?.data.data.map((currency) => ({ value: currency.id, label: currency.code }))}
                         value={item.currency}
                         onChange={(option) => updateItems(feature.id, item.id, "currency", option as OptionType)}
                         placeholder="Select Currency"
+                        isDisabled={item.free}
+                        required
                       />
                       <input
                         type="number"
                         className="input-text"
-                        placeholder={`Enter currency in ${item.currency?.label}`}
+                        placeholder={item.currency?.label ? `Enter currency in ${item.currency?.label}` : "Select currency first"}
                         onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                           if (["e", "E", "+", "-"].includes(e.key)) {
                             e.preventDefault();
@@ -271,7 +276,7 @@ export const ServiceFeatures = () => {
                         }}
                         value={item.price}
                         onChange={(e) => updateItems(feature.id, item.id, "price", e.target.value)}
-                        disabled={item.free}
+                        disabled={item.free || !item.currency}
                       />
                     </div>
                   </div>
@@ -303,7 +308,7 @@ export const ServiceFeatures = () => {
       <Modal isVisible={modalFeature} onClose={() => setModalFeature(false)}>
         <h2 className="text-lg font-bold">Add New Category</h2>
         <div className="mt-4 border border-dark/30">
-          {otherFeatures
+          {[...mainFeatures, ...otherFeatures]
             .filter((feature) => !features.some((item) => item.name === feature.name))
             .map((feature, index) => (
               <div key={index} className="flex items-center justify-between p-2 border-b border-dark/30">

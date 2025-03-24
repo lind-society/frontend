@@ -170,7 +170,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 @layer components {
   .btn-outline {
-    @apply bg-light border text-primary border-dark/20 hover:bg-primary hover:text-light;
+    @apply bg-light border text-primary border-dark/30 hover:bg-primary hover:text-light;
   }
   .btn-primary {
     @apply text-light bg-primary hover:bg-primary/80;

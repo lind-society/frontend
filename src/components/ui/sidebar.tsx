@@ -22,7 +22,7 @@ export const Sidebar = ({ openNav, isTabletMid }: SidebarProps) => {
     <motion.aside
       variants={isTabletMid ? animation : undefined}
       animate={openNav ? "open" : "closed"}
-      className="fixed h-screen py-4 space-y-8 overflow-auto text-center min-w-72 bg-primary text-light z-100000"
+      className="fixed h-screen py-4 space-y-8 overflow-auto text-center min-w-72 bg-primary text-light z-10000"
     >
       <div className="mx-2 space-y-8">
         <Img className="mx-auto h-14 min-w-28 max-w-28" src="/logo.png" alt="logo lind society" />

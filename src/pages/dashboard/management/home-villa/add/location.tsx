@@ -4,10 +4,9 @@ import axios from "axios";
 
 import { usePersistentData } from "../../../../../hooks";
 
-import GoogleMap from "../../../../../components/google-map";
+import { Button, Modal, GoogleMaps } from "../../../../../components";
 
-import { Button, Modal } from "../../../../../components";
-
+import toast from "react-hot-toast";
 import Select from "react-select";
 
 import { IoMdSearch } from "react-icons/io";
@@ -84,7 +83,7 @@ const LocationSelector = ({ selectedCity, selectedCountry, selectedProvince, set
       {/* Country Select */}
       <div className="flex items-center">
         <label className="block whitespace-nowrap min-w-60">Country *</label>
-        <Select isClearable className="w-full" options={countries} value={selectedCountry} onChange={(option) => setSelectedCountry(option)} placeholder="Select Country" />
+        <Select isClearable required className="w-full" options={countries} value={selectedCountry} onChange={(option) => setSelectedCountry(option)} placeholder="Select Country" />
       </div>
 
       {/* Province Select */}
@@ -92,6 +91,7 @@ const LocationSelector = ({ selectedCity, selectedCountry, selectedProvince, set
         <label className="block whitespace-nowrap min-w-60">Province *</label>
         <Select
           isClearable
+          required
           className="w-full"
           options={provinces}
           value={selectedProvince}
@@ -104,7 +104,7 @@ const LocationSelector = ({ selectedCity, selectedCountry, selectedProvince, set
       {/* City Select */}
       <div className="flex items-center">
         <label className="block whitespace-nowrap min-w-60">City *</label>
-        <Select isClearable className="w-full" options={cities} value={selectedCity} onChange={(option) => setSelectedCity(option)} placeholder="Select City" isDisabled={!selectedProvince} />
+        <Select isClearable required className="w-full" options={cities} value={selectedCity} onChange={(option) => setSelectedCity(option)} placeholder="Select City" isDisabled={!selectedProvince} />
       </div>
     </>
   );
@@ -116,13 +116,17 @@ export const Location = () => {
 
   const [modalInput, setModalInput] = React.useState<boolean>(false);
 
+  const defaultCountry = data.country ? { label: data.country, value: data.country } : null;
+  const defaultState = data.state ? { label: data.state, value: data.state } : null;
+  const defaultCity = data.city ? { label: data.city, value: data.city } : null;
+
   const [placeNearby, setPlaceNearby] = React.useState<PlaceNearby[]>(data.placeNearby || [{ name: "Uluwatu", distance: 300 }]);
   const [address, setAddress] = React.useState<string>(data.address || "");
   const [postalCode, setPostalCode] = React.useState<string>(data.postalCode || "");
   const [mapLink, setMapLink] = React.useState<string>(data.mapLink || "");
-  const [selectedCountry, setSelectedCountry] = React.useState<OptionType | null>({ label: data.country || "", value: data.country || "" });
-  const [selectedProvince, setSelectedProvince] = React.useState<OptionType | null>({ label: data.state || "", value: data.state || "" });
-  const [selectedCity, setSelectedCity] = React.useState<OptionType | null>({ label: data.city || "", value: data.city || "" });
+  const [selectedCountry, setSelectedCountry] = React.useState<OptionType | null>(defaultCountry);
+  const [selectedProvince, setSelectedProvince] = React.useState<OptionType | null>(defaultState);
+  const [selectedCity, setSelectedCity] = React.useState<OptionType | null>(defaultCity);
 
   const addPlaceNearby = (name: string, distance: number) => {
     setPlaceNearby([...placeNearby, { name, distance }]);
@@ -141,10 +145,14 @@ export const Location = () => {
     // Submit location data here
     const formattedData = { address, postalCode, mapLink, country: selectedCountry?.label, state: selectedProvince?.label, city: selectedCity?.label, placeNearby };
     setData(formattedData);
+    toast("Success saving location", { style: { borderRadius: "5px", background: "#14b8a6", color: "#fff" } });
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/20">
+    <div className="p-8 border rounded-b bg-light border-dark/30">
       <h2 className="heading">Location</h2>
       <form className="mt-6 space-y-6" onSubmit={handleSubmitLocation}>
         <LocationSelector
@@ -159,30 +167,30 @@ export const Location = () => {
         {/* Location name */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Address *</label>
-          <input type="text" autoComplete="off" className="input-text" placeholder="Jln. Soekarno Hatta No. 59" value={address} onChange={(e) => setAddress(e.target.value)} />
+          <input type="text" required className="input-text" placeholder="Jln. Soekarno Hatta No. 59" value={address} onChange={(e) => setAddress(e.target.value)} />
         </div>
 
         {/* Postal code */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Postal code *</label>
-          <input type="text" className="input-text" placeholder="1234567" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
+          <input type="text" required className="input-text" placeholder="1234567" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
         </div>
 
         {/* Google Map Link */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Google Map Link *</label>
-          <input type="text" className="input-text" placeholder="https://maps.app.goo.gl/aDuVPL5Z71jRMsjz5" value={mapLink} onChange={(e) => setMapLink(e.target.value)} />
+          <input type="text" required className="input-text" placeholder="https://maps.app.goo.gl/aDuVPL5Z71jRMsjz5" value={mapLink} onChange={(e) => setMapLink(e.target.value)} />
         </div>
 
         <div className="flex items-center">
           <label className="block opacity-0 whitespace-nowrap min-w-60">Map Link</label>
 
-          <GoogleMap />
+          <GoogleMaps />
         </div>
 
         {/* Nearest Place */}
         <h2 className="mt-8 heading">Nearest Place</h2>
-        <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/20">
+        <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/30">
           <input type="text" placeholder="Search place" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" onClick={() => setModalInput(true)} readOnly />
           <button className="flex items-center justify-center h-10 text-light bg-primary w-14">
             <IoMdSearch size={25} />
@@ -215,7 +223,7 @@ export const Location = () => {
       </form>
 
       <Modal isVisible={modalInput} onClose={() => setModalInput(false)}>
-        <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/20">
+        <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/30">
           <input type="text" placeholder="Search place" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" />
           <button type="button" className="flex items-center justify-center h-10 text-light bg-primary w-14">
             <IoMdSearch size={25} />
@@ -225,7 +233,7 @@ export const Location = () => {
           {placeNearbyDefault
             .filter((place) => !placeNearby.some((f) => f.name === place.name))
             .map((place, index) => (
-              <span key={index} className="flex items-center justify-between w-full px-8 pb-4 border-b border-dark/20">
+              <span key={index} className="flex items-center justify-between w-full px-8 pb-4 border-b border-dark/30">
                 <p>{place.name}</p>
                 <p className="flex items-center gap-8">
                   {place.distance} m

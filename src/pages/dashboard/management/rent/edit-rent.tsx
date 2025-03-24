@@ -56,7 +56,7 @@ export const EditRentPage = () => {
   return (
     <Layout>
       {/* Header */}
-      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/20">
+      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="text-2xl font-bold">Edit Booking</h1>
 
         <Button onClick={() => navigate("/dashboard/management/rent")} className="btn-outline">
@@ -64,9 +64,9 @@ export const EditRentPage = () => {
         </Button>
       </header>
       <div className="flex">
-        <button className={`px-4 py-1.5 border border-dark/20 rounded-t-md bg-primary text-light`}>Edit Booking</button>
+        <button className={`px-4 py-1.5 border border-dark/30 rounded-t-md bg-primary text-light`}>Edit Booking</button>
       </div>
-      <div className="p-8 border rounded-b bg-light border-dark/20">
+      <div className="p-8 border rounded-b bg-light border-dark/30">
         <h2 className="heading">Edit Booking</h2>
 
         <form className="mt-6 space-y-8">
@@ -207,7 +207,7 @@ export const EditRentPage = () => {
           </div>
 
           <div className="w-full max-w-xs bg-light ms-auto">
-            <p className="pb-2 text-lg font-semibold border-b border-dark/20">Price Details</p>
+            <p className="pb-2 text-lg font-semibold border-b border-dark/30">Price Details</p>
             <div className="my-2 space-y-2">
               <span className="flex items-center justify-between w-full text-sm">
                 <p>IDR 4.900.000</p> <p>IDR 34.900.000</p>
@@ -219,7 +219,7 @@ export const EditRentPage = () => {
                 <p>Private Chef</p> <p>IDR 200,000</p>
               </span>
             </div>
-            <p className="pt-2 text-lg font-semibold border-t border-dark/20">Total: IDR {calculateTotal()}</p>
+            <p className="pt-2 text-lg font-semibold border-t border-dark/30">Total: IDR {calculateTotal()}</p>
           </div>
 
           {/* Save and Cancel Buttons */}

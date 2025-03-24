@@ -6,6 +6,7 @@ import { Button, Modal } from "../../../../../components";
 import { FaPlus } from "react-icons/fa";
 
 import { Villa } from "../../../../../types";
+import toast from "react-hot-toast";
 
 interface Policies {
   id: string;
@@ -136,10 +137,14 @@ export const VillaPolicies = () => {
       ] as Villa["policies"],
     };
     setData(formattedData);
+    toast("Success saving policies", { style: { borderRadius: "5px", background: "#22c55e", color: "#fff" } });
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/20">
+    <div className="p-8 border rounded-b bg-light border-dark/30">
       <SectionPolicies title="House Rules" categories={houseRulesLists} defaultPolicies={houseRules} onUpdate={updatePolicies} />
       <SectionPolicies title="Payment Terms" categories={paymentTermsLists} defaultPolicies={paymentTerms} onUpdate={updatePolicies} />
 

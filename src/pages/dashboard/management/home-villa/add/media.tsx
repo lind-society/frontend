@@ -4,7 +4,9 @@ import "@photo-sphere-viewer/markers-plugin/index.css";
 
 import { useCreateApi, usePersistentData, useUploads } from "../../../../../hooks";
 
-import { Button, Img, UploadPhoto } from "../../../../../components";
+import { Button, Img, Modal, UploadPhoto } from "../../../../../components";
+
+import toast from "react-hot-toast";
 
 import { FaPlus, FaUpload } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
@@ -32,12 +34,20 @@ export const Media = () => {
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { setData, data } = useStore();
 
-  const defaultAdditional = data.additionals?.map((additional) => ({
-    title: capitalize(additional.type),
-    field: [{ id: crypto.randomUUID(), description: additional.description, name: additional.name, photos: additional.photos, photosURLView: [] }],
-  }));
+  const defaultAdditional: Section[] = Object.values(
+    data.additionals?.reduce((acc, additional) => {
+      const key = additional.type; // Group by type
 
-  const [additional, setAdditional] = React.useState<Section[]>(defaultAdditional || initAdditional);
+      if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
+
+      acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos, photosURLView: [] });
+
+      return acc;
+    }, {} as Record<string, Section>) || {}
+  );
+
+  const [additional, setAdditional] = React.useState<Section[]>(defaultAdditional.length > 0 ? defaultAdditional : initAdditional);
+  const [modalAdditional, setModalAdditional] = React.useState<boolean>(false);
 
   const [photos, setPhotos] = React.useState<string[]>([]);
   const [videos, setVideos] = React.useState<string[]>([]);
@@ -45,6 +55,17 @@ export const Media = () => {
 
   const { uploadFile } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi("storages", ["photoAdditional"]);
+
+  const handleModal = () => {
+    if (initAdditional.filter((add) => !additional.some((item) => item.title === add.title)).length > 0) {
+      setModalAdditional(true);
+    }
+  };
+
+  const addAdditional = (title: string) => {
+    setAdditional((prevAdditional) => [{ title, field: [{ id: crypto.randomUUID(), description: "", name: "", photos: [], photosURLView: [] }] }, ...prevAdditional]);
+    setModalAdditional(false);
+  };
 
   // add field of sections
   const addField = (e: React.MouseEvent, additionalIndex: number) => {
@@ -137,6 +158,7 @@ export const Media = () => {
 
   const handleSubmitMedia = (e: React.FormEvent) => {
     e.preventDefault();
+
     const formattedData: Partial<Villa> = {
       additionals: additional.flatMap((section) =>
         section.field
@@ -153,10 +175,22 @@ export const Media = () => {
       video360s,
     };
     setData(formattedData);
+    toast("Success saving media", { style: { borderRadius: "5px", background: "#22c55e", color: "#fff" } });
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
+  React.useEffect(() => {
+    if (data && data.photos && data.videos && data.video360s) {
+      setPhotos(data.photos);
+      setVideo360s(data.video360s);
+      setVideos(data.videos);
+    }
+  }, []);
+
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/20">
+    <div className="p-8 border rounded-b bg-light border-dark/30">
       <form className="space-y-8" onSubmit={handleSubmitMedia}>
         {/* Catalog Photo */}
         <UploadPhoto type="photos" title="Photo" description="Catalog Photo *" fileUrl={photos} setFileUrl={setPhotos} />
@@ -170,7 +204,10 @@ export const Media = () => {
         {/* Additional Sections */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">Additional</h2>
+            <h2 className="heading">Additional</h2>
+            <Button onClick={handleModal} className="flex items-center gap-2 btn-primary" type="button">
+              <FaPlus /> Add Additional
+            </Button>
           </div>
           <div className="space-y-8">
             {additional.map((section, additionalIndex) => (
@@ -201,7 +238,7 @@ export const Media = () => {
                       <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
                     </div>
                     <div className="grid grid-cols-4 gap-2">
-                      {[...field.photos, ...field.photosURLView].map((image, index) => (
+                      {field.photos.map((image, index) => (
                         <div key={index} className="relative">
                           <button
                             onClick={() => removeImage(additionalIndex, field.id, index)}
@@ -237,6 +274,29 @@ export const Media = () => {
           </Button>
         </div>
       </form>
+      <Modal isVisible={modalAdditional} onClose={() => setModalAdditional(false)}>
+        <h2 className="text-lg font-bold">Add Additional</h2>
+        <div className="mt-4 overflow-y-auto border border-dark/30">
+          {initAdditional
+            .filter((add) => !additional.some((item) => item.title === add.title))
+            .map((add, index) => (
+              <div key={index} className="flex items-center justify-between p-2 border-b border-dark/30">
+                <span>{add.title}</span>
+                <Button onClick={() => addAdditional(add.title)} className="btn-outline">
+                  <FaPlus />
+                </Button>
+              </div>
+            ))}
+        </div>
+        {/* <div className="flex items-center w-full my-6">
+                <div className="flex-grow h-px bg-dark/30"></div>
+                <span className="flex-shrink-0 px-3 text-sm text-dark">or</span>
+                <div className="flex-grow h-px bg-dark/30"></div>
+              </div> */}
+        {/* <Button onClick={addFacility} className="flex items-center justify-center w-full gap-2 btn-primary">
+                <FaPlus /> Add new key feature
+              </Button> */}
+      </Modal>
     </div>
   );
 };

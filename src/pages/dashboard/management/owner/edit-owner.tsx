@@ -39,7 +39,7 @@ export const EditOwnerPage = () => {
 
   return (
     <Layout>
-      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/20">
+      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="text-2xl font-bold">Edit Booking</h1>
 
         <Button onClick={() => navigate("/dashboard/management/owner")} className="btn-outline">
@@ -47,7 +47,7 @@ export const EditOwnerPage = () => {
         </Button>
       </header>
 
-      <div className="p-8 border rounded-b bg-light border-dark/20">
+      <div className="p-8 border rounded-b bg-light border-dark/30">
         <h2 className="heading">Edit Owner Data</h2>
 
         <form className="mt-6 space-y-8">

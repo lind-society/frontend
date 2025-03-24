@@ -33,7 +33,7 @@ export const RentPage = () => {
   return (
     <Layout>
       {/* Header */}
-      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/20">
+      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="text-2xl font-bold">Villa & Home Management</h1>
 
         <span className="flex items-center gap-2 px-4 py-2 rounded bg-light">
@@ -43,7 +43,7 @@ export const RentPage = () => {
 
       {/* Notification and filters*/}
       <div className="flex justify-between gap-8 mb-8">
-        <div className="flex items-center w-full gap-1 px-1 border rounded bg-light text-primary border-dark/20">
+        <div className="flex items-center w-full gap-1 px-1 border rounded bg-light text-primary border-dark/30">
           <IoMdNotifications size={20} />
           You have <strong>9</strong> new unchecked bookings!
         </div>

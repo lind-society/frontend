@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import Cookies from "universal-cookie";
 
 import { baseApiURL } from "../static";
+import { Payload } from "../types";
 
 const cookies = new Cookies();
 
@@ -44,14 +45,12 @@ export const useGetApi = <T = any>({ key, url, params, gcTime = 300000, staleTim
 };
 
 // Create a new item
-export const useCreateApi = (url: string, key: QueryKey) => {
+export const useCreateApi = <T>(url: string, key: QueryKey) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (newItem: Record<string, any>) => {
-      const { data } = await axios.post(`${baseApiURL}/${url}`, newItem, getHeaders());
-      toast("Success adding data", {
-        style: { borderRadius: "5px", background: "#15803d", color: "#fff" },
-      });
+    mutationFn: async (newItem: T) => {
+      const { data } = await axios.post<Payload<string>>(`${baseApiURL}/${url}`, newItem, getHeaders());
+      toast(data.message || "Success adding data", { style: { borderRadius: "5px", background: "#22c55e", color: "#fff" } });
       return data;
     },
     onSuccess: () => {
@@ -61,11 +60,12 @@ export const useCreateApi = (url: string, key: QueryKey) => {
 };
 
 // Update an item
-export const useUpdateApi = (url: string, key: QueryKey) => {
+export const useUpdateApi = <T>(url: string, key: QueryKey) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, updatedItem }: { id: string; updatedItem: Record<string, any> }) => {
-      const { data } = await axios.put(`${baseApiURL}/${url}/${id}`, updatedItem, getHeaders());
+    mutationFn: async ({ id, updatedItem }: { id: string; updatedItem: T }) => {
+      const { data } = await axios.put<Payload<string>>(`${baseApiURL}/${url}/${id}`, updatedItem, getHeaders());
+      toast(data.message || "Success editing data", { style: { borderRadius: "5px", background: "#0891b2", color: "#fff" } });
       return data;
     },
     onSuccess: () => {
@@ -79,7 +79,8 @@ export const useDeleteApi = (url: string, key: QueryKey) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      await axios.delete(`${baseApiURL}/${url}/${id}`, getHeaders());
+      const { data } = await axios.delete<Payload<string>>(`${baseApiURL}/${url}/${id}`, getHeaders());
+      toast(data.message || "Success deleting data", { style: { borderRadius: "5px", background: "#ef4444", color: "#fff" } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [key] });

@@ -70,7 +70,7 @@ export const Management = () => {
   }, [data, page]);
 
   return (
-    <div className="pb-8 space-y-4 border rounded-b bg-light border-dark/20">
+    <div className="pb-8 space-y-4 border rounded-b bg-light border-dark/30">
       <div className="overflow-y-auto scrollbar">
         <table className="min-w-full bg-light">
           <thead>

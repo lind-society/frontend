@@ -11,14 +11,14 @@ export const AddPackagePage = () => {
   return (
     <Layout>
       {/* Header */}
-      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/20">
+      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="text-2xl font-bold">Property Management</h1>
 
         <Button onClick={() => navigate("/dashboard/management/property/add")} className="flex items-center gap-2 btn-primary">
           <FaDownload /> Publish
         </Button>
       </header>
-      <div className="p-8 border rounded-b bg-light border-dark/20">
+      <div className="p-8 border rounded-b bg-light border-dark/30">
         <h2 className="heading">General</h2>
 
         <form className="mt-6 space-y-8">

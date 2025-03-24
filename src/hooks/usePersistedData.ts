@@ -1,19 +1,22 @@
 import { create } from "zustand";
 import { persist, PersistStorage } from "zustand/middleware";
 
-// Create a cookie storage adapter
-const sessionStorageProvider: PersistStorage<any> = {
+// Create dynamic storage provider
+const createStorageProvider = (type: "localStorage" | "sessionStorage"): PersistStorage<any> => ({
   getItem: (name) => {
-    const item = sessionStorage.getItem(name);
+    const storage = type === "localStorage" ? localStorage : sessionStorage;
+    const item = storage.getItem(name);
     return item ? JSON.parse(item) : null;
   },
   setItem: (name, value) => {
-    sessionStorage.setItem(name, JSON.stringify(value));
+    const storage = type === "localStorage" ? localStorage : sessionStorage;
+    storage.setItem(name, JSON.stringify(value));
   },
   removeItem: (name) => {
-    sessionStorage.removeItem(name);
+    const storage = type === "localStorage" ? localStorage : sessionStorage;
+    storage.removeItem(name);
   },
-};
+});
 
 // Generic store state interface
 interface DataStoreState<T> {
@@ -23,8 +26,8 @@ interface DataStoreState<T> {
   clearData: () => void;
 }
 
-// Create a function that returns a typed store with a dynamic name
-export function usePersistentData<T>(storeName: string) {
+// Create a function that returns a typed store with a dynamic name and storage type
+export function usePersistentData<T>(storeName: string, storageType: "localStorage" | "sessionStorage" = "sessionStorage") {
   return create<DataStoreState<T>>()(
     persist(
       (set) => ({
@@ -44,7 +47,7 @@ export function usePersistentData<T>(storeName: string) {
       }),
       {
         name: storeName,
-        storage: sessionStorageProvider,
+        storage: createStorageProvider(storageType),
       }
     )
   );
