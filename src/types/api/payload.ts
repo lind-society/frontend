@@ -26,7 +26,7 @@ export interface Data<T> {
   data: T;
 }
 
-export interface File {
+export interface FileData {
   successFiles: {
     url: string;
   }[];

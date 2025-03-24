@@ -1,51 +1,55 @@
-import { useState } from "react";
-
 import axios from "axios";
-
 import { baseApiURL } from "../static";
-
 import toast from "react-hot-toast";
 
 interface UseFileUpload<T> {
-  uploading: boolean;
-  uploadFile: (files: File | File[], folder: string, type: "photos" | "videos" | "video360s") => Promise<void>;
-  response: T | null | undefined;
+  uploadFile: (files: File | File[], folder: string, type: "photos" | "videos" | "video360s") => Promise<{ response: T | null; loading: boolean }>;
 }
 
 export const useUploads = <T>(): UseFileUpload<T> => {
-  const [response, setResponse] = useState<T | null>();
-  const [uploading, setUploading] = useState<boolean>(false);
-
-  const uploadFile = async (files: File | File[], folder: string, type: "photos" | "videos" | "video360s") => {
+  const uploadFile = async (files: File | File[], folder: string, type: "photos" | "videos" | "video360s"): Promise<{ response: T | null; loading: boolean }> => {
     const formData = new FormData();
     if (Array.isArray(files)) {
       files.forEach((file) => {
         formData.append("files", file);
       });
+    } else {
+      formData.append("files", files);
     }
 
     formData.append("key", folder);
 
-    setUploading(true);
-
-    await axios
-      .post(`/storages/${type}`, formData, {
+    let loading = true;
+    try {
+      const resData = await axios.post<T>(`/storages/${type}`, formData, {
         baseURL: baseApiURL,
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      })
-      .then((response) => {
-        toast.success("Success upload file");
-        setResponse(response.data);
-      })
-      .catch((error) => {
-        toast.error(error.response?.data.message || "Upload file error");
-      })
-      .finally(() => {
-        setUploading(false);
       });
+
+      toast("Success upload file", {
+        style: {
+          borderRadius: "5px",
+          background: "#15803d",
+          color: "#fff",
+        },
+      });
+
+      loading = false;
+      return { response: resData.data, loading };
+    } catch (error: any) {
+      toast(error.response?.data.message || "Upload file error", {
+        style: {
+          borderRadius: "5px",
+          background: "#b91c1c",
+          color: "#fff",
+        },
+      });
+      loading = false;
+      return { response: null, loading };
+    }
   };
 
-  return { response, uploading, uploadFile };
+  return { uploadFile };
 };

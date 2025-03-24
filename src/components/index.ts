@@ -8,3 +8,6 @@ export * from "./pagination";
 export * from "./slider";
 export * from "./image";
 export * from "./background";
+export * from "./protected-route";
+export * from "./images360";
+export * from "./upload-photo";

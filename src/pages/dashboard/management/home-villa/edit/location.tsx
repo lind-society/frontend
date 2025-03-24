@@ -1,7 +1,7 @@
 import * as React from "react";
 import { IoMdSearch } from "react-icons/io";
 import { Modal } from "../../../../../components";
-import { FaMinus } from "react-icons/fa6";
+import { FaMinus } from "react-icons/fa";
 
 export const Location = () => {
   const [modalInput, setModalInput] = React.useState<boolean>(false);
@@ -64,7 +64,7 @@ export const Location = () => {
 
       {/* Nearest Place */}
       <h2 className="mt-8 heading">Nearest Place</h2>
-      <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded-lg border-dark/20">
+      <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/20">
         <input type="text" placeholder="Search place" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" onClick={() => setModalInput(true)} readOnly />
         <button className="flex items-center justify-center h-10 text-light bg-primary w-14">
           <IoMdSearch size={25} />
@@ -100,7 +100,7 @@ export const Location = () => {
         </span>
       </div>
       <Modal isVisible={modalInput} onClose={() => setModalInput(false)}>
-        <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded-lg border-dark/20">
+        <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/20">
           <input type="text" placeholder="Search place" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" onClick={() => setModalInput(false)} readOnly />
           <button className="flex items-center justify-center h-10 text-light bg-primary w-14">
             <IoMdSearch size={25} />

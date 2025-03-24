@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useToggleState } from "../../hooks";
+import { authentication, useToggleState } from "../../hooks";
 
 import { Button, Img } from "../../components";
 
@@ -16,18 +16,20 @@ export const TopBar = ({ setOpenNav, data }: { setOpenNav: React.Dispatch<React.
 
   const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
+    await authentication.logout();
   };
 
   return (
-    <div className="sticky top-0 z-50 block w-full duration-300 border-b bg-light">
+    <div className="sticky top-0 block w-full duration-300 border-b z-10000 bg-light">
       <div className="flex justify-between p-2 mx-6">
         <div className="flex gap-4 lg:hidden">
-          <button className="z-20" onClick={() => setOpenNav((prev) => !prev)}>
+          <button className="z-20 text-primary" onClick={() => setOpenNav((prev) => !prev)}>
             <IoMdMenu size={28} />
           </button>
         </div>
 
-        <div className="flex items-stretch w-full max-w-md overflow-hidden border rounded-lg border-dark/20">
+        <div className="flex items-stretch w-full max-w-md overflow-hidden border rounded border-dark/20">
           <input type="text" placeholder="Search by villa, property, or activity name" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" />
           <button className="flex items-center justify-center h-full text-light bg-primary w-14">
             <IoMdSearch size={25} />

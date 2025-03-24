@@ -4,7 +4,7 @@ import { Layout } from "../../components/ui";
 
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { FaCalendar, FaRegStar, FaStar } from "react-icons/fa6";
+import { FaCalendar, FaRegStar, FaStar } from "react-icons/fa";
 import { HiDownload } from "react-icons/hi";
 
 const data = [
@@ -53,7 +53,7 @@ export const MainPage = () => {
     <Layout>
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/20">
         <h1 className="text-2xl font-bold">Main Dashboard</h1>
-        <span className="flex items-center gap-2 px-4 py-2 border rounded-md bg-light border-dark/20">
+        <span className="flex items-center gap-2 px-4 py-2 border rounded bg-light border-dark/20">
           <FaCalendar /> January 19, 2025
         </span>
       </header>

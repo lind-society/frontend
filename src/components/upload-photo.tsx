@@ -1,0 +1,105 @@
+import * as React from "react";
+
+import { useCreateApi, usePersistentData, useUploads } from "../hooks";
+
+import { Img } from "./image";
+import { Images360 } from "./images360";
+
+import { FaUpload } from "react-icons/fa";
+import { IoCloseOutline } from "react-icons/io5";
+
+import { FileData, Payload, UploadPhotoProps, Villa } from "../types";
+
+export const UploadPhoto = ({ type, title, description, fileUrl, setFileUrl }: UploadPhotoProps) => {
+  const useStore = usePersistentData<Partial<Villa>>("add-villa");
+  const { data } = useStore();
+
+  const [files, setFiles] = React.useState<string[]>([]);
+
+  const { uploadFile } = useUploads<Payload<FileData>>();
+  const { mutate: deleteFile } = useCreateApi("storages", [type]);
+
+  const handleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    const { response } = await uploadFile(files!, "villa", type);
+
+    const newMedia = files.map((file) => URL.createObjectURL(file));
+
+    const uploadedUrls = response?.data.successFiles.map((file) => file.url) || [];
+
+    // Append new media without deleting previous ones
+    setFiles((prevFiles) => [...prevFiles, ...newMedia]);
+    setFileUrl((prevUrls) => [...prevUrls, ...uploadedUrls]);
+  };
+
+  const handleRemoveFiles = (index: number) => {
+    if (!window.confirm("Are you sure you want to remove?")) return;
+
+    deleteFile({ key: fileUrl[index] });
+
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setFileUrl((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  React.useEffect(() => {
+    if (data && type) {
+      setFiles([...files, ...(data[type] || [])]);
+    }
+  }, []);
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold whitespace-nowrap min-w-60">{title}</h2>
+        <div className="flex items-center">
+          <p className="whitespace-nowrap min-w-60">{description}</p>
+          <div className="relative">
+            <input type="file" id={type} onChange={handleFilesChange} hidden accept="video/*,image/*" multiple />
+            <label htmlFor={type} className="file-label">
+              <FaUpload /> Browse
+            </label>
+          </div>
+          <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2 2xl:grid-cols-4">
+        {type === "photos" && (
+          <>
+            {files.map((image, index) => (
+              <div key={index} className="relative">
+                <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full -top-2 -right-2 z-1 bg-secondary">
+                  <IoCloseOutline className="text-light" />
+                </button>
+                <Img src={image || "/temp-business.webp"} alt={`Selected image ${index + 1}`} className="w-full rounded aspect-video" />
+              </div>
+            ))}
+          </>
+        )}
+        {type === "videos" && (
+          <>
+            {files.map((video, index) => (
+              <div key={index} className="relative">
+                <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full -top-2 -right-2 z-1 bg-secondary">
+                  <IoCloseOutline className="text-light" />
+                </button>
+                <video src={video} className="w-full rounded aspect-video" autoPlay muted loop />
+              </div>
+            ))}
+          </>
+        )}
+        {type === "video360s" && (
+          <>
+            {files.map((video, index) => (
+              <div key={index} className="relative">
+                <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full z-1000 -top-2 -right-2 bg-secondary">
+                  <IoCloseOutline className="text-light" />
+                </button>
+                <Images360 src={video} />
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};

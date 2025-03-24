@@ -8,6 +8,7 @@ export * from "./slider";
 export * from "./motion";
 export * from "./image";
 export * from "./background";
+export * from "./upload-photo";
 
 export * from "./api/payload";
 export * from "./api/villa";

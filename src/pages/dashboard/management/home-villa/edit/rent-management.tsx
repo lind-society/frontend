@@ -2,8 +2,7 @@ import * as React from "react";
 
 import { Button, Img, Pagination } from "../../../../../components";
 
-import { FaEdit, FaWindowClose } from "react-icons/fa";
-import { FaSquareCheck } from "react-icons/fa6";
+import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
 import { IoMdLink, IoMdNotifications, IoMdSearch } from "react-icons/io";
 
 const statuses = ["On Negotiation", "Payment", "Completed", "Cancelled"];
@@ -85,13 +84,13 @@ export const RentManagement = () => {
     <div className="p-8 space-y-4 border rounded-b bg-light border-dark/20">
       <h2 className="heading">Rent Management</h2>
       <div className="flex justify-between gap-4">
-        <div className="flex items-center w-full gap-1 px-1 border rounded-md bg-light text-primary border-dark/20">
+        <div className="flex items-center w-full gap-1 px-1 border rounded bg-light text-primary border-dark/20">
           <IoMdNotifications size={20} />
           You have <strong>9</strong> new unchecked bookings!
         </div>
         <Button className="btn-outline">Filters</Button>
       </div>
-      <div className="flex items-stretch w-full overflow-hidden border rounded-lg border-dark/20">
+      <div className="flex items-stretch w-full overflow-hidden border rounded border-dark/20">
         <input type="text" placeholder="Search by villa, property, or activity name" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" />
         <button className="flex items-center justify-center h-10 text-light bg-primary w-14">
           <IoMdSearch size={25} />
@@ -116,7 +115,7 @@ export const RentManagement = () => {
             {datas.map((item, index) => (
               <tr key={index} className="h-full border-b whitespace-nowrap">
                 <td className="px-4 py-3">
-                  <Img src={item.image} alt="property" className="w-12 h-12 rounded-md" />
+                  <Img src={item.image} alt="property" className="w-12 h-12 rounded" />
                 </td>
                 <td className="px-4 py-3">{item.property}</td>
                 <td className="px-4 py-3">{item.rent}</td>
@@ -131,7 +130,7 @@ export const RentManagement = () => {
                   <div className="flex items-center justify-center gap-2">
                     <FaEdit size={20} className="cursor-pointer text-primary" />
                     <IoMdLink size={20} className="cursor-pointer text-primary" />
-                    <FaSquareCheck size={20} className="text-green-600 cursor-pointer" />
+                    <FaCheckSquare size={20} className="text-green-600 cursor-pointer" />
                     <FaWindowClose size={20} className="text-red-600 cursor-pointer" />
                   </div>
                 </td>

@@ -6,7 +6,7 @@ import { Button, Img, Pagination } from "../../../../components";
 
 import { useNavigate } from "react-router-dom";
 
-import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
+import { FaEdit, FaPlus, FaRegTrashAlt } from "react-icons/fa";
 
 import { IoMdLink } from "react-icons/io";
 
@@ -88,7 +88,9 @@ export const OwnerPage = () => {
           <Button className="flex items-center gap-2 btn-primary">
             <IoMdLink /> Generate Form
           </Button>
-          <Button className="flex items-center gap-2 btn-primary">+ Add Owner</Button>
+          <Button className="flex items-center gap-2 btn-primary">
+            <FaPlus /> Add Owner
+          </Button>
         </div>
       </header>
       <div className="pb-8 border rounded-b bg-light border-dark/20">
@@ -111,7 +113,7 @@ export const OwnerPage = () => {
               {datas.map((item, index) => (
                 <tr key={index} className="h-full border-b whitespace-nowrap">
                   <td className="px-4 py-3">
-                    <Img src={item.image} alt="property" className="w-12 h-12 rounded-md" />
+                    <Img src={item.image} alt="property" className="w-12 h-12 rounded" />
                   </td>
                   <td className="px-4 py-3">{item.fullName}</td>
                   <td className="px-4 py-3">{item.nik_id}</td>
@@ -120,7 +122,7 @@ export const OwnerPage = () => {
                   <td className="px-4 py-3">{item.email}</td>
                   <td className="px-4 py-3">{item.propertyName}</td>
                   <td className="px-4 py-3">
-                    <Img src={item.idPhoto} alt="property" className="w-12 h-12 rounded-md" />
+                    <Img src={item.idPhoto} alt="property" className="w-12 h-12 rounded" />
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">

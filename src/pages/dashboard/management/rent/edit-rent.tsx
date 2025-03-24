@@ -3,6 +3,7 @@ import * as React from "react";
 import { Layout } from "../../../../components/ui";
 import { Button } from "../../../../components";
 import { useNavigate } from "react-router-dom";
+import { FaPlus } from "react-icons/fa";
 
 interface Service {
   id: number;
@@ -166,7 +167,7 @@ export const EditRentPage = () => {
                     placeholder="input the title service"
                     value={service.title}
                     onChange={(e) => updateService(service.id, "title", e.target.value)}
-                    className="w-full p-2 mt-1 border rounded-md"
+                    className="w-full p-2 mt-1 border rounded"
                   />
                 </div>
                 <div className="flex items-center">
@@ -197,8 +198,8 @@ export const EditRentPage = () => {
                   <Button onClick={() => removeService(service.id)} className="w-full btn-red">
                     Delete
                   </Button>
-                  <Button onClick={addService} className="w-full btn-green">
-                    + Add More
+                  <Button onClick={addService} className="flex items-center w-full gap-2 btn-green">
+                    <FaPlus /> Add More
                   </Button>
                 </div>
               </div>

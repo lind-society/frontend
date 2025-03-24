@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
-import { FaDownload } from "react-icons/fa6";
+import { FaDownload } from "react-icons/fa";
 
 export const AddPackagePage = () => {
   const navigate = useNavigate();

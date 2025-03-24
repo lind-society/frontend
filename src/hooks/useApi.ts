@@ -1,55 +1,88 @@
-import { useMutation, UseMutationOptions } from "@tanstack/react-query";
-import axios from "axios";
+import axios from "axios"; // Replace with your API endpoint
+
+import { useQuery, useMutation, useQueryClient, QueryKey } from "@tanstack/react-query";
+
+import toast from "react-hot-toast";
+import Cookies from "universal-cookie";
+
 import { baseApiURL } from "../static";
 
-// Create axios instance with default config
-const api = axios.create({
-  baseURL: baseApiURL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+const cookies = new Cookies();
 
-// // Add request interceptor for auth token
-// api.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem("token");
-//     if (token && config.headers) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
-
-// // Add response interceptor for error handling
-// api.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     // Handle global errors here (e.g., 401 Unauthorized)
-//     if (error.response?.status === 401) {
-//       // Redirect to login or refresh token
-//       localStorage.removeItem("token");
-//       window.location.href = "/login";
-//     }
-//     return Promise.reject(error);
-//   }
-// );
-
-// POST hook
-export function usePostApi<TData = unknown, TVariables = unknown>(url: string, options?: UseMutationOptions<TData, TVariables>) {
-  return useMutation<TData, TVariables>({
-    mutationFn: async (variables) => {
-      const response = await api.delete<TData>(
-        url,
-        typeof variables === "object"
-          ? {
-              data: variables,
-            }
-          : undefined
-      );
-      return response.data;
+const getHeaders = () => {
+  return {
+    headers: {
+      Authorization: `Bearer ${cookies.get("lind_auth_token")}`,
+      "Content-Type": "application/json",
     },
-    ...options,
-  });
+  };
+};
+
+interface FetchOptions<T> {
+  key: QueryKey;
+  url: string;
+  params?: Record<string, any>;
+  gcTime?: number;
+  staleTime?: number;
+  enabled?: boolean;
+  select?: (data: any) => T;
 }
+
+// Fetch all items
+export const useGetApi = <T = any>({ key, url, params, gcTime = 300000, staleTime = 60000, enabled = true, select }: FetchOptions<T>) => {
+  return useQuery<T, Error>({
+    queryKey: key,
+    queryFn: async () => {
+      const { data } = await axios.get(`${baseApiURL}/${url}`, { params });
+      return data;
+    },
+    gcTime,
+    staleTime,
+    enabled,
+    select,
+  });
+};
+
+// Create a new item
+export const useCreateApi = (url: string, key: QueryKey) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (newItem: Record<string, any>) => {
+      const { data } = await axios.post(`${baseApiURL}/${url}`, newItem, getHeaders());
+      toast("Success adding data", {
+        style: { borderRadius: "5px", background: "#15803d", color: "#fff" },
+      });
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [key] });
+    },
+  });
+};
+
+// Update an item
+export const useUpdateApi = (url: string, key: QueryKey) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, updatedItem }: { id: string; updatedItem: Record<string, any> }) => {
+      const { data } = await axios.put(`${baseApiURL}/${url}/${id}`, updatedItem, getHeaders());
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [key] });
+    },
+  });
+};
+
+// Delete an item
+export const useDeleteApi = (url: string, key: QueryKey) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await axios.delete(`${baseApiURL}/${url}/${id}`, getHeaders());
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [key] });
+    },
+  });
+};

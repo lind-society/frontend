@@ -20,7 +20,7 @@ export const Slider = ({ title, loading, children, totalPage, className, parentC
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="loader"></div>
+          <div className="loader size-16 after:size-16"></div>
         </div>
       ) : (
         <AnimatePresence mode="wait">

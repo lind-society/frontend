@@ -3,7 +3,7 @@ import { Layout } from "../../../../../components/ui";
 
 import { Button } from "../../../../../components";
 
-import { FaDownload, FaFirstdraft } from "react-icons/fa6";
+import { FaDownload, FaFirstdraft } from "react-icons/fa";
 
 import { General } from "./general";
 import { Media } from "./media";

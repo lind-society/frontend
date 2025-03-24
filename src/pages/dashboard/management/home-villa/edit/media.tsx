@@ -2,7 +2,7 @@ import * as React from "react";
 import { Button } from "../../../../../components";
 
 import { FiUpload } from "react-icons/fi";
-// import { FaMinus } from "react-icons/fa6";
+// import { FaMinus } from "react-icons/fa";
 // import { FaRegCheckCircle } from "react-icons/fa";
 
 interface Section {
@@ -29,7 +29,7 @@ const UploadPhoto = ({ title, description }: { title: string; description: strin
           <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
         </div>
       </div>
-      {/* <small className="flex items-center w-full gap-2 px-4 py-2 bg-green-600 rounded-md text-light">
+      {/* <small className="flex items-center w-full gap-2 px-4 py-2 bg-green-600 rounded text-light">
             <FaRegCheckCircle size={20} /> Upload Success!
             </small>
             <div className="grid grid-cols-4 gap-2">

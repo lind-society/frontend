@@ -22,36 +22,39 @@ interface AdditionalItem {
   updatedAt: string;
 }
 
-interface Additional {
-  [key: string]: AdditionalItem[];
-}
-
-interface Facility {
-  pivotId: string;
-  id: string;
-  name: string;
-  icon: string;
-  type: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 interface Facilities {
-  optional: Facility[];
-}
-
-interface Feature {
   pivotId: string;
   id: string;
   name: string;
-  icon: string;
-  free: boolean;
-  currencyId: string | null;
-  currency: Currency;
-  price: string | null;
-  list: string[];
+  icon: {
+    key: string;
+    url: string;
+  };
+  type: string;
+  description: string;
   createdAt: string;
   updatedAt: string;
+}
+
+interface Features {
+  pivotId: string;
+  id: string;
+  name: string;
+  type: string;
+  icon: {
+    key: string;
+    url: string;
+  };
+  free: boolean;
+  currencyId: string;
+  currencyCode: string;
+  discountType: string;
+  discount: number | null;
+  priceAfterDiscount: number;
+  price: number;
+  createdAt: string;
+  updatedAt: string;
+  currency: Currency;
 }
 
 interface Policy {
@@ -60,7 +63,10 @@ interface Policy {
   name: string;
   type: string;
   description: string;
-  icon: string;
+  icon: {
+    key: string;
+    url: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -70,17 +76,19 @@ export interface Villa {
   name: string;
   secondaryName: string;
   availability: string[];
-  priceDaily: string;
-  priceMonthly: string;
-  priceYearly: string | null;
-  discountDaily: string;
-  discountMonthly: string;
-  discountYearly: string | null;
-  priceDailyAfterDiscount: string;
-  priceMonthlyAfterDiscount: string;
-  priceYearlyAfterDiscount: string;
+  priceDaily: number;
+  priceMonthly: number;
+  priceYearly: number;
+  discountDailyType: string;
+  discountMonthlyType: string;
+  discountYearlyType: string;
+  discountDaily: number;
+  discountMonthly: number;
+  discountYearly: number;
+  priceDailyAfterDiscount: number;
+  priceMonthlyAfterDiscount: number;
+  priceYearlyAfterDiscount: number;
   availabilityPerPrice: AvailabilityPerPrice[];
-  ownershipType: string;
   highlight: string;
   address: string;
   country: string;
@@ -89,18 +97,20 @@ export interface Villa {
   postalCode: string;
   mapLink: string;
   placeNearby: PlaceNearby[];
+  checkInHour: string;
+  checkOutHour: string;
   photos: string[];
   videos: string[];
   video360s: string[];
-  soldStatus: boolean;
   ownerId: string | null;
   currencyId: string | null;
+  currencyCode: string | null;
   currency: Currency;
   createdAt: string;
   updatedAt: string;
-  additional: Additional;
-  facilities: Facilities;
-  features: Feature[];
+  additionals: AdditionalItem[];
+  facilities: Facilities[];
+  features: Features[];
   policies: Policy[];
   reviews: Review[];
 }

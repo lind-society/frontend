@@ -1,59 +1,60 @@
 import * as React from "react";
+
+import { useGetApi, usePersistentData } from "../../../../../hooks";
+
+import Select from "react-select";
+
 import { Button } from "../../../../../components";
-import { useGetApi } from "../../../../../hooks";
-import { baseApiURL } from "../../../../../static";
-import { Currency, Data, Payload } from "../../../../../types";
+
+import { Currency, Data, Payload, Villa } from "../../../../../types";
 
 type AvailabilityType = "daily" | "monthly" | "yearly";
+type OptionType = { value: string; label: string };
+
+const initAvailability = { daily: "", monthly: "", yearly: "" };
 
 export const General = () => {
-  const [name, setName] = React.useState<string>("");
-  const [secondaryName, setSecondaryName] = React.useState<string>("");
-  const [highlight, setHighlight] = React.useState<string>("");
+  const useStore = usePersistentData<Partial<Villa>>("add-villa");
+
+  const { setData, data } = useStore();
+
+  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
+
+  const defaultPrice = { daily: String(data.priceDaily), monthly: String(data.priceMonthly), yearly: String(data.priceYearly) };
+  const defaultDiscount = { daily: String(data.discountDaily), monthly: String(data.discountMonthly), yearly: String(data.discountYearly) };
+  const defaultAvailability = { daily: data.availability?.includes("daily") || true, monthly: data.availability?.includes("monthly") || false, yearly: data.availability?.includes("yearly") || false };
+  const defaultAvailabilityPriceMonthly = String(data.availabilityPerPrice?.find((item) => item.availability === "monthly")?.quota);
+  const defaultAvailabilityPriceYearly = String(data.availabilityPerPrice?.find((item) => item.availability === "yearly")?.quota);
+
+  const [name, setName] = React.useState<string>(data.name || "");
+  const [secondaryName, setSecondaryName] = React.useState<string>(data.secondaryName || "");
+  const [highlight, setHighlight] = React.useState<string>(data.highlight || "");
 
   // price state
-  const [availability, setAvailability] = React.useState<Record<AvailabilityType, boolean>>({ daily: true, monthly: false, yearly: false });
-  const [prices, setPrices] = React.useState<Record<AvailabilityType, string>>({ daily: "", monthly: "", yearly: "" });
+  const [availability, setAvailability] = React.useState<Record<AvailabilityType, boolean>>(defaultAvailability);
+  const [price, setPrice] = React.useState<Record<AvailabilityType, string>>(defaultPrice || initAvailability);
 
   // discount state
-  const [discount, setDiscount] = React.useState<Record<AvailabilityType, string>>({ daily: "", monthly: "", yearly: "" });
+  const [discount, setDiscount] = React.useState<Record<AvailabilityType, string>>(defaultDiscount || initAvailability);
 
   // currency state
-  const [currency, setCurrency] = React.useState<string>("");
-  const [currencySymbol, setCurrencySymbol] = React.useState<string>("USD");
+  const [currency, setCurrency] = React.useState<OptionType | null>({ label: data.currencyCode || "", value: data.currencyId || "" });
 
   // availability per price
-  const [availabilityPriceMonthly, setAvailabilityPriceMonthly] = React.useState<string>("");
-  const [availabilityPriceYearly, setAvailabilityPriceYearly] = React.useState<string>("");
-
-  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({
-    key: ["currencies"],
-    url: `${baseApiURL}/currencies`,
-  });
+  const [availabilityPriceMonthly, setAvailabilityPriceMonthly] = React.useState<string>(defaultAvailabilityPriceMonthly || "");
+  const [availabilityPriceYearly, setAvailabilityPriceYearly] = React.useState<string>(defaultAvailabilityPriceYearly || "");
 
   const handleAvailabilityChange = (type: keyof typeof availability) => {
     setAvailability((prev) => ({ ...prev, [type]: !prev[type] }));
   };
 
   const handlePriceChange = (type: string, value: string) => {
-    if (+value < 0 || value === "-" || value === "+" || value === "/" || value === "*" || value === "=" || value === "e") {
-      return;
-    } else {
-      setPrices((prev) => ({ ...prev, [type]: value }));
-    }
-  };
-
-  const handleCurrencyChange = (currencyId: string, currencySymbol: string) => {
-    setCurrency(currencyId);
-    setCurrencySymbol(currencySymbol);
+    setPrice((prev) => ({ ...prev, [type]: value }));
   };
 
   const handleDiscountChange = (key: string, value: string) => {
-    if (+value < 0 || +value > 100 || value === "-" || value === "+" || value === "/" || value === "*" || value === "=" || value === "e") {
-      return;
-    } else {
-      setDiscount((prev) => ({ ...prev, [key]: value }));
-    }
+    if (+value > 100 || +value < 0) return;
+    setDiscount((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
@@ -62,7 +63,8 @@ export const General = () => {
       name,
       secondaryName,
       highlight,
-      currency,
+      currencyId: currency?.value,
+      currencyCode: currency?.label,
       availabilityPerPrice: [
         {
           quota: +availabilityPriceMonthly || 0,
@@ -73,20 +75,18 @@ export const General = () => {
           availability: "yearly",
         },
       ],
-      availability: [availability.daily ? "daily" : null, availability.monthly ? "monthly" : null, availability.yearly ? "yearly" : null],
-      priceDaily: availability.daily ? +prices.daily : 0,
-      priceMonthly: availability.monthly ? +prices.monthly : 0,
-      priceYearly: availability.yearly ? +prices.yearly : 0,
+      availability: [availability.daily ? "daily" : null, availability.monthly ? "monthly" : null, availability.yearly ? "yearly" : null].filter(Boolean) as string[],
+      priceDaily: availability.daily ? +price.daily : 0,
+      priceMonthly: availability.monthly ? +price.monthly : 0,
+      priceYearly: availability.yearly ? +price.yearly : 0,
       discountDaily: availability.daily ? +discount.daily : 0,
       discountMonthly: availability.monthly ? +discount.monthly : 0,
       discountYearly: availability.yearly ? +discount.yearly : 0,
+      checkOutHour: "",
+      checkInHour: "",
     };
-    console.log(formattedData);
-  };
 
-  const handleCancel = () => {
-    alert("Changes discarded!");
-    // Add logic to discard changes
+    setData(formattedData);
   };
 
   return (
@@ -122,13 +122,13 @@ export const General = () => {
         {/* Currency select */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Currency *</label>
-          <select onChange={(e) => handleCurrencyChange(e.target.value, currencies?.data.data[e.target.selectedIndex].code!)} className="w-full input-select">
-            {currencies?.data.data.map((currency) => (
-              <option key={currency.id} value={currency.id}>
-                {currency.code}
-              </option>
-            ))}
-          </select>
+          <Select
+            className="w-full"
+            options={currencies?.data.data.map((currency) => ({ value: currency.id, label: currency.code }))}
+            value={currency}
+            onChange={(option) => setCurrency(option)}
+            placeholder="Select Currency"
+          />
         </div>
 
         {/* Price Inputs */}
@@ -141,15 +141,37 @@ export const General = () => {
 
                 <div className="flex items-center w-full gap-4">
                   {/* Price Input */}
-                  <input type="text" className="input-text" value={prices[type]} onChange={(e) => handlePriceChange(type, e.target.value)} placeholder={`Enter price in ${currencySymbol}`} />
+                  <input
+                    type="number"
+                    className="input-text"
+                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                      if (["e", "E", "+", "-"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    value={price[type]}
+                    onChange={(e) => handlePriceChange(type, e.target.value)}
+                    placeholder={`Enter price in ${currency?.label}`}
+                  />
 
                   <label className="block whitespace-nowrap">Discount</label>
 
-                  <input type="number" className="input-text" value={discount[type]} onChange={(e) => handleDiscountChange(type, e.target.value)} placeholder="e.g. 0%" />
+                  <input
+                    type="number"
+                    className="input-text"
+                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                      if (["e", "E", "+", "-"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    value={discount[type]}
+                    onChange={(e) => handleDiscountChange(type, e.target.value)}
+                    placeholder="e.g. 0%"
+                  />
 
                   <label className="block whitespace-nowrap">Discounted Price</label>
 
-                  <input type="text" className="input-text" value={+prices[type] - +prices[type] * (+discount[type] / 100)} readOnly />
+                  <input type="number" className="input-text" value={+price[type] - +price[type] * (+discount[type] / 100)} readOnly />
                 </div>
               </div>
             ))}
@@ -161,7 +183,7 @@ export const General = () => {
               Availability per price <br /> (Monthly) *
             </label>
 
-            <select onChange={(e) => setAvailabilityPriceMonthly(e.target.value)} className="w-full input-select">
+            <select onChange={(e) => setAvailabilityPriceMonthly(e.target.value)} value={availabilityPriceMonthly} className="w-full input-select">
               {[...Array(12)].map((_, index) => (
                 <option key={index} value={index + 1}>
                   {index + 1}
@@ -177,7 +199,7 @@ export const General = () => {
               Availability per price <br /> (Yearly) *
             </label>
 
-            <select onChange={(e) => setAvailabilityPriceYearly(e.target.value)} className="w-full input-select">
+            <select onChange={(e) => setAvailabilityPriceYearly(e.target.value)} value={availabilityPriceYearly} className="w-full input-select">
               {[...Array(10)].map((_, index) => (
                 <option key={index} value={index + 1}>
                   {index + 1}
@@ -200,9 +222,6 @@ export const General = () => {
 
         {/* Save and Cancel Buttons */}
         <div className="flex justify-end gap-4">
-          <Button className="btn-outline" onClick={handleCancel}>
-            Reset
-          </Button>
           <Button className="btn-primary" type="submit">
             Save
           </Button>

@@ -4,8 +4,8 @@ import { Button, Img } from "../../../../components";
 
 import { useNavigate } from "react-router-dom";
 
-import { FaEdit, FaWindowClose } from "react-icons/fa";
-import { FaCalendar, FaSquareCheck } from "react-icons/fa6";
+import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
+import { FaCalendar } from "react-icons/fa";
 import { IoMdLink, IoMdNotifications } from "react-icons/io";
 
 const statuses = ["On Negotiation", "Payment", "Completed", "Cancelled"];
@@ -36,14 +36,14 @@ export const RentPage = () => {
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/20">
         <h1 className="text-2xl font-bold">Villa & Home Management</h1>
 
-        <span className="flex items-center gap-2 px-4 py-2 rounded-md bg-light">
+        <span className="flex items-center gap-2 px-4 py-2 rounded bg-light">
           <FaCalendar /> Today
         </span>
       </header>
 
       {/* Notification and filters*/}
       <div className="flex justify-between gap-8 mb-8">
-        <div className="flex items-center w-full gap-1 px-1 border rounded-md bg-light text-primary border-dark/20">
+        <div className="flex items-center w-full gap-1 px-1 border rounded bg-light text-primary border-dark/20">
           <IoMdNotifications size={20} />
           You have <strong>9</strong> new unchecked bookings!
         </div>
@@ -68,7 +68,7 @@ export const RentPage = () => {
           {data.map((item, index) => (
             <tr key={index} className="h-full border-b">
               <td className="px-4 py-3">
-                <Img src={item.image} alt="property" className="w-12 h-12 rounded-md" />
+                <Img src={item.image} alt="property" className="w-12 h-12 rounded" />
               </td>
               <td className="px-4 py-3">{item.property}</td>
               <td className="px-4 py-3">{item.rent}</td>
@@ -83,7 +83,7 @@ export const RentPage = () => {
                 <div className="flex items-center justify-center gap-2">
                   <FaEdit size={20} className="cursor-pointer text-primary" onClick={() => navigate(`/dashboard/management/rent/edit/${8648712687623}`)} />
                   <IoMdLink size={20} className="cursor-pointer text-primary" />
-                  <FaSquareCheck size={20} className="text-green-600 cursor-pointer" />
+                  <FaCheckSquare size={20} className="text-blue-600 cursor-pointer" />
                   <FaWindowClose size={20} className="text-red-600 cursor-pointer" />
                 </div>
               </td>

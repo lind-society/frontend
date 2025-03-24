@@ -8,6 +8,7 @@ import { Button } from "../../../../components";
 import { IoFilterSharp } from "react-icons/io5";
 import { Management } from "./management";
 import { Package } from "./package";
+import { FaPlus } from "react-icons/fa";
 
 const tabs = ["Management", "Package"];
 
@@ -22,12 +23,12 @@ export const PropertyPage = () => {
         <h1 className="text-2xl font-bold">Property Management</h1>
 
         {activeTab === "Management" ? (
-          <span className="flex items-center gap-2 px-4 py-2 rounded-md bg-light">
+          <span className="flex items-center gap-2 px-4 py-2 rounded bg-light">
             <IoFilterSharp /> Filters
           </span>
         ) : (
-          <Button onClick={() => navigate("/dashboard/management/property/package/add")} className="btn-primary">
-            + Add New
+          <Button onClick={() => navigate("/dashboard/management/property/package/add")} className="flex items-center gap-2 btn-primary">
+            <FaPlus /> Add New
           </Button>
         )}
       </header>
