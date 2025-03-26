@@ -14,12 +14,12 @@ import { FaTrashAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 
 import { Feature, ItemFeature, mainFeatures, otherFeatures } from "../../../../../static";
-import { Currency, Data, Payload, Villa } from "../../../../../types";
+import { Currency, Data, Payload, Property } from "../../../../../types";
 
 type OptionType = { value: string; label: string };
 
 export const ServiceFeatures = () => {
-  const useStore = usePersistentData<Partial<Villa>>("add-villa");
+  const useStore = usePersistentData<Partial<Property>>("add-property");
   const { data, setData } = useStore();
 
   const [features, setFeatures] = React.useState<Feature[]>(mainFeatures);
@@ -161,11 +161,11 @@ export const ServiceFeatures = () => {
             currencyId: item.currency?.value,
             currencyCode: item.currency?.label,
           }))
-      ) as Villa["features"],
+      ) as Property["features"],
     };
 
     setData(formattedData);
-    ToastMessage({ message: "Success saving service features", color: "#22c55e" });
+    ToastMessage({ message: "Success saving service and features", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();
     }, 1000);

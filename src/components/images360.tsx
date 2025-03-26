@@ -39,8 +39,8 @@ export const Images360 = ({ src }: { src: string }) => {
         src={validSrc}
         littlePlanet={true}
         hideNavbarButton={true}
-        height={"192"}
-        width={"300"}
+        height={"287"}
+        width={"287"}
         containerClass="!w-full !rounded !overflow-hidden"
         onReady={handleReady}
         plugins={plugins}

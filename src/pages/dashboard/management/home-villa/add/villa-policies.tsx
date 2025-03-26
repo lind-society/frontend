@@ -1,12 +1,11 @@
 import * as React from "react";
 import { usePersistentData } from "../../../../../hooks";
 
-import { Button, Modal } from "../../../../../components";
+import { Button, Modal, ToastMessage } from "../../../../../components";
 
 import { FaPlus } from "react-icons/fa";
 
 import { Villa } from "../../../../../types";
-import toast from "react-hot-toast";
 
 interface Policies {
   id: string;
@@ -137,7 +136,7 @@ export const VillaPolicies = () => {
       ] as Villa["policies"],
     };
     setData(formattedData);
-    toast("Success saving policies", { style: { borderRadius: "5px", background: "#22c55e", color: "#fff" } });
+    ToastMessage({ message: "Success saving villa policies", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();
     }, 1000);

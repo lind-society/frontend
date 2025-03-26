@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { authentication, useFetchWithAuth } from "../hooks";
+import { authentication, useGetApiWithAuth } from "../hooks";
 import { Payload } from "../types";
 
 interface UserData {
@@ -15,7 +15,7 @@ export const ProtectedRoute = () => {
 
   if (!isAuthenticated) return <Navigate to="/admin/login" />;
 
-  const { data, isLoading } = useFetchWithAuth<Payload<UserData>>("admins/profile", "profile");
+  const { data, isLoading } = useGetApiWithAuth<Payload<UserData>>({ key: ["profile"], url: `admins/profile` });
 
   if (isLoading) {
     return (

@@ -11,8 +11,9 @@ import Select from "react-select";
 import { IoMdSearch } from "react-icons/io";
 import { FaMinus, FaPlus } from "react-icons/fa";
 
-import { Villa } from "../../../../../types";
 import { baseApiURL } from "../../../../../static";
+
+import { Property } from "../../../../../types";
 
 interface OptionType {
   value: string;
@@ -110,7 +111,7 @@ const LocationSelector = ({ selectedCity, selectedCountry, selectedProvince, set
 };
 
 export const Location = () => {
-  const useStore = usePersistentData<Partial<Villa>>("add-villa");
+  const useStore = usePersistentData<Partial<Property>>("add-property");
   const { setData, data } = useStore();
 
   const [modalInput, setModalInput] = React.useState<boolean>(false);

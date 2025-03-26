@@ -1,6 +1,7 @@
 import axios from "axios";
 import { baseApiURL } from "../static";
-import toast from "react-hot-toast";
+
+import { ToastMessage } from "../components";
 
 interface UseFileUpload<T> {
   uploadFile: (files: File | File[], folder: string, type: "photos" | "videos" | "video360s") => Promise<{ response: T | null; loading: boolean }>;
@@ -28,18 +29,13 @@ export const useUploads = <T>(): UseFileUpload<T> => {
         },
       });
 
-      toast("Success upload file", { style: { borderRadius: "5px", background: "#0d9488", color: "#fff" } });
+      ToastMessage({ message: "Success upload file", color: "#0d9488" });
 
       loading = false;
       return { response: resData.data, loading };
     } catch (error: any) {
-      toast(error.response?.data.message || "Upload file error", {
-        style: {
-          borderRadius: "5px",
-          background: "#b91c1c",
-          color: "#fff",
-        },
-      });
+      ToastMessage({ message: error.response?.data.message || "Upload file error", color: "#b91c1c" });
+
       loading = false;
       return { response: null, loading };
     }

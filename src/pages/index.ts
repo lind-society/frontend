@@ -12,6 +12,7 @@ export * from "./dashboard/management/rent/rent";
 export * from "./dashboard/management/rent/edit-rent";
 
 export * from "./dashboard/management/buy/buy";
+export * from "./dashboard/management/buy/add/add-buy";
 
 export * from "./dashboard/management/owner/owner";
 export * from "./dashboard/management/owner/edit-owner";

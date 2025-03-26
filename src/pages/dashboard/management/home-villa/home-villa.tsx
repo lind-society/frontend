@@ -74,7 +74,7 @@ export const HomeVillaPage = () => {
                   </div>
                   <div className="text-primary">
                     <div className="flex items-center justify-between px-4 py-2 border-b border-dark/30">
-                      <p className="text-sm text-gray-500">{capitalize(villa.state)}</p>
+                      <span className="block font-medium">{capitalize(villa.state)}</span>
                       <div className="flex items-center gap-2 text-sm">
                         <span className="flex items-center gap-1">
                           <FaBed className="p-1.5 rounded-full bg-primary/20" size={24} /> 4
@@ -87,9 +87,9 @@ export const HomeVillaPage = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="p-4 space-y-1">
+                    <div className="p-4 space-y-2">
                       <Link to={`/dashboard/management/home-villa/edit/${46786123874621}`}>
-                        <h2 className="text-lg font-semibold">{villa.name}</h2>
+                        <h2 className="text-xl font-bold">{villa.name}</h2>
                       </Link>
                       <div>
                         <small className="italic">Per Night</small>

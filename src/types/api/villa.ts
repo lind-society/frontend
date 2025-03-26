@@ -1,60 +1,10 @@
 import { Currency } from "./currency";
+import { AdditionalItem, Facilities, Features, Icon, PlaceNearby } from "./global";
 import { Review } from "./review";
 
 interface AvailabilityPerPrice {
   quota: number;
   availability: string;
-}
-
-interface PlaceNearby {
-  name: string;
-  distance: number;
-}
-
-interface AdditionalItem {
-  pivotId: string;
-  id: string;
-  name: string;
-  type: string;
-  description: string;
-  photos: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Facilities {
-  pivotId: string;
-  id: string;
-  name: string;
-  icon: {
-    key: string;
-    url: string;
-  };
-  type: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Features {
-  pivotId: string;
-  id: string;
-  name: string;
-  type: string;
-  icon: {
-    key: string;
-    url: string;
-  };
-  free: boolean;
-  currencyId: string;
-  currencyCode: string;
-  discountType: string;
-  discount: number | null;
-  priceAfterDiscount: number;
-  price: number;
-  createdAt: string;
-  updatedAt: string;
-  currency: Currency;
 }
 
 interface Policy {
@@ -63,10 +13,7 @@ interface Policy {
   name: string;
   type: string;
   description: string;
-  icon: {
-    key: string;
-    url: string;
-  };
+  icon: Icon;
   createdAt: string;
   updatedAt: string;
 }

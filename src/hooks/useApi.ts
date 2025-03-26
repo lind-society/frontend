@@ -1,12 +1,12 @@
-import axios from "axios"; // Replace with your API endpoint
+import axios from "axios";
 
 import { useQuery, useMutation, useQueryClient, QueryKey } from "@tanstack/react-query";
 
-import toast from "react-hot-toast";
 import Cookies from "universal-cookie";
 
 import { baseApiURL } from "../static";
 import { Payload } from "../types";
+import { ToastMessage } from "../components";
 
 const cookies = new Cookies();
 
@@ -49,12 +49,25 @@ export const useCreateApi = <T>(url: string, key: QueryKey) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newItem: T) => {
-      const { data } = await axios.post<Payload<string>>(`${baseApiURL}/${url}`, newItem, getHeaders());
-      toast(data.message || "Success adding data", { style: { borderRadius: "5px", background: "#22c55e", color: "#fff" } });
-      return data;
+      try {
+        const { data } = await axios.post<Payload<string>>(`${baseApiURL}/${url}`, newItem, getHeaders());
+        ToastMessage({ color: "#22c55e", message: data.message || "Success adding data" });
+        return data;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const errorMessage = error.response?.data?.message || "Failed to add data";
+          ToastMessage({ color: "#b91c1c", message: errorMessage });
+          throw new Error(errorMessage);
+        }
+        throw new Error("An unexpected error occurred");
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [key] });
+    },
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      ToastMessage({ message: errorMessage, color: "#b91c1c" });
     },
   });
 };
@@ -64,12 +77,25 @@ export const useUpdateApi = <T>(url: string, key: QueryKey) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, updatedItem }: { id: string; updatedItem: T }) => {
-      const { data } = await axios.put<Payload<string>>(`${baseApiURL}/${url}/${id}`, updatedItem, getHeaders());
-      toast(data.message || "Success editing data", { style: { borderRadius: "5px", background: "#0891b2", color: "#fff" } });
-      return data;
+      try {
+        const { data } = await axios.put<Payload<string>>(`${baseApiURL}/${url}/${id}`, updatedItem, getHeaders());
+        ToastMessage({ color: "#0891b2", message: data.message || "Success updating data" });
+        return data;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const errorMessage = error.response?.data?.message || "Failed to updating data";
+          ToastMessage({ color: "#b91c1c", message: errorMessage });
+          throw new Error(errorMessage);
+        }
+        throw new Error("An unexpected error occurred");
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [key] });
+    },
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      ToastMessage({ message: errorMessage, color: "#b91c1c" });
     },
   });
 };
@@ -79,11 +105,23 @@ export const useDeleteApi = (url: string, key: QueryKey) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await axios.delete<Payload<string>>(`${baseApiURL}/${url}/${id}`, getHeaders());
-      toast(data.message || "Success deleting data", { style: { borderRadius: "5px", background: "#ef4444", color: "#fff" } });
+      try {
+        const { data } = await axios.delete<Payload<string>>(`${baseApiURL}/${url}/${id}`, getHeaders());
+        ToastMessage({ message: data.message || "Success deleting data", color: "#b91c1c" });
+        return data;
+      } catch (error) {
+        const errorMessage = axios.isAxiosError(error) ? error.response?.data?.message || "Failed to deleting data" : "An unexpected error occurred";
+
+        ToastMessage({ message: errorMessage, color: "#b91c1c" });
+        throw new Error(errorMessage);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [key] });
+    },
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      ToastMessage({ message: errorMessage, color: "#b91c1c" });
     },
   });
 };

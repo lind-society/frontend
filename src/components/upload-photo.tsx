@@ -10,15 +10,20 @@ import { IoCloseOutline } from "react-icons/io5";
 
 import { FileData, Payload, UploadPhotoProps } from "../types";
 
-export const UploadPhoto = ({ type, title, description, fileUrl, setFileUrl }: UploadPhotoProps) => {
+export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFileUrl }: UploadPhotoProps) => {
+  const [loading, setLoading] = React.useState<boolean>(false);
+
   const { uploadFile } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi("storages", [type]);
 
   const handleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoading(true);
     const files = e.target.files ? Array.from(e.target.files) : [];
-    const { response } = await uploadFile(files!, "villa", type);
+    const { response } = await uploadFile(files!, folder, type);
 
     const uploadedUrls = response?.data.successFiles.map((file) => file.url) || [];
+
+    setLoading(false);
 
     setFileUrl((prevUrls) => [...prevUrls, ...uploadedUrls]);
   };
@@ -38,9 +43,9 @@ export const UploadPhoto = ({ type, title, description, fileUrl, setFileUrl }: U
         <div className="flex items-center">
           <p className="whitespace-nowrap min-w-60">{description}</p>
           <div className="relative">
-            <input type="file" id={type} onChange={handleFilesChange} hidden accept="video/*,image/*" multiple />
+            <input type="file" id={type} onChange={handleFilesChange} hidden accept="video/*,image/*" multiple disabled={loading} />
             <label htmlFor={type} className="file-label">
-              <FaUpload /> Browse
+              <FaUpload /> {loading ? "Waiting..." : "Browse"}
             </label>
           </div>
           <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
@@ -54,7 +59,7 @@ export const UploadPhoto = ({ type, title, description, fileUrl, setFileUrl }: U
                 <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full -top-2 -right-2 z-1 bg-secondary">
                   <IoCloseOutline className="text-light" />
                 </button>
-                <Img src={image || "/temp-business.webp"} alt={`Selected image ${index + 1}`} className="w-full rounded aspect-video" />
+                <Img src={image || "/temp-business.webp"} alt={`Selected image ${index + 1}`} className="w-full rounded aspect-square" />
               </div>
             ))}
           </>

@@ -9,8 +9,9 @@ import { Button, Img, Modal, ToastMessage, UploadPhoto } from "../../../../../co
 import { FaPlus, FaUpload } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 
-import { FileData, Payload, Villa } from "../../../../../types";
 import { capitalize } from "../../../../../utils";
+
+import { FileData, Payload, Property } from "../../../../../types";
 
 interface Section {
   title: string;
@@ -29,7 +30,7 @@ const initAdditional = ["Bedrooms", "Outdoor Areas", "Indoor Areas", "More Pictu
 }));
 
 export const Media = () => {
-  const useStore = usePersistentData<Partial<Villa>>("add-villa");
+  const useStore = usePersistentData<Partial<Property>>("add-property");
   const { setData, data } = useStore();
 
   const defaultAdditional: Section[] = Object.values(
@@ -114,7 +115,7 @@ export const Media = () => {
   const handleFileInputChange = async (additionalIndex: number, fieldId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
 
-    const { response } = await uploadFile(files!, "villa", "photos");
+    const { response } = await uploadFile(files!, "property", "photos");
 
     const viewFiles = files.map((file) => URL.createObjectURL(file));
 
@@ -157,7 +158,7 @@ export const Media = () => {
   const handleSubmitMedia = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const formattedData: Partial<Villa> = {
+    const formattedData: Partial<Property> = {
       additionals: additional.flatMap((section) =>
         section.field
           .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)
@@ -167,7 +168,7 @@ export const Media = () => {
             description: field.description,
             photos: field.photos,
           }))
-      ) as Villa["additionals"],
+      ) as Property["additionals"],
       photos,
       videos,
       video360s,
@@ -191,13 +192,13 @@ export const Media = () => {
     <div className="p-8 border rounded-b bg-light border-dark/30">
       <form className="space-y-8" onSubmit={handleSubmitMedia}>
         {/* Catalog Photo */}
-        <UploadPhoto folder="villa" type="photos" title="Photo" description="Catalog Photo *" fileUrl={photos} setFileUrl={setPhotos} />
+        <UploadPhoto folder="property" type="photos" title="Photo" description="Catalog Photo *" fileUrl={photos} setFileUrl={setPhotos} />
 
         {/* Catalog Video */}
-        <UploadPhoto folder="villa" type="videos" title="Video" description="Catalog Video *" fileUrl={videos} setFileUrl={setVideos} />
+        <UploadPhoto folder="property" type="videos" title="Video" description="Catalog Video *" fileUrl={videos} setFileUrl={setVideos} />
 
         {/* 360 Tour */}
-        <UploadPhoto folder="villa" type="video360s" title="360 Tour" description="360 Tour *" fileUrl={video360s} setFileUrl={setVideo360s} />
+        <UploadPhoto folder="property" type="video360s" title="360 Tour" description="360 Tour *" fileUrl={video360s} setFileUrl={setVideo360s} />
 
         {/* Additional Sections */}
         <div className="space-y-4">

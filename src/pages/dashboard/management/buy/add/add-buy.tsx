@@ -13,21 +13,20 @@ import { General } from "./general";
 import { Media } from "./media";
 import { Location } from "./location";
 import { ServiceFeatures } from "./service-features";
-import { VillaPolicies } from "./villa-policies";
 import { KeyFeatures } from "./key-features";
 
 import { deleteKeysObject } from "../../../../../utils";
 
-import { Villa } from "../../../../../types";
+import { Property } from "../../../../../types";
 
-const tabs = ["General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies"];
+const tabs = ["General", "Media", "Location", "Key Features", "Service & Features"];
 
-export const AddHomeVillaPage = () => {
+export const AddBuyPage = () => {
   const { pathname } = useLocation();
 
-  const { mutate: addVillas } = useCreateApi<Partial<Villa>>("villas", ["add-villa"]);
+  const { mutate: addProperty } = useCreateApi<Partial<Property>>("properties", ["add-property"]);
 
-  const useStore = usePersistentData<Partial<Villa>>("add-villa");
+  const useStore = usePersistentData<Partial<Property>>("add-property");
 
   const { data } = useStore();
 
@@ -36,13 +35,13 @@ export const AddHomeVillaPage = () => {
   });
 
   React.useEffect(() => {
-    if (pathname === "/dashboard/management/home-villa/add") {
+    if (pathname === "/dashboard/management/buy/add") {
       sessionStorage.setItem("activeTab", activeTab);
     }
 
     return () => {
-      if (window.location.pathname !== "/dashboard/management/home-villa/add") {
-        if (!window.confirm("Are you sure you want to move the page before publish your villas?")) return;
+      if (window.location.pathname !== "/dashboard/management/buy/add") {
+        if (!window.confirm("Are you sure you want to move the page before publish your property?")) return;
         sessionStorage.clear();
       }
     };
@@ -55,10 +54,10 @@ export const AddHomeVillaPage = () => {
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
-    const processData = deleteKeysObject(data, ["currencyCode"]);
-    addVillas(processData);
+    const processData = deleteKeysObject(data, ["currencyCode", "ownerName"]);
+    addProperty(processData);
     setTimeout(() => {
-      window.location.href = "/dashboard/management/home-villa";
+      window.location.href = "/dashboard/management/buy";
     }, 2000);
   };
 
@@ -66,7 +65,7 @@ export const AddHomeVillaPage = () => {
     <Layout>
       {/* Header */}
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="text-2xl font-bold">Add New Home & Villa</h1>
+        <h1 className="text-2xl font-bold">Add Property</h1>
 
         <div className="flex items-center gap-4">
           {/* <Button className="flex items-center gap-2 btn-outline" onClick={handleSaveDraft}>
@@ -91,7 +90,6 @@ export const AddHomeVillaPage = () => {
       {activeTab === "Location" && <Location />}
       {activeTab === "Key Features" && <KeyFeatures />}
       {activeTab === "Service & Features" && <ServiceFeatures />}
-      {activeTab === "Villa Policies" && <VillaPolicies />}
     </Layout>
   );
 };

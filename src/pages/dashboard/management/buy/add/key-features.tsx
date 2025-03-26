@@ -10,7 +10,7 @@ import { GrPowerReset } from "react-icons/gr";
 import { IoClose } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 
-import { Data, Payload, Villa } from "../../../../../types";
+import { Data, Payload, Property } from "../../../../../types";
 
 interface Facilities {
   id: string;
@@ -28,9 +28,9 @@ export const KeyFeatures = () => {
   const [idIcon, setIdIcon] = React.useState<string>();
   const [modalFeature, setModalFeature] = React.useState<boolean>(false);
 
-  const { data: responseFacilities } = useGetApi<Payload<Data<Villa["facilities"]>>>({ key: ["facilities"], url: "facilities", params: { limit: "20" } });
+  const { data: responseFacilities } = useGetApi<Payload<Data<Property["facilities"]>>>({ key: ["facilities"], url: "facilities", params: { limit: "20" } });
 
-  const useStore = usePersistentData<Partial<Villa>>("add-villa");
+  const useStore = usePersistentData<Partial<Property>>("add-property");
 
   const { setData, data } = useStore();
 
@@ -67,7 +67,7 @@ export const KeyFeatures = () => {
     e.preventDefault();
 
     const formattedData = {
-      facilities: facilities.map((feature) => ({ facilityId: feature.id, description: feature.includeDescription ? feature.description : "" })) as unknown as Villa["facilities"],
+      facilities: facilities.map((feature) => ({ facilityId: feature.id, description: feature.includeDescription ? feature.description : "" })) as unknown as Property["facilities"],
     };
 
     setData(formattedData);

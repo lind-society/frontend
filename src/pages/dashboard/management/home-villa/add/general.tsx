@@ -4,10 +4,9 @@ import { useGetApi, usePersistentData } from "../../../../../hooks";
 
 import Select from "react-select";
 
-import { Button } from "../../../../../components";
+import { Button, ToastMessage } from "../../../../../components";
 
 import { Currency, Data, Payload, Villa } from "../../../../../types";
-import toast from "react-hot-toast";
 
 type AvailabilityType = "daily" | "monthly" | "yearly";
 type OptionType = { value: string; label: string };
@@ -89,7 +88,7 @@ export const General = () => {
     };
 
     setData(formattedData);
-    toast("Success saving general", { style: { borderRadius: "5px", background: "#22c55e", color: "#fff" } });
+    ToastMessage({ message: "Success saving general", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();
     }, 1000);

@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { useLocation } from "react-router-dom";
 
-import { useDisableNumberInputScroll, useFetchWithAuth, useMediaQuery } from "../../hooks";
+import { useGetApiWithAuth, useMediaQuery } from "../../hooks";
 
 import { Toaster } from "react-hot-toast";
 
@@ -20,11 +20,9 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const [openNav, setOpenNav] = React.useState<boolean>(isTabletMid ? false : true);
 
-  const { data } = useFetchWithAuth<Payload<UserData>>("admins/profile", "profile");
+  const { data } = useGetApiWithAuth<Payload<UserData>>({ key: ["profile"], url: `admins/profile` });
 
   const { pathname } = useLocation();
-
-  useDisableNumberInputScroll();
 
   React.useEffect(() => {
     if (isTabletMid) setOpenNav(false);

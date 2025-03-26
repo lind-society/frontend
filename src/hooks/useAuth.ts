@@ -1,7 +1,7 @@
 // src/services/authService.ts
 import axios from "axios";
 import Cookies from "universal-cookie";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, QueryKey, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { baseApiURL } from "../static";
 import { Payload } from "../types";
 
@@ -58,7 +58,7 @@ export const authentication = {
   },
 
   // Helper function to make authenticated API requests
-  fetchWithAuth: async <T>(url: string) => {
+  getApiWithAuth: async <T>(url: string, params?: Record<string, any>) => {
     return await axios
       .get<T>(`${baseApiURL}/${url}`, {
         headers: {
@@ -66,6 +66,7 @@ export const authentication = {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
+        params,
       })
       .then((response) => {
         return response.data;
@@ -94,12 +95,16 @@ export const useLogout = () => {
   });
 };
 
-export const useFetchWithAuth = <T>(url: string, queryKey: string) => {
+export const useGetApiWithAuth = <T>({ key, url, params }: { key: QueryKey; url: string; params?: Record<string, any> }) => {
   return useQuery<T | undefined>({
-    queryKey: [queryKey],
+    queryKey: key,
     queryFn: async () => {
-      const responseProfile = await authentication.fetchWithAuth<T>(url);
+      const responseProfile = await authentication.getApiWithAuth<T>(url, params);
       return responseProfile;
     },
+    gcTime: 300000,
+    staleTime: 60000,
+    enabled: true,
+    placeholderData: keepPreviousData,
   });
 };
