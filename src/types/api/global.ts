@@ -49,7 +49,6 @@ export interface Features {
   icon: Icon;
   free: boolean;
   currencyId: string;
-  currencyCode: string;
   discountType: string;
   discount: number | null;
   priceAfterDiscount: number;

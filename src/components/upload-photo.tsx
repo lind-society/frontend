@@ -14,7 +14,7 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
   const [loading, setLoading] = React.useState<boolean>(false);
 
   const { uploadFile } = useUploads<Payload<FileData>>();
-  const { mutate: deleteFile } = useCreateApi("storages", [type]);
+  const { mutate: deleteFile } = useCreateApi({ url: "storages", key: [type] });
 
   const handleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoading(true);

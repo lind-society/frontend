@@ -6,30 +6,26 @@ import Select from "react-select";
 
 import { Button, ToastMessage } from "../../../../../components";
 
-import { Currency, Data, Owner, Payload, Property } from "../../../../../types";
-
-type OptionType = { value: string; label: string };
+import { Currency, Data, OptionType, Owner, Payload, Property } from "../../../../../types";
 
 export const General = () => {
+  // store data to session storage
   const useStore = usePersistentData<Partial<Property>>("add-property");
-
   const { setData, data } = useStore();
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
 
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
 
-  const defaultCurrency = data.currencyCode && data.currencyId ? { label: data.currencyCode, value: data.currencyId } : null;
-  const defaultOwner = data.ownerName && data.ownerId ? { label: data.ownerName, value: data.ownerId } : null;
-
   const [name, setName] = React.useState<string>(data.name || "");
   const [secondaryName, setSecondaryName] = React.useState<string>(data.secondaryName || "");
   const [highlight, setHighlight] = React.useState<string>(data.highlight || "");
   const [price, setPrice] = React.useState<string>(String(data.price) || "");
   const [discount, setDiscount] = React.useState<string>(String(data.discount) || "");
-  const [ownershipType, setOwnershipType] = React.useState<string>(data.ownershipType || "Freehold");
-  const [currency, setCurrency] = React.useState<OptionType | null>(defaultCurrency);
-  const [owner, setOwner] = React.useState<OptionType | null>(defaultOwner);
+  const [ownershipType, setOwnershipType] = React.useState<string>(data.ownershipType || "freehold");
+  const [soldStatus, setSoldStatus] = React.useState<boolean>(data.soldStatus || false);
+  const [currency, setCurrency] = React.useState<OptionType | null>(null);
+  const [owner, setOwner] = React.useState<OptionType | null>(null);
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,28 +34,35 @@ export const General = () => {
       secondaryName,
       highlight,
       currencyId: currency?.value || "",
-      currencyCode: currency?.label || "",
       ownerId: owner?.value || "",
-      ownerName: owner?.label || "",
-      ownershipType,
+      ownershipType: ownershipType,
       price: +price || 0,
       discount: +discount || 0,
+      soldStatus,
     };
-
     setData(formattedData);
-
     ToastMessage({ message: "Success saving general", color: "#22c55e" });
-
     setTimeout(() => {
       window.location.reload();
-    }, 1000);
+    }, 500);
   };
+
+  React.useEffect(() => {
+    if (currencies && owners) {
+      const findCurrency = currencies.data.data.find((c) => c.id === data.currencyId);
+      const findOwner = owners.data.data.find((o) => o.id === data.ownerId);
+
+      if (findCurrency && findOwner) {
+        setCurrency({ label: findCurrency.code, value: findCurrency.id });
+        setOwner({ label: findOwner.name, value: findOwner.id });
+      }
+    }
+  }, [currencies, owners]);
 
   return (
     <div className="p-8 border rounded-b bg-light border-dark/30">
       <h2 className="heading">General</h2>
       <form className="mt-6 space-y-8" onSubmit={handleSubmitGeneral}>
-        {/* Property name */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Property name *</label>
           <input type="text" className="input-text" placeholder="Urna Santal Villa" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -69,7 +72,6 @@ export const General = () => {
           <input type="text" className="input-text" placeholder="Urna Cangau" value={secondaryName} onChange={(e) => setSecondaryName(e.target.value)} required />
         </div>
 
-        {/* Select owner */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Owner *</label>
           <Select
@@ -82,7 +84,6 @@ export const General = () => {
           />
         </div>
 
-        {/* Currency select */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Currency *</label>
           <Select
@@ -95,12 +96,9 @@ export const General = () => {
           />
         </div>
 
-        {/* Input price and discount */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Price *</label>
-
           <div className="flex items-center w-full gap-4">
-            {/* Price Input */}
             <input
               type="number"
               className="input-text"
@@ -110,7 +108,11 @@ export const General = () => {
                 }
               }}
               value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (+value < 0) return;
+                setPrice(value);
+              }}
               placeholder={currency?.label ? `Enter currency in ${currency?.label}` : "Select currency first"}
               disabled={!currency}
               required
@@ -128,7 +130,11 @@ export const General = () => {
               }}
               disabled={!currency}
               value={discount}
-              onChange={(e) => setDiscount(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (+value > 100 || +value < 0) return;
+                setDiscount(value);
+              }}
               placeholder="e.g. 0%"
             />
 
@@ -138,10 +144,9 @@ export const General = () => {
           </div>
         </div>
 
-        {/* Ownership Section */}
         <div className="flex items-center gap-4">
           <label className="block whitespace-nowrap min-w-60">Ownership *</label>
-          {(["Freehold", "Leasehold"] as const).map((ownership, index) => (
+          {(["freehold", "leasehold"] as const).map((ownership, index) => (
             <div key={index} className="flex items-center gap-2">
               <span>{ownership}</span>
               <input type="checkbox" className="accent-primary" checked={ownershipType.includes(ownership)} onChange={() => setOwnershipType(ownership)} />
@@ -149,7 +154,16 @@ export const General = () => {
           ))}
         </div>
 
-        {/* Highlights Section */}
+        <div className="flex items-center gap-4">
+          <label className="block whitespace-nowrap min-w-60">Sold Status *</label>
+          {(["Yes", "No"] as const).map((ownership, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <span>{ownership}</span>
+              <input type="checkbox" className="accent-primary" checked={soldStatus === (ownership === "Yes")} onChange={() => setSoldStatus(ownership === "Yes")} />
+            </div>
+          ))}
+        </div>
+
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Highlights *</label>
           <textarea
@@ -161,7 +175,6 @@ export const General = () => {
           />
         </div>
 
-        {/* Save and Cancel Buttons */}
         <div className="flex justify-end gap-4">
           <Button className="btn-primary" type="submit">
             Save

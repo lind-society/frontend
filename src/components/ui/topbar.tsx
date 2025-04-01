@@ -14,10 +14,13 @@ interface UserTypes {
 export const TopBar = ({ setOpenNav, data }: { setOpenNav: React.Dispatch<React.SetStateAction<boolean>>; data: UserTypes | undefined }) => {
   const [ref, dropdown, toggleDropdown] = useToggleState(false);
 
+  const [loading, setLoading] = React.useState<boolean>(false);
+
   const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-
+    setLoading(true);
     await authentication.logout();
+    setLoading(false);
   };
 
   return (
@@ -49,8 +52,8 @@ export const TopBar = ({ setOpenNav, data }: { setOpenNav: React.Dispatch<React.
           </div>
           {dropdown && (
             <div className="w-full popover top-14">
-              <Button onClick={handleLogout} className={`btn-primary w-full`}>
-                Logout
+              <Button onClick={handleLogout} className="w-full btn-primary">
+                {loading ? <div className="loader size-4 after:size-4"></div> : "Logout"}
               </Button>
             </div>
           )}

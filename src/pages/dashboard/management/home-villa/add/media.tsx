@@ -9,8 +9,9 @@ import { Button, Img, Modal, ToastMessage, UploadPhoto } from "../../../../../co
 import { FaPlus, FaUpload } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 
-import { FileData, Payload, Villa } from "../../../../../types";
 import { capitalize } from "../../../../../utils";
+
+import { FileData, Payload, Villa } from "../../../../../types";
 
 interface Section {
   title: string;
@@ -29,17 +30,15 @@ const initAdditional = ["Bedrooms", "Outdoor Areas", "Indoor Areas", "More Pictu
 }));
 
 export const Media = () => {
+  // store data to session storage
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { setData, data } = useStore();
 
   const defaultAdditional: Section[] = Object.values(
     data.additionals?.reduce((acc, additional) => {
       const key = additional.type; // Group by type
-
       if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
-
       acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos, photosURLView: [] });
-
       return acc;
     }, {} as Record<string, Section>) || {}
   );
@@ -52,7 +51,7 @@ export const Media = () => {
   const [video360s, setVideo360s] = React.useState<string[]>([]);
 
   const { uploadFile } = useUploads<Payload<FileData>>();
-  const { mutate: deleteFile } = useCreateApi("storages", ["photoAdditional"]);
+  const { mutate: deleteFile } = useCreateApi({ url: "storages", key: ["photoAdditional"] });
 
   const handleModal = () => {
     if (initAdditional.filter((add) => !additional.some((item) => item.title === add.title)).length > 0) {
@@ -176,7 +175,7 @@ export const Media = () => {
     ToastMessage({ message: "Success saving media", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();
-    }, 1000);
+    }, 500);
   };
 
   React.useEffect(() => {

@@ -13,3 +13,5 @@ export * from "./images360";
 export * from "./upload-photo";
 export * from "./toast-message";
 export * from "./google-map";
+export * from "./location-selector";
+export * from "./section-policy";

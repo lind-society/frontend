@@ -14,14 +14,11 @@ export const HomeVillaPage = () => {
   const navigate = useNavigate();
 
   const { data: villas, isLoading } = useGetApi<Payload<Data<Villa[]>>>({ key: ["get-villas"], url: `villas` });
-  const { mutate: deleteVilla } = useDeleteApi("villas", ["delete-villa"]);
+  const { mutate: deleteVilla } = useDeleteApi({ url: "villas", key: ["delete-villa"], redirectPath: "/dashboard/management/home-villa" });
 
   const handleDeleteVilla = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     deleteVilla(id);
-    setTimeout(() => {
-      window.location.reload();
-    }, 2000);
   };
 
   return (
@@ -88,7 +85,7 @@ export const HomeVillaPage = () => {
                       </div>
                     </div>
                     <div className="p-4 space-y-2">
-                      <Link to={`/dashboard/management/home-villa/edit/${46786123874621}`}>
+                      <Link to={`/dashboard/management/home-villa/edit/${villa.id}`}>
                         <h2 className="text-xl font-bold">{villa.name}</h2>
                       </Link>
                       <div>

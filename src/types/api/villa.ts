@@ -51,7 +51,6 @@ export interface Villa {
   video360s: string[];
   ownerId: string | null;
   currencyId: string | null;
-  currencyCode: string | null;
   currency: Currency;
   createdAt: string;
   updatedAt: string;

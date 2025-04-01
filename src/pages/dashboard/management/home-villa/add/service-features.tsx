@@ -13,16 +13,32 @@ import { GrPowerReset } from "react-icons/gr";
 import { FaTrashAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 
-import { Feature, ItemFeature, mainFeatures, otherFeatures } from "../../../../../static";
-import { Currency, Data, Payload, Villa } from "../../../../../types";
+import { baseCurrency, Feature, ItemFeature, mainFeatures, otherFeatures } from "../../../../../static";
 
-type OptionType = { value: string; label: string };
+import { Currency, Data, OptionType, Payload, Villa } from "../../../../../types";
 
 export const ServiceFeatures = () => {
+  // store data to session storage
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { data, setData } = useStore();
 
-  const [features, setFeatures] = React.useState<Feature[]>(mainFeatures);
+  const defaultFeature: Feature[] = Object.values(
+    data.features?.reduce((acc, feature) => {
+      const key = feature.type; // Group by type
+      if (!acc[key]) acc[key] = { id: crypto.randomUUID(), name: feature.type, icon: feature.icon, isEditing: false, items: [] };
+      acc[key].items.push({
+        id: crypto.randomUUID(),
+        title: feature.name,
+        free: feature.free,
+        price: String(feature.price),
+        currency: { label: feature.currency?.code, value: feature.currency?.id },
+        hidden: false,
+      });
+      return acc;
+    }, {} as Record<string, Feature>) || {}
+  );
+
+  const [features, setFeatures] = React.useState<Feature[]>(defaultFeature.length > 0 ? defaultFeature : mainFeatures);
   const [modalFeature, setModalFeature] = React.useState<boolean>(false);
   const [idIcon, setIdIcon] = React.useState<string>();
 
@@ -55,7 +71,7 @@ export const ServiceFeatures = () => {
         id: crypto.randomUUID(),
         name: "New Category",
         icon: { url: "", key: "" },
-        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: { label: "", value: "" }, hidden: false }],
+        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
         isEditing: false,
       },
       ...prevFeatures,
@@ -71,7 +87,7 @@ export const ServiceFeatures = () => {
         id: findDefaultFeatureValue?.id || "",
         name,
         icon,
-        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: { label: "", value: "" }, hidden: false }],
+        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
         isEditing: false,
       },
       ...prevFeatures,
@@ -90,7 +106,7 @@ export const ServiceFeatures = () => {
               id: feature.id,
               name: findDefaultFeatureValue?.name || "New Category",
               icon: { url: findDefaultFeatureValue?.icon.url || "", key: findDefaultFeatureValue?.icon.key || "" },
-              items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: { label: "", value: "" }, hidden: false }],
+              items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
               isEditing: false,
             }
           : feature
@@ -158,8 +174,8 @@ export const ServiceFeatures = () => {
             price: item.free ? 0 : +item.price,
             discountType: "percentage",
             discount: null,
-            currencyId: item.currency?.value,
-            currencyCode: item.currency?.label,
+            currencyId: item.currency?.value || baseCurrency,
+            currency: { code: item.currency?.label, id: item.currency?.value },
           }))
       ) as Villa["features"],
     };
@@ -168,24 +184,8 @@ export const ServiceFeatures = () => {
     ToastMessage({ message: "Success saving service features", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();
-    }, 1000);
+    }, 500);
   };
-
-  React.useEffect(() => {
-    if (data.features && data.features.length > 0) {
-      setFeatures(
-        data.features.map((feature) => ({
-          id: crypto.randomUUID(),
-          name: feature.type,
-          icon: feature.icon,
-          isEditing: false,
-          items: [
-            { id: crypto.randomUUID(), title: feature.name, free: feature.free, price: String(feature.price), currency: { label: feature.currencyCode, value: feature.currencyId }, hidden: false },
-          ],
-        }))
-      );
-    }
-  }, []);
 
   return (
     <>
@@ -298,7 +298,7 @@ export const ServiceFeatures = () => {
         ))}
         {/* Save and Cancel Buttons */}
         <div className="flex justify-end gap-4">
-          <Button className="btn-outline">Reset</Button>
+          {/* <Button className="btn-outline">Reset</Button> */}
           <Button className="btn-primary" onClick={handleSubmitService}>
             Save
           </Button>

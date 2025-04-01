@@ -2,9 +2,9 @@ import * as React from "react";
 
 import { useGetApi, usePersistentData } from "../../../../../hooks";
 
-import { Button, Modal, ToastMessage } from "../../../../../components";
-
 import IconifyPicker from "@zunicornshift/mui-iconify-picker";
+
+import { Button, Modal, ToastMessage } from "../../../../../components";
 
 import { GrPowerReset } from "react-icons/gr";
 import { IoClose } from "react-icons/io5";
@@ -14,25 +14,22 @@ import { Data, Payload, Villa } from "../../../../../types";
 
 interface Facilities {
   id: string;
-  icon: {
-    url: string;
-    key: string;
-  };
+  icon: { url: string; key: string };
   name: string;
   description: string;
   includeDescription: boolean;
 }
 
 export const KeyFeatures = () => {
+  // store data to session storage
+  const useStore = usePersistentData<Partial<Villa>>("add-villa");
+  const { setData, data } = useStore();
+
   const [facilities, setFacilities] = React.useState<Facilities[]>([]);
   const [idIcon, setIdIcon] = React.useState<string>();
   const [modalFeature, setModalFeature] = React.useState<boolean>(false);
 
   const { data: responseFacilities } = useGetApi<Payload<Data<Villa["facilities"]>>>({ key: ["facilities"], url: "facilities", params: { limit: "20" } });
-
-  const useStore = usePersistentData<Partial<Villa>>("add-villa");
-
-  const { setData, data } = useStore();
 
   // const addFacility = () => {
   //   setFacilities((prevFacilities) => [{ id: crypto.randomUUID(), name: "", icon: { url: "", key: "" }, description: "", includeDescription: true }, ...prevFacilities]);
@@ -67,14 +64,19 @@ export const KeyFeatures = () => {
     e.preventDefault();
 
     const formattedData = {
-      facilities: facilities.map((feature) => ({ facilityId: feature.id, description: feature.includeDescription ? feature.description : "" })) as unknown as Villa["facilities"],
+      facilities: facilities
+        .filter((feature) => feature.description !== "")
+        .map((feature) => ({
+          id: feature.id,
+          description: feature.includeDescription ? feature.description : "",
+        })) as Villa["facilities"],
     };
 
     setData(formattedData);
     ToastMessage({ message: "Success saving key features", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();
-    }, 1000);
+    }, 500);
   };
 
   React.useEffect(() => {
@@ -82,22 +84,22 @@ export const KeyFeatures = () => {
       if (data.facilities) {
         setFacilities(
           responseFacilities.data.data
-            .filter((facility) => data.facilities?.some((item: any) => item.facilityId === facility.id))
+            .filter((facility) => data.facilities?.some((item) => item.id === facility.id))
             .map((facility) => ({
               id: facility.id,
               name: facility.name,
               icon: facility.icon,
-              description: data.facilities?.find((item: any) => item.facilityId === facility.id)?.description || "",
+              description: data.facilities?.find((item) => item.id === facility.id)?.description || "",
               includeDescription: true,
             }))
         );
-        return;
+      } else {
+        setFacilities(
+          responseFacilities.data.data
+            .filter((facility) => facility.type === "main")
+            .map((facility) => ({ id: facility.id, name: facility.name, icon: facility.icon, description: "", includeDescription: true }))
+        );
       }
-      setFacilities(
-        responseFacilities.data.data
-          .filter((facility) => facility.type === "main")
-          .map((facility) => ({ id: facility.id, name: facility.name, icon: facility.icon, description: "", includeDescription: true }))
-      );
     }
   }, [responseFacilities]);
 
@@ -174,7 +176,7 @@ export const KeyFeatures = () => {
           </div>
         ))}
         <div className="flex justify-end gap-4">
-          <Button className="btn-outline">Reset</Button>
+          {/* <Button className="btn-outline">Reset</Button> */}
           <Button className="btn-primary" onClick={handleSubmitService}>
             Save
           </Button>
@@ -184,7 +186,6 @@ export const KeyFeatures = () => {
         <h2 className="text-lg font-bold">Add Key Features</h2>
         <div className="mt-4 overflow-y-auto border border-dark/30">
           {responseFacilities?.data.data
-            .filter((facility) => facility.type === "optional")
             .filter((facility) => !facilities.some((item) => item.name === facility.name))
             .map((facility, index) => (
               <div key={index} className="flex items-center justify-between p-2 border-b border-dark/30">

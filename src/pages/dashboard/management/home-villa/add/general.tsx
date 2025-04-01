@@ -6,16 +6,15 @@ import Select from "react-select";
 
 import { Button, ToastMessage } from "../../../../../components";
 
-import { Currency, Data, Payload, Villa } from "../../../../../types";
+import { Currency, Data, OptionType, Payload, Villa } from "../../../../../types";
 
 type AvailabilityType = "daily" | "monthly" | "yearly";
-type OptionType = { value: string; label: string };
 
 const initAvailability = { daily: "", monthly: "", yearly: "" };
 
 export const General = () => {
+  // store data to session storage
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
-
   const { setData, data } = useStore();
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
@@ -25,23 +24,14 @@ export const General = () => {
   const defaultAvailability = { daily: data.availability?.includes("daily") || true, monthly: data.availability?.includes("monthly") || false, yearly: data.availability?.includes("yearly") || false };
   const defaultAvailabilityPriceMonthly = String(data.availabilityPerPrice?.find((item) => item.availability === "monthly")?.quota);
   const defaultAvailabilityPriceYearly = String(data.availabilityPerPrice?.find((item) => item.availability === "yearly")?.quota);
-  const defaultCurrency = data.currencyCode && data.currencyId ? { label: data.currencyCode, value: data.currencyId } : null;
 
   const [name, setName] = React.useState<string>(data.name || "");
   const [secondaryName, setSecondaryName] = React.useState<string>(data.secondaryName || "");
   const [highlight, setHighlight] = React.useState<string>(data.highlight || "");
-
-  // price state
   const [availability, setAvailability] = React.useState<Record<AvailabilityType, boolean>>(defaultAvailability);
   const [price, setPrice] = React.useState<Record<AvailabilityType, string>>(defaultPrice || initAvailability);
-
-  // discount state
   const [discount, setDiscount] = React.useState<Record<AvailabilityType, string>>(defaultDiscount || initAvailability);
-
-  // currency state
-  const [currency, setCurrency] = React.useState<OptionType | null>(defaultCurrency);
-
-  // availability per price
+  const [currency, setCurrency] = React.useState<OptionType | null>(null);
   const [availabilityPriceMonthly, setAvailabilityPriceMonthly] = React.useState<string>(defaultAvailabilityPriceMonthly || "");
   const [availabilityPriceYearly, setAvailabilityPriceYearly] = React.useState<string>(defaultAvailabilityPriceYearly || "");
 
@@ -65,7 +55,6 @@ export const General = () => {
       secondaryName,
       highlight,
       currencyId: currency?.value,
-      currencyCode: currency?.label,
       availabilityPerPrice: [
         {
           quota: +availabilityPriceMonthly || 0,
@@ -91,14 +80,23 @@ export const General = () => {
     ToastMessage({ message: "Success saving general", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();
-    }, 1000);
+    }, 500);
   };
+
+  React.useEffect(() => {
+    if (currencies) {
+      const findCurrency = currencies.data.data.find((c) => c.id === data.currencyId);
+
+      if (findCurrency) {
+        setCurrency({ label: findCurrency.code, value: findCurrency.id });
+      }
+    }
+  }, [currencies]);
 
   return (
     <div className="p-8 border rounded-b bg-light border-dark/30">
       <h2 className="heading">General</h2>
       <form className="mt-6 space-y-8" onSubmit={handleSubmitGeneral}>
-        {/* Property name */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Property name *</label>
           <input type="text" className="input-text" placeholder="Urna Santal Villa" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -108,7 +106,6 @@ export const General = () => {
           <input type="text" className="input-text" placeholder="Urna Cangau" value={secondaryName} onChange={(e) => setSecondaryName(e.target.value)} required />
         </div>
 
-        {/* Availability Checkboxes */}
         <div className="flex items-center gap-4">
           <label className="block whitespace-nowrap min-w-60">Availability *</label>
           {(["daily", "monthly", "yearly"] as const).map((type) => (
@@ -124,7 +121,6 @@ export const General = () => {
           ))}
         </div>
 
-        {/* Currency select */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Currency *</label>
           <Select
@@ -137,7 +133,6 @@ export const General = () => {
           />
         </div>
 
-        {/* Price Inputs */}
         <div className="space-y-4">
           {(["daily", "monthly", "yearly"] as const)
             .filter((type) => availability[type] === true)
@@ -146,7 +141,6 @@ export const General = () => {
                 <label className="block whitespace-nowrap min-w-60">Price ({type}) *</label>
 
                 <div className="flex items-center w-full gap-4">
-                  {/* Price Input */}
                   <input
                     type="number"
                     className="input-text"
@@ -216,7 +210,6 @@ export const General = () => {
           </div>
         )}
 
-        {/* Highlights Section */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Highlights *</label>
           <textarea
@@ -228,7 +221,6 @@ export const General = () => {
           />
         </div>
 
-        {/* Save and Cancel Buttons */}
         <div className="flex justify-end gap-4">
           <Button className="btn-primary" type="submit">
             Save

@@ -1,145 +1,300 @@
 import * as React from "react";
-import { Button } from "../../../../../components";
 
-import { FiUpload } from "react-icons/fi";
-// import { FaMinus } from "react-icons/fa";
-// import { FaRegCheckCircle } from "react-icons/fa";
+import "@photo-sphere-viewer/markers-plugin/index.css";
+
+import { useCreateApi, usePersistentData, useUploads } from "../../../../../hooks";
+
+import { Button, Img, Modal, ToastMessage, UploadPhoto } from "../../../../../components";
+
+import { FaPlus, FaUpload } from "react-icons/fa";
+import { IoCloseOutline } from "react-icons/io5";
+
+import { FileData, Payload, Villa } from "../../../../../types";
+import { capitalize } from "../../../../../utils";
 
 interface Section {
-  id: number;
   title: string;
-  name: string;
-  description: string;
-  photo: File | null;
+  field: {
+    id: string;
+    name: string;
+    description: string;
+    photos: string[];
+    photosURLView: string[];
+  }[];
 }
 
-const UploadPhoto = ({ title, description }: { title: string; description: string }) => {
-  return (
-    <div className="space-y-4">
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold whitespace-nowrap min-w-60">{title}</h2>
-        <div className="flex items-center">
-          <p className="whitespace-nowrap min-w-60">{description}</p>
-          <div className="relative">
-            <input type="file" id="images" hidden accept="image/*" multiple />
-            <label htmlFor="images" className="file-label">
-              <FiUpload /> Browse
-            </label>
-          </div>
-          <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
-        </div>
-      </div>
-      {/* <small className="flex items-center w-full gap-2 px-4 py-2 bg-green-600 rounded text-light">
-            <FaRegCheckCircle size={20} /> Upload Success!
-            </small>
-            <div className="grid grid-cols-4 gap-2">
-            {["/temp.png", "/temp.png", "/temp.png"].map((image, index) => (
-            <div key={index} className="relative">
-            <button type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full -top-2 -right-2 z-1 bg-secondary">
-            <FaMinus className="fill-light" />
-            </button>
-            <Img src={image || "/temp-business.webp"} alt={`Selected image ${index + 1}`} className="w-full h-48 rounded" />
-            </div>
-            ))}
-            </div> */}
-    </div>
-  );
-};
+const initAdditional = ["Bedrooms", "Outdoor Areas", "Indoor Areas", "More Pictures"].map((title) => ({
+  title,
+  field: [{ id: crypto.randomUUID(), description: "", name: "", photos: [], photosURLView: [] }],
+}));
 
 export const Media = () => {
-  const [sections, setSections] = React.useState<Section[]>([]);
+  const useStore = usePersistentData<Partial<Villa>>("get-villa");
+  const { setData, data } = useStore();
 
-  const addSection = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const title = prompt("Enter category title:");
-    if (title) {
-      setSections([
-        ...sections,
-        {
-          id: Date.now(),
-          title,
-          name: "",
-          description: "",
-          photo: null,
-        },
-      ]);
+  const defaultAdditional: Section[] = Object.values(
+    data.additionals?.reduce((acc, additional) => {
+      const key = additional.type; // Group by type
+
+      if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
+
+      acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos, photosURLView: [] });
+
+      return acc;
+    }, {} as Record<string, Section>) || {}
+  );
+
+  const [additional, setAdditional] = React.useState<Section[]>(defaultAdditional.length > 0 ? defaultAdditional : initAdditional);
+  const [modalAdditional, setModalAdditional] = React.useState<boolean>(false);
+
+  const [photos, setPhotos] = React.useState<string[]>([]);
+  const [videos, setVideos] = React.useState<string[]>([]);
+  const [video360s, setVideo360s] = React.useState<string[]>([]);
+
+  const { uploadFile } = useUploads<Payload<FileData>>();
+  const { mutate: deleteFile } = useCreateApi({ url: "storages", key: ["photoAdditional"] });
+
+  const handleModal = () => {
+    if (initAdditional.filter((add) => !additional.some((item) => item.title === add.title)).length > 0) {
+      setModalAdditional(true);
     }
   };
 
-  const deleteSection = (id: number) => {
-    setSections(sections.filter((section) => section.id !== id));
+  const addAdditional = (title: string) => {
+    setAdditional((prevAdditional) => [{ title, field: [{ id: crypto.randomUUID(), description: "", name: "", photos: [], photosURLView: [] }] }, ...prevAdditional]);
+    setModalAdditional(false);
   };
 
-  const resetSection = (e: React.MouseEvent, id: number) => {
+  // add field of sections
+  const addField = (e: React.MouseEvent, additionalIndex: number) => {
     e.preventDefault();
-    setSections(sections.map((section) => (section.id === id ? { ...section, name: "", description: "", photo: null } : section)));
+    setAdditional((prevAdditional) =>
+      prevAdditional.map((section, index) =>
+        index === additionalIndex
+          ? {
+              ...section,
+              field: [...section.field, { id: crypto.randomUUID(), name: "", description: "", photos: [], photosURLView: [] }],
+            }
+          : section
+      )
+    );
   };
 
-  const handleInputChange = (id: number, field: keyof Section, value: any) => {
-    setSections(sections.map((section) => (section.id === id ? { ...section, [field]: value } : section)));
+  // delete field of sections
+  const deleteField = (additionalIndex: number, fieldId: string) => {
+    if (additional[additionalIndex].field.length <= 1) return;
+
+    if (!window.confirm("Are you sure you want to delete?")) return;
+
+    setAdditional((prevAdditional) => prevAdditional.map((section, index) => (index === additionalIndex ? { ...section, field: section.field.filter((field) => field.id !== fieldId) } : section)));
   };
+
+  // reset field of sections
+  const resetField = (e: React.MouseEvent, additionalIndex: number, fieldId: string) => {
+    e.preventDefault();
+    setAdditional((prevAdditional) =>
+      prevAdditional.map((section, index) =>
+        index === additionalIndex
+          ? { ...section, field: section.field.map((field) => (field.id === fieldId ? { ...field, name: "", description: "", photos: [], photosURLView: [] } : field)) }
+          : section
+      )
+    );
+  };
+
+  // handle input text name or description inside field
+  const handleInputChange = (additionalIndex: number, fieldId: string, fieldName: "name" | "description", value: any) => {
+    setAdditional((prevSections) =>
+      prevSections.map((section, index) =>
+        index === additionalIndex ? { ...section, field: section.field.map((field) => (field.id === fieldId ? { ...field, [fieldName]: value } : field)) } : section
+      )
+    );
+  };
+
+  // handle input file change inside field
+  const handleFileInputChange = async (additionalIndex: number, fieldId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+
+    const { response } = await uploadFile(files!, "villa", "photos");
+
+    const viewFiles = files.map((file) => URL.createObjectURL(file));
+
+    if (response) {
+      setAdditional((prevSections) =>
+        prevSections.map((section, sIndex) =>
+          sIndex === additionalIndex
+            ? {
+                ...section,
+                field: section.field.map((field) =>
+                  field.id === fieldId ? { ...field, photos: [...field.photos, ...response.data.successFiles.map((file) => file.url)], photosURLView: [...field.photosURLView, ...viewFiles] } : field
+                ),
+              }
+            : section
+        )
+      );
+    }
+  };
+
+  // remove image inside field
+  const removeImage = async (additionalIndex: number, fieldId: string, imgIndex: number) => {
+    if (!window.confirm("Are you sure you want to remove?")) return;
+
+    deleteFile({ key: additional[additionalIndex].field.find((item) => item.id === fieldId)?.photos[imgIndex] });
+
+    setAdditional((prevSections) =>
+      prevSections.map((section, sIndex) =>
+        sIndex === additionalIndex
+          ? {
+              ...section,
+              field: section.field.map((field) =>
+                field.id === fieldId ? { ...field, photos: field.photos.filter((_, index) => index !== imgIndex), photosURLView: field.photosURLView.filter((_, index) => index !== imgIndex) } : field
+              ),
+            }
+          : section
+      )
+    );
+  };
+
+  const handleSubmitMedia = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const formattedData: Partial<Villa> = {
+      additionals: additional.flatMap((section) =>
+        section.field
+          .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)
+          .map((field) => ({
+            name: field.name,
+            type: section.title.toLowerCase(),
+            description: field.description,
+            photos: field.photos,
+          }))
+      ) as Villa["additionals"],
+      photos,
+      videos,
+      video360s,
+    };
+    setData(formattedData);
+    ToastMessage({ message: "Success saving media", color: "#22c55e" });
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  };
+
+  React.useEffect(() => {
+    if (data && data.photos && data.videos && data.video360s) {
+      setPhotos(data.photos);
+      setVideo360s(data.video360s);
+      setVideos(data.videos);
+    }
+  }, []);
 
   return (
     <div className="p-8 border rounded-b bg-light border-dark/30">
-      <form className="space-y-8">
+      <form className="space-y-8" onSubmit={handleSubmitMedia}>
         {/* Catalog Photo */}
-        <UploadPhoto title="Photo" description="Catalog Photo *" />
+        <UploadPhoto folder="villa" type="photos" title="Photo" description="Catalog Photo *" fileUrl={photos} setFileUrl={setPhotos} />
 
         {/* Catalog Video */}
-        <UploadPhoto title="Video" description="Catalog Video *" />
+        <UploadPhoto folder="villa" type="videos" title="Video" description="Catalog Video *" fileUrl={videos} setFileUrl={setVideos} />
 
         {/* 360 Tour */}
-        <UploadPhoto title="360 Tour" description="360 Tour *" />
+        <UploadPhoto folder="villa" type="video360s" title="360 Tour" description="360 Tour *" fileUrl={video360s} setFileUrl={setVideo360s} />
 
-        {/* Additional */}
+        {/* Additional Sections */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">Additional</h2>
-            <Button onClick={addSection} className="btn-green">
-              + Add More
+            <h2 className="heading">Additional</h2>
+            <Button onClick={handleModal} className="flex items-center gap-2 btn-primary" type="button">
+              <FaPlus /> Add Additional
             </Button>
           </div>
-          {sections.map((section) => (
-            <div key={section.id} className="pt-2 space-y-2">
-              <h2 className="text-lg font-semibold">{section.title}</h2>
-              <div key={section.id} className="flex items-center">
-                <label className="whitespace-nowrap min-w-60">Name</label>
-                <input type="text" placeholder={section.title} value={section.name} onChange={(e) => handleInputChange(section.id, "name", e.target.value)} className="input-text" />
-                <label className="px-8 whitespace-nowrap">Description</label>
-                <input
-                  type="text"
-                  placeholder="King bed, Single bed, Bathroom"
-                  value={section.description}
-                  onChange={(e) => handleInputChange(section.id, "description", e.target.value)}
-                  className="input-text"
-                />
+          <div className="space-y-8">
+            {additional.map((section, additionalIndex) => (
+              <div key={additionalIndex} className="pt-2 space-y-4">
+                <h2 className="text-lg font-semibold">{section.title}</h2>
+                {section.field.map((field) => (
+                  <div key={field.id} className="space-y-2">
+                    <div className="flex items-center">
+                      <label className="whitespace-nowrap min-w-60">Name</label>
+                      <input type="text" placeholder={section.title} value={field.name} onChange={(e) => handleInputChange(additionalIndex, field.id, "name", e.target.value)} className="input-text" />
+                      <label className="px-8 whitespace-nowrap">Description</label>
+                      <input
+                        type="text"
+                        placeholder="King bed, Single bed, Bathroom"
+                        value={field.description}
+                        onChange={(e) => handleInputChange(additionalIndex, field.id, "description", e.target.value)}
+                        className="input-text"
+                      />
+                    </div>
+                    <div className="flex items-center">
+                      <label className="whitespace-nowrap min-w-60">Photo</label>
+                      <div className="relative">
+                        <input type="file" id={field.name} onChange={(e) => handleFileInputChange(additionalIndex, field.id, e)} hidden accept="image/*" multiple />
+                        <label htmlFor={field.name} className="file-label">
+                          <FaUpload /> Browse
+                        </label>
+                      </div>
+                      <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      {field.photos.map((image, index) => (
+                        <div key={index} className="relative">
+                          <button
+                            onClick={() => removeImage(additionalIndex, field.id, index)}
+                            type="button"
+                            className="absolute flex items-center justify-center w-5 h-5 rounded-full -top-2 -right-2 z-1 bg-secondary"
+                          >
+                            <IoCloseOutline className="text-light" />
+                          </button>
+                          <Img src={image || "/temp-business.webp"} alt={`Selected image ${index + 1}`} className="w-full h-48 rounded" />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Button type="button" onClick={(e: React.MouseEvent) => resetField(e, additionalIndex, field.id)} className="w-full btn-outline">
+                        Reset
+                      </Button>
+                      <Button type="button" onClick={() => deleteField(additionalIndex, field.id)} className="w-full btn-red">
+                        Delete
+                      </Button>
+                      <Button type="button" onClick={(e: React.MouseEvent) => addField(e, additionalIndex)} className="flex items-center justify-center w-full gap-2 btn-primary">
+                        <FaPlus /> Add More
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center">
-                <label className="whitespace-nowrap min-w-60">Photo</label>
-                <div className="relative">
-                  <input type="file" onChange={(e) => handleInputChange(section.id, "photo", e.target.files?.[0] || null)} hidden accept="image/*" multiple />
-                  <label htmlFor="images" className="file-label">
-                    <FiUpload /> Browse
-                  </label>
-                </div>
-                <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <Button onClick={(e: React.MouseEvent) => resetSection(e, section.id)} className="w-full btn-outline">
-                  Reset
-                </Button>
-                <Button onClick={() => deleteSection(section.id)} className="w-full btn-red">
-                  Delete
-                </Button>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
         <div className="flex justify-end gap-4">
-          <Button className="btn-outline">Reset</Button>
-          <Button className="btn-primary">Save</Button>
+          <Button type="submit" className="btn-primary">
+            Save
+          </Button>
         </div>
       </form>
+      <Modal isVisible={modalAdditional} onClose={() => setModalAdditional(false)}>
+        <h2 className="text-lg font-bold">Add Additional</h2>
+        <div className="mt-4 overflow-y-auto border border-dark/30">
+          {initAdditional
+            .filter((add) => !additional.some((item) => item.title === add.title))
+            .map((add, index) => (
+              <div key={index} className="flex items-center justify-between p-2 border-b border-dark/30">
+                <span>{add.title}</span>
+                <Button onClick={() => addAdditional(add.title)} className="btn-outline">
+                  <FaPlus />
+                </Button>
+              </div>
+            ))}
+        </div>
+        {/* <div className="flex items-center w-full my-6">
+                <div className="flex-grow h-px bg-dark/30"></div>
+                <span className="flex-shrink-0 px-3 text-sm text-dark">or</span>
+                <div className="flex-grow h-px bg-dark/30"></div>
+              </div> */}
+        {/* <Button onClick={addFacility} className="flex items-center justify-center w-full gap-2 btn-primary">
+                <FaPlus /> Add new key feature
+              </Button> */}
+      </Modal>
     </div>
   );
 };

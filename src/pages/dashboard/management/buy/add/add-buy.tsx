@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
@@ -23,8 +23,9 @@ const tabs = ["General", "Media", "Location", "Key Features", "Service & Feature
 
 export const AddBuyPage = () => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
-  const { mutate: addProperty } = useCreateApi<Partial<Property>>("properties", ["add-property"]);
+  const { mutate: addProperty } = useCreateApi<Partial<Property>>({ url: "properties", key: ["add-property"], redirectPath: "/dashboard/management/buy" });
 
   const useStore = usePersistentData<Partial<Property>>("add-property");
 
@@ -35,17 +36,25 @@ export const AddBuyPage = () => {
   });
 
   React.useEffect(() => {
+    // Set active tab in session storage when on the add villa page
     if (pathname === "/dashboard/management/buy/add") {
       sessionStorage.setItem("activeTab", activeTab);
     }
 
+    // Cleanup function that runs when component unmounts or dependencies change
     return () => {
-      if (window.location.pathname !== "/dashboard/management/buy/add") {
-        if (!window.confirm("Are you sure you want to move the page before publish your property?")) return;
-        sessionStorage.clear();
+      const isLeavingAddPage = pathname === "/dashboard/management/buy/add" && window.location.pathname !== "/dashboard/management/buy/add";
+      if (isLeavingAddPage) {
+        const confirmLeave = window.confirm("Are you sure you want to move the page before publish your property?");
+        if (confirmLeave) {
+          sessionStorage.clear();
+          localStorage.clear();
+        } else {
+          navigate("/dashboard/management/buy/add");
+        }
       }
     };
-  }, [activeTab, pathname]);
+  }, [activeTab, pathname, navigate]);
 
   // const handleSaveDraft = (e: React.MouseEvent) => {
   //   e.preventDefault();
@@ -54,11 +63,8 @@ export const AddBuyPage = () => {
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
-    const processData = deleteKeysObject(data, ["currencyCode", "ownerName"]);
+    const processData = deleteKeysObject(data, ["currency"]);
     addProperty(processData);
-    setTimeout(() => {
-      window.location.href = "/dashboard/management/buy";
-    }, 2000);
   };
 
   return (

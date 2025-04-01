@@ -1,5 +1,7 @@
-import { Currency } from "./currency";
 import { AdditionalItem, Facilities, Features, PlaceNearby } from "./global";
+
+import { Currency } from "./currency";
+import { Owner } from "./owner";
 
 export interface Property {
   id: string;
@@ -23,10 +25,9 @@ export interface Property {
   video360s: string[];
   soldStatus: boolean;
   currencyId: string;
-  currencyCode: string;
   currency: Currency;
   ownerId: string;
-  ownerName: string;
+  owner: Owner;
   createdAt: string;
   updatedAt: string;
   additionals: AdditionalItem[];

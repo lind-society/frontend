@@ -1,16 +1,53 @@
 {
   "state": {
     "data": {
-      "additionals": [
-        { "name": "test", "type": "bedrooms", "description": "stsdf", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/fotootooodsaf-1742830575574.jpg"] },
-        { "name": "stewfd", "type": "outdoor areas", "description": "fwefasdf", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/login-background-1742830592360.png"] },
-        { "name": "uyiuiu", "type": "indoor areas", "description": "werwqer", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/login-background-1742830606477.png"] },
-        { "name": "fwqef", "type": "more pictures", "description": "adsfqwefdsf", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/image-1742830624201.jpg"] },
-        { "name": "fwqfwqef", "type": "more pictures", "description": "qwefasdf", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/fotootooodsaf-1742830632332.jpg"] }
+      "facilities": [{ "id": "e3453623-4098-4344-a898-5caf4685c133", "description": "lkhkads" }],
+      "features": [
+        {
+          "name": "testasdf",
+          "icon": { "key": "mdi:office-building", "url": "https://api.iconify.design/mdi/office-building.svg" },
+          "type": "Facilities",
+          "free": false,
+          "price": 50000,
+          "discountType": "percentage",
+          "discount": null,
+          "currencyId": "6558102a-3237-4f71-bc3f-addea8a51a56",
+          "currency": { "code": "IDR", "id": "6558102a-3237-4f71-bc3f-addea8a51a56" }
+        }
       ],
-      "photos": ["https://storage.googleapis.com/lind-society-dev/villa/login-background-1742830546793.png"],
-      "videos": ["https://storage.googleapis.com/lind-society-dev/villa/villa-1742830538522.mp4"],
-      "video360s": ["https://storage.googleapis.com/lind-society-dev/villa/test-pano-1742830555749.jpg"]
+      "address": "jln. akieuhfbqwef",
+      "postalCode": "546132",
+      "mapLink": "https://maps.app.goo.gl/xcJmDHCLmb62wsYh9",
+      "country": "United Arab Emirates",
+      "state": "Imārat Ra’s al Khaymah",
+      "city": "Ras Al Khaimah",
+      "placeNearby": [
+        { "name": "Uluwatu", "distance": 300 },
+        { "name": "Kuta", "distance": 100 },
+        { "name": "Canggu", "distance": 180 }
+      ],
+      "additionals": [
+        { "name": "test", "type": "bedrooms", "description": "adsfjkbdf", "photos": ["https://storage.googleapis.com/lind-society-dev/property/suzy-1743510726641.jfif"] },
+        { "name": "test 2", "type": "outdoor areas", "description": "ioupupoi", "photos": ["https://storage.googleapis.com/lind-society-dev/property/download-1743510730878.jfif"] },
+        {
+          "name": "test 3",
+          "type": "indoor areas",
+          "description": "paoidpofa",
+          "photos": ["https://storage.googleapis.com/lind-society-dev/property/lee-doona-icons---doona-kdrama-1743510735763.jfif"]
+        },
+        { "name": "test 4", "type": "more pictures", "description": "dfgkljlkjlksfgd", "photos": ["https://storage.googleapis.com/lind-society-dev/property/suzy-1743510740507.jpg"] }
+      ],
+      "photos": ["https://storage.googleapis.com/lind-society-dev/property/suzy-1743510678616.jfif"],
+      "videos": ["https://storage.googleapis.com/lind-society-dev/property/villa-1743510688075.mp4"],
+      "video360s": ["https://storage.googleapis.com/lind-society-dev/property/test-pano-1743510704695.jpg"],
+      "name": "propertyy",
+      "secondaryName": "cangau",
+      "highlight": "uasyfuyiuwhqiuhfdsaf",
+      "currencyId": "6558102a-3237-4f71-bc3f-addea8a51a56",
+      "ownerId": "acb43d8f-bd52-4806-b4ef-4af217c795b0",
+      "ownershipType": "freehold",
+      "price": 500000,
+      "discount": 10
     }
   },
   "version": 0

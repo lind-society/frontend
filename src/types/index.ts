@@ -10,6 +10,8 @@ export * from "./image";
 export * from "./toast-message";
 export * from "./background";
 export * from "./upload-photo";
+export * from "./option";
+export * from "./location-selector";
 
 export * from "./api/payload";
 export * from "./api/villa";
