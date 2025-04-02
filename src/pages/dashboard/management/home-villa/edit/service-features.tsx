@@ -6,7 +6,7 @@ import IconifyPicker from "@zunicornshift/mui-iconify-picker";
 
 import Select from "react-select";
 
-import { Button, Modal, ToastMessage } from "../../../../../components";
+import { Button, Modal, NumberInput, ToastMessage } from "../../../../../components";
 
 import { FaPenAlt, FaPlus } from "react-icons/fa";
 import { GrPowerReset } from "react-icons/gr";
@@ -14,14 +14,20 @@ import { FaTrashAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 
 import { baseCurrency, Feature, ItemFeature, mainFeatures, otherFeatures } from "../../../../../static";
+
 import { Currency, Data, Payload, Villa } from "../../../../../types";
 
 type OptionType = { value: string; label: string };
 
 export const ServiceFeatures = () => {
   // store data to session storage
-  const useStore = usePersistentData<Partial<Villa>>("get-villa");
-  const { data, setData } = useStore();
+  const useStore = usePersistentData<Villa>("get-villa");
+  const useEdit = usePersistentData<Villa>("edit-villa");
+
+  const { data: dataBeforeEdit } = useStore();
+  const { setData, data: dataAfterEdit } = useEdit();
+
+  const data = dataAfterEdit.features ? dataAfterEdit : dataBeforeEdit;
 
   const defaultFeature: Feature[] = Object.values(
     data.features?.reduce((acc, feature) => {
@@ -45,12 +51,8 @@ export const ServiceFeatures = () => {
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
 
-  // useEffect(() => {
-  //   localStorage.setItem("categories", JSON.stringify(categories));
-  // }, [categories]);
-
   const updateFeatureIcon = (key: string | null, e: React.MouseEvent<HTMLElement>) => {
-    const url = (e.target as HTMLImageElement).src; // Extract src as string
+    const url = (e.target as HTMLImageElement).src;
     setFeatures((prevFeatures) => prevFeatures.map((feature) => (feature.id === idIcon ? { ...feature, icon: { url, key: key ?? "" } } : feature)));
   };
 
@@ -72,7 +74,7 @@ export const ServiceFeatures = () => {
         id: crypto.randomUUID(),
         name: "New Category",
         icon: { url: "", key: "" },
-        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: { label: "", value: "" }, hidden: false }],
+        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
         isEditing: false,
       },
       ...prevFeatures,
@@ -88,7 +90,7 @@ export const ServiceFeatures = () => {
         id: findDefaultFeatureValue?.id || "",
         name,
         icon,
-        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: { label: "", value: "" }, hidden: false }],
+        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
         isEditing: false,
       },
       ...prevFeatures,
@@ -107,7 +109,7 @@ export const ServiceFeatures = () => {
               id: feature.id,
               name: findDefaultFeatureValue?.name || "New Category",
               icon: { url: findDefaultFeatureValue?.icon.url || "", key: findDefaultFeatureValue?.icon.key || "" },
-              items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: { label: "", value: "" }, hidden: false }],
+              items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
               isEditing: false,
             }
           : feature
@@ -162,7 +164,7 @@ export const ServiceFeatures = () => {
 
   const handleSubmitService = (e: React.MouseEvent) => {
     e.preventDefault();
-
+    // Submit service and features data here
     const formattedData = {
       features: features.flatMap((feature) =>
         feature.items
@@ -176,6 +178,7 @@ export const ServiceFeatures = () => {
             discountType: "percentage",
             discount: null,
             currencyId: item.currency?.value || baseCurrency,
+            currency: { code: item.currency?.label, id: item.currency?.value },
           }))
       ) as Villa["features"],
     };
@@ -264,15 +267,9 @@ export const ServiceFeatures = () => {
                         isDisabled={item.free}
                         required
                       />
-                      <input
-                        type="number"
+                      <NumberInput
                         className="input-text"
                         placeholder={item.currency?.label ? `Enter currency in ${item.currency?.label}` : "Select currency first"}
-                        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                          if (["e", "E", "+", "-"].includes(e.key)) {
-                            e.preventDefault();
-                          }
-                        }}
                         value={item.price}
                         onChange={(e) => updateItems(feature.id, item.id, "price", e.target.value)}
                         disabled={item.free || !item.currency}
@@ -296,7 +293,7 @@ export const ServiceFeatures = () => {
             </div>
           </div>
         ))}
-        {/* Save and Cancel Buttons */}
+
         <div className="flex justify-end gap-4">
           {/* <Button className="btn-outline">Reset</Button> */}
           <Button className="btn-primary" onClick={handleSubmitService}>

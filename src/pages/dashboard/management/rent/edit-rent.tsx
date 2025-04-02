@@ -222,7 +222,6 @@ export const EditRentPage = () => {
             <p className="pt-2 text-lg font-semibold border-t border-dark/30">Total: IDR {calculateTotal()}</p>
           </div>
 
-          {/* Save and Cancel Buttons */}
           <div className="flex justify-end gap-4">
             <Button className="btn-outline">Reset</Button>
             <Button className="btn-primary">Save</Button>

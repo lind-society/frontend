@@ -4,7 +4,6 @@ export * from "./container";
 export * from "./dropdown";
 export * from "./modal";
 export * from "./pagination";
-export * from "./slider";
 export * from "./motion";
 export * from "./image";
 export * from "./toast-message";

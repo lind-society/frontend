@@ -62,7 +62,7 @@ export const KeyFeatures = () => {
 
   const handleSubmitService = (e: React.MouseEvent) => {
     e.preventDefault();
-
+    // Submit key features data here
     const formattedData = {
       facilities: facilities
         .filter((feature) => feature.description !== "")

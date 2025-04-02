@@ -1,87 +1,53 @@
 import * as React from "react";
 
-import { useGetApi, usePersistentData } from "../../../../../hooks";
+import { useGetApi, useGetApiWithAuth, usePersistentData } from "../../../../../hooks";
 
 import Select from "react-select";
 
-import { Button, ToastMessage } from "../../../../../components";
+import { Button, NumberInput, ToastMessage } from "../../../../../components";
 
-import { Currency, Data, Payload, Villa } from "../../../../../types";
-
-type AvailabilityType = "daily" | "monthly" | "yearly";
-type OptionType = { value: string; label: string };
-
-const initAvailability = { daily: "", monthly: "", yearly: "" };
+import { Currency, Data, OptionType, Owner, Payload, Property } from "../../../../../types";
 
 export const General = () => {
   // store data to session storage
-  const useStore = usePersistentData<Villa>("get-property");
-  const useEdit = usePersistentData<Villa>("edit-property");
+  const useStore = usePersistentData<Property>("get-property");
+  const useEdit = usePersistentData<Property>("edit-Property");
 
   const { data: dataBeforeEdit } = useStore();
   const { setData, data: dataAfterEdit } = useEdit();
 
-  const data = dataAfterEdit.name ? dataAfterEdit : dataBeforeEdit;
+  const dataCondition =
+    dataAfterEdit.name || dataAfterEdit.highlight || dataAfterEdit.secondaryName || dataAfterEdit.currencyId || dataAfterEdit.price || dataAfterEdit.soldStatus || dataAfterEdit.ownershipType;
+  const data = dataCondition ? dataAfterEdit : dataBeforeEdit;
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
 
-  const defaultPrice = { daily: String(data.priceDaily), monthly: String(data.priceMonthly), yearly: String(data.priceYearly) };
-  const defaultDiscount = { daily: String(data.discountDaily), monthly: String(data.discountMonthly), yearly: String(data.discountYearly) };
-  const defaultAvailability = { daily: data.availability?.includes("daily") || true, monthly: data.availability?.includes("monthly") || false, yearly: data.availability?.includes("yearly") || false };
-  const defaultAvailabilityPriceMonthly = String(data.availabilityPerPrice?.find((item) => item.availability === "monthly")?.quota);
-  const defaultAvailabilityPriceYearly = String(data.availabilityPerPrice?.find((item) => item.availability === "yearly")?.quota);
+  const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
 
   const [name, setName] = React.useState<string>(data.name || "");
   const [secondaryName, setSecondaryName] = React.useState<string>(data.secondaryName || "");
   const [highlight, setHighlight] = React.useState<string>(data.highlight || "");
-  const [availability, setAvailability] = React.useState<Record<AvailabilityType, boolean>>(defaultAvailability);
-  const [price, setPrice] = React.useState<Record<AvailabilityType, string>>(defaultPrice || initAvailability);
-  const [discount, setDiscount] = React.useState<Record<AvailabilityType, string>>(defaultDiscount || initAvailability);
+  const [price, setPrice] = React.useState<string>(String(data.price) || "");
+  const [discount, setDiscount] = React.useState<string>(String(data.discount) || "");
+  const [ownershipType, setOwnershipType] = React.useState<string>(data.ownershipType || "leasehold");
+  const [soldStatus, setSoldStatus] = React.useState<boolean>(data.soldStatus || false);
   const [currency, setCurrency] = React.useState<OptionType | null>(null);
-  const [availabilityPriceMonthly, setAvailabilityPriceMonthly] = React.useState<string>(defaultAvailabilityPriceMonthly || "");
-  const [availabilityPriceYearly, setAvailabilityPriceYearly] = React.useState<string>(defaultAvailabilityPriceYearly || "");
-
-  const handleAvailabilityChange = (type: keyof typeof availability) => {
-    setAvailability((prev) => ({ ...prev, [type]: !prev[type] }));
-  };
-
-  const handlePriceChange = (type: string, value: string) => {
-    setPrice((prev) => ({ ...prev, [type]: value }));
-  };
-
-  const handleDiscountChange = (key: string, value: string) => {
-    if (+value > 100 || +value < 0) return;
-    setDiscount((prev) => ({ ...prev, [key]: value }));
-  };
+  const [owner, setOwner] = React.useState<OptionType | null>(null);
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
     e.preventDefault();
+    // Submit general data here
     const formattedData = {
       name,
       secondaryName,
       highlight,
-      currencyId: currency?.value,
-      availabilityPerPrice: [
-        {
-          quota: +availabilityPriceMonthly || 0,
-          availability: "monthly",
-        },
-        {
-          quota: +availabilityPriceYearly || 0,
-          availability: "yearly",
-        },
-      ],
-      availability: [availability.daily ? "daily" : null, availability.monthly ? "monthly" : null, availability.yearly ? "yearly" : null].filter(Boolean) as string[],
-      priceDaily: availability.daily ? +price.daily : 0,
-      priceMonthly: availability.monthly ? +price.monthly : 0,
-      priceYearly: availability.yearly ? +price.yearly : 0,
-      discountDaily: availability.daily ? +discount.daily : 0,
-      discountMonthly: availability.monthly ? +discount.monthly : 0,
-      discountYearly: availability.yearly ? +discount.yearly : 0,
-      checkOutHour: "10:00",
-      checkInHour: "12:00",
+      currencyId: currency?.value || "",
+      ownerId: owner?.value || "",
+      ownershipType: ownershipType,
+      price: +price || 0,
+      discount: +discount || 0,
+      soldStatus,
     };
-
     setData(formattedData);
     ToastMessage({ message: "Success saving general", color: "#22c55e" });
     setTimeout(() => {
@@ -90,14 +56,16 @@ export const General = () => {
   };
 
   React.useEffect(() => {
-    if (currencies) {
+    if (currencies && owners) {
       const findCurrency = currencies.data.data.find((c) => c.id === data.currencyId);
+      const findOwner = owners.data.data.find((o) => o.id === data.ownerId);
 
-      if (findCurrency) {
+      if (findCurrency && findOwner) {
         setCurrency({ label: findCurrency.code, value: findCurrency.id });
+        setOwner({ label: findOwner.name, value: findOwner.id });
       }
     }
-  }, [currencies]);
+  }, [currencies, owners]);
 
   return (
     <div className="p-8 border rounded-b bg-light border-dark/30">
@@ -105,26 +73,23 @@ export const General = () => {
       <form className="mt-6 space-y-8" onSubmit={handleSubmitGeneral}>
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Property name *</label>
-          <input type="text" className="input-text" placeholder="Urna Santal Villa" value={name} onChange={(e) => setName(e.target.value)} required />
+          <input type="text" className="input-text" placeholder="Urna Santal Property" value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Secondary property name *</label>
           <input type="text" className="input-text" placeholder="Urna Cangau" value={secondaryName} onChange={(e) => setSecondaryName(e.target.value)} required />
         </div>
 
-        <div className="flex items-center gap-4">
-          <label className="block whitespace-nowrap min-w-60">Availability *</label>
-          {(["daily", "monthly", "yearly"] as const).map((type) => (
-            <div key={type} className="flex items-center gap-2">
-              <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
-              <input
-                type="checkbox"
-                className="accent-primary"
-                checked={availability[type as keyof typeof availability]}
-                onChange={() => handleAvailabilityChange(type as keyof typeof availability)}
-              />
-            </div>
-          ))}
+        <div className="flex items-center">
+          <label className="block whitespace-nowrap min-w-60">Owner *</label>
+          <Select
+            className="w-full text-sm"
+            options={owners?.data.data.map((owner) => ({ value: owner.id, label: owner.name }))}
+            value={owner}
+            onChange={(option) => setOwner(option)}
+            placeholder="Select Owner"
+            required
+          />
         </div>
 
         <div className="flex items-center">
@@ -139,82 +104,61 @@ export const General = () => {
           />
         </div>
 
-        <div className="space-y-4">
-          {(["daily", "monthly", "yearly"] as const)
-            .filter((type) => availability[type] === true)
-            .map((type) => (
-              <div key={type} className="flex items-center">
-                <label className="block whitespace-nowrap min-w-60">Price ({type}) *</label>
+        <div className="flex items-center">
+          <label className="block whitespace-nowrap min-w-60">Price *</label>
+          <div className="flex items-center w-full gap-4">
+            <NumberInput
+              className="input-text"
+              value={price}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (+value < 0) return;
+                setPrice(value);
+              }}
+              placeholder={currency?.label ? `Enter currency in ${currency?.label}` : "Select currency first"}
+              disabled={!currency}
+              required
+            />
 
-                <div className="flex items-center w-full gap-4">
-                  <input
-                    type="number"
-                    className="input-text"
-                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                      if (["e", "E", "+", "-"].includes(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
-                    value={price[type]}
-                    onChange={(e) => handlePriceChange(type, e.target.value)}
-                    placeholder={`Enter price in ${currency?.label}`}
-                    required
-                  />
+            <label className="block whitespace-nowrap">Discount</label>
 
-                  <label className="block whitespace-nowrap">Discount</label>
+            <NumberInput
+              className="input-text"
+              disabled={!currency}
+              value={discount}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (+value > 100 || +value < 0) return;
+                setDiscount(value);
+              }}
+              placeholder="e.g. 0%"
+            />
 
-                  <input
-                    type="number"
-                    className="input-text"
-                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                      if (["e", "E", "+", "-"].includes(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
-                    value={discount[type]}
-                    onChange={(e) => handleDiscountChange(type, e.target.value)}
-                    placeholder="e.g. 0%"
-                  />
+            <label className="block whitespace-nowrap">Discounted Price</label>
 
-                  <label className="block whitespace-nowrap">Discounted Price</label>
-
-                  <input type="number" className="input-text" value={+price[type] - +price[type] * ((+discount[type] || 0) / 100) || 0} readOnly />
-                </div>
-              </div>
-            ))}
+            <input type="number" className="input-text" value={+price - +price * ((+discount || 0) / 100) || 0} readOnly />
+          </div>
         </div>
 
-        {availability["monthly"] && (
-          <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">
-              Availability per price <br /> (Monthly) *
-            </label>
+        <div className="flex items-center gap-4">
+          <label className="block whitespace-nowrap min-w-60">Ownership *</label>
+          {(["freehold", "leasehold"] as const).map((ownership, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <span>{ownership}</span>
+              <input type="checkbox" className="accent-primary" checked={ownershipType.includes(ownership)} onChange={() => setOwnershipType(ownership)} />
+            </div>
+          ))}
+        </div>
 
-            <select onChange={(e) => setAvailabilityPriceMonthly(e.target.value)} value={availabilityPriceMonthly} className="w-full input-select">
-              {[...Array(12)].map((_, index) => (
-                <option key={index} value={index + 1}>
-                  {index + 1}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {availability["yearly"] && (
-          <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">
-              Availability per price <br /> (Yearly) *
-            </label>
-
-            <select onChange={(e) => setAvailabilityPriceYearly(e.target.value)} value={availabilityPriceYearly} className="w-full input-select">
-              {[...Array(10)].map((_, index) => (
-                <option key={index} value={index + 1}>
-                  {index + 1}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+        <div className="flex items-center gap-4">
+          <label className="block whitespace-nowrap min-w-60">Sold Status *</label>
+          {(["Yes", "No"] as const).map((ownership, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <span>{ownership}</span>
+              <input type="checkbox" className="accent-primary" checked={soldStatus === (ownership === "Yes")} onChange={() => setSoldStatus(ownership === "Yes")} />
+            </div>
+          ))}
+        </div>
 
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Highlights *</label>
@@ -222,7 +166,7 @@ export const General = () => {
             className="h-40 input-text"
             value={highlight}
             onChange={(e) => setHighlight(e.target.value)}
-            placeholder="The beautiful Uma Santai Villa is set in the background of the Kerobokan paddy fields swaying in the tropical wind."
+            placeholder="The beautiful Uma Santai Property is set in the background of the Kerobokan paddy fields swaying in the tropical wind."
             required
           />
         </div>

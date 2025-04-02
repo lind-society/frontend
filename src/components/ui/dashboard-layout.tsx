@@ -31,7 +31,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="relative flex bg-light">
-      <Toaster position="bottom-center" />
+      <Toaster position="bottom-center" containerClassName="!z-max" />
       <div onClick={() => setOpenNav(false)} className={`lg:hidden fixed inset-0 h-screen z-10000 bg-dark/50 ${openNav ? "block" : "hidden"}`} />
       <Sidebar openNav={openNav} isTabletMid={isTabletMid} />
       <div className="flex-1 w-full duration-300 lg:pl-72">

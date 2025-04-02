@@ -16,8 +16,14 @@ const houseRulesLists = ["Add check in rules", "Add check out rules", "Add late 
 const paymentTermsLists = ["Terms 1", "Terms 2", "Terms 3"];
 
 export const VillaPolicies = () => {
-  const useStore = usePersistentData<Partial<Villa>>("get-villa");
-  const { setData, data } = useStore();
+  // store data to session storage
+  const useStore = usePersistentData<Villa>("get-villa");
+  const useEdit = usePersistentData<Villa>("edit-villa");
+
+  const { data: dataBeforeEdit } = useStore();
+  const { setData, data: dataAfterEdit } = useEdit();
+
+  const data = dataAfterEdit.policies ? dataAfterEdit : dataBeforeEdit;
 
   const [houseRules, setHouseRules] = React.useState<Policies[]>(
     data.policies?.filter((policy) => policy.type === "house rules").map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) || []
@@ -37,6 +43,7 @@ export const VillaPolicies = () => {
 
   const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault();
+    // Submit policies data here
     const formattedData = {
       policies: [
         ...houseRules.map((rule) => ({
@@ -65,7 +72,6 @@ export const VillaPolicies = () => {
       <SectionPolicy title="House Rules" categories={houseRulesLists} defaultPolicies={houseRules} onUpdate={updatePolicies} />
       <SectionPolicy title="Payment Terms" categories={paymentTermsLists} defaultPolicies={paymentTerms} onUpdate={updatePolicies} />
 
-      {/* Save and Cancel Buttons */}
       <div className="flex justify-end gap-4">
         {/* <Button className="btn-outline">Reset</Button> */}
         <Button onClick={handleSubmit} className="btn-primary">

@@ -1,14 +1,15 @@
 import axios from "axios";
-import { baseApiURL } from "../static";
 
 import { ToastMessage } from "../components";
 
+import { baseApiURL } from "../static";
+
 interface UseFileUpload<T> {
-  uploadFile: (files: File | File[], folder: string, type: "photos" | "videos" | "video360s") => Promise<{ response: T | null; loading: boolean }>;
+  uploadFile: (files: File | File[], folder: string, type: "photos" | "videos" | "video360s") => Promise<{ response: T | null }>;
 }
 
 export const useUploads = <T>(): UseFileUpload<T> => {
-  const uploadFile = async (files: File | File[], folder: string, type: "photos" | "videos" | "video360s"): Promise<{ response: T | null; loading: boolean }> => {
+  const uploadFile = async (files: File | File[], folder: string, type: "photos" | "videos" | "video360s"): Promise<{ response: T | null }> => {
     const formData = new FormData();
     if (Array.isArray(files)) {
       files.forEach((file) => {
@@ -20,7 +21,6 @@ export const useUploads = <T>(): UseFileUpload<T> => {
 
     formData.append("key", folder);
 
-    let loading = true;
     try {
       const resData = await axios.post<T>(`/storages/${type}`, formData, {
         baseURL: baseApiURL,
@@ -31,13 +31,11 @@ export const useUploads = <T>(): UseFileUpload<T> => {
 
       ToastMessage({ message: "Success upload file", color: "#0d9488" });
 
-      loading = false;
-      return { response: resData.data, loading };
+      return { response: resData.data };
     } catch (error: any) {
       ToastMessage({ message: error.response?.data.message || "Upload file error", color: "#b91c1c" });
 
-      loading = false;
-      return { response: null, loading };
+      return { response: null };
     }
   };
 

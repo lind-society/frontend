@@ -4,7 +4,7 @@ import { useGetApi, useGetApiWithAuth, usePersistentData } from "../../../../../
 
 import Select from "react-select";
 
-import { Button, ToastMessage } from "../../../../../components";
+import { Button, NumberInput, ToastMessage } from "../../../../../components";
 
 import { Currency, Data, OptionType, Owner, Payload, Property } from "../../../../../types";
 
@@ -22,13 +22,14 @@ export const General = () => {
   const [highlight, setHighlight] = React.useState<string>(data.highlight || "");
   const [price, setPrice] = React.useState<string>(String(data.price) || "");
   const [discount, setDiscount] = React.useState<string>(String(data.discount) || "");
-  const [ownershipType, setOwnershipType] = React.useState<string>(data.ownershipType || "freehold");
+  const [ownershipType, setOwnershipType] = React.useState<string>(data.ownershipType || "leasehold");
   const [soldStatus, setSoldStatus] = React.useState<boolean>(data.soldStatus || false);
   const [currency, setCurrency] = React.useState<OptionType | null>(null);
   const [owner, setOwner] = React.useState<OptionType | null>(null);
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
     e.preventDefault();
+    // Submit general data here
     const formattedData = {
       name,
       secondaryName,
@@ -99,14 +100,8 @@ export const General = () => {
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Price *</label>
           <div className="flex items-center w-full gap-4">
-            <input
-              type="number"
+            <NumberInput
               className="input-text"
-              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                if (["e", "E", "+", "-"].includes(e.key)) {
-                  e.preventDefault();
-                }
-              }}
               value={price}
               onChange={(e) => {
                 const value = e.target.value;
@@ -120,14 +115,8 @@ export const General = () => {
 
             <label className="block whitespace-nowrap">Discount</label>
 
-            <input
-              type="number"
+            <NumberInput
               className="input-text"
-              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                if (["e", "E", "+", "-"].includes(e.key)) {
-                  e.preventDefault();
-                }
-              }}
               disabled={!currency}
               value={discount}
               onChange={(e) => {

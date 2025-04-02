@@ -9,7 +9,7 @@ import { Button, Img, Modal, ToastMessage, UploadPhoto } from "../../../../../co
 import { FaPlus, FaUpload } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 
-import { FileData, Payload, Villa } from "../../../../../types";
+import { FileData, Payload, Property } from "../../../../../types";
 import { capitalize } from "../../../../../utils";
 
 interface Section {
@@ -29,17 +29,20 @@ const initAdditional = ["Bedrooms", "Outdoor Areas", "Indoor Areas", "More Pictu
 }));
 
 export const Media = () => {
-  const useStore = usePersistentData<Partial<Villa>>("get-villa");
-  const { setData, data } = useStore();
+  // store data to session storage
+  const useStore = usePersistentData<Property>("get-property");
+  const useEdit = usePersistentData<Property>("edit-property");
+
+  const { data: dataBeforeEdit } = useStore();
+  const { setData, data: dataAfterEdit } = useEdit();
+
+  const data = dataAfterEdit.photos || dataAfterEdit.video360s || dataAfterEdit.videos || dataAfterEdit.additionals ? dataAfterEdit : dataBeforeEdit;
 
   const defaultAdditional: Section[] = Object.values(
     data.additionals?.reduce((acc, additional) => {
       const key = additional.type; // Group by type
-
       if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
-
       acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos, photosURLView: [] });
-
       return acc;
     }, {} as Record<string, Section>) || {}
   );
@@ -54,12 +57,14 @@ export const Media = () => {
   const { uploadFile } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi({ url: "storages", key: ["photoAdditional"] });
 
+  // handle pop up modal with condition
   const handleModal = () => {
     if (initAdditional.filter((add) => !additional.some((item) => item.title === add.title)).length > 0) {
       setModalAdditional(true);
     }
   };
 
+  // add additional from modal
   const addAdditional = (title: string) => {
     setAdditional((prevAdditional) => [{ title, field: [{ id: crypto.randomUUID(), description: "", name: "", photos: [], photosURLView: [] }] }, ...prevAdditional]);
     setModalAdditional(false);
@@ -156,8 +161,8 @@ export const Media = () => {
 
   const handleSubmitMedia = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const formattedData: Partial<Villa> = {
+    // Submit media data here
+    const formattedData = {
       additionals: additional.flatMap((section) =>
         section.field
           .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)
@@ -167,7 +172,7 @@ export const Media = () => {
             description: field.description,
             photos: field.photos,
           }))
-      ) as Villa["additionals"],
+      ) as Property["additionals"],
       photos,
       videos,
       video360s,
@@ -191,13 +196,13 @@ export const Media = () => {
     <div className="p-8 border rounded-b bg-light border-dark/30">
       <form className="space-y-8" onSubmit={handleSubmitMedia}>
         {/* Catalog Photo */}
-        <UploadPhoto folder="villa" type="photos" title="Photo" description="Catalog Photo *" fileUrl={photos} setFileUrl={setPhotos} />
+        <UploadPhoto folder="property" type="photos" title="Photo" description="Catalog Photo *" fileUrl={photos} setFileUrl={setPhotos} />
 
         {/* Catalog Video */}
-        <UploadPhoto folder="villa" type="videos" title="Video" description="Catalog Video *" fileUrl={videos} setFileUrl={setVideos} />
+        <UploadPhoto folder="property" type="videos" title="Video" description="Catalog Video *" fileUrl={videos} setFileUrl={setVideos} />
 
         {/* 360 Tour */}
-        <UploadPhoto folder="villa" type="video360s" title="360 Tour" description="360 Tour *" fileUrl={video360s} setFileUrl={setVideo360s} />
+        <UploadPhoto folder="property" type="video360s" title="360 Tour" description="360 Tour *" fileUrl={video360s} setFileUrl={setVideo360s} />
 
         {/* Additional Sections */}
         <div className="space-y-4">

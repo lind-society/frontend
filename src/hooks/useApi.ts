@@ -4,9 +4,10 @@ import { useQuery, useMutation, useQueryClient, QueryKey } from "@tanstack/react
 
 import Cookies from "universal-cookie";
 
+import toast from "react-hot-toast";
+
 import { baseApiURL } from "../static";
 import { Payload } from "../types";
-import { ToastMessage } from "../components";
 
 const cookies = new Cookies();
 
@@ -51,7 +52,7 @@ export const useCreateApi = <T>({ key, url, redirectPath }: { url: string; key: 
     mutationFn: async (newItem: T) => {
       try {
         const { data } = await axios.post<Payload<string>>(`${baseApiURL}/${url}`, newItem, getHeaders());
-        ToastMessage({ color: "#22c55e", message: data.message || "Success adding data" });
+        toast.success(data.message || "Success adding data");
         if (redirectPath) {
           setTimeout(() => {
             window.location.href = redirectPath;
@@ -62,8 +63,12 @@ export const useCreateApi = <T>({ key, url, redirectPath }: { url: string; key: 
         return data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const errorMessage = error.response?.data?.message || "Failed to add data";
-          throw new Error(errorMessage);
+          const responseData = error.response?.data;
+          if (responseData?.data) {
+            const errorMessages = responseData.data.map((err: { field: string; message: string[] }) => `${err.field}: ${err.message.join(", ")}`).join("\n");
+            throw new Error(errorMessages);
+          }
+          throw new Error(responseData?.message || "Failed to add data");
         }
         throw new Error("An unexpected error occurred");
       }
@@ -73,7 +78,7 @@ export const useCreateApi = <T>({ key, url, redirectPath }: { url: string; key: 
     },
     onError: (error: unknown) => {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      ToastMessage({ message: errorMessage, color: "#b91c1c" });
+      toast.error(errorMessage);
       return;
     },
   });
@@ -86,7 +91,7 @@ export const useUpdateApi = <T>({ key, url, redirectPath }: { url: string; key: 
     mutationFn: async ({ id, updatedItem }: { id: string; updatedItem: T }) => {
       try {
         const { data } = await axios.patch<Payload<string>>(`${baseApiURL}/${url}/${id}`, updatedItem, getHeaders());
-        ToastMessage({ color: "#0891b2", message: data.message || "Success updating data" });
+        toast.success(data.message || "Success updating data");
         if (redirectPath) {
           setTimeout(() => {
             window.location.href = redirectPath;
@@ -97,9 +102,12 @@ export const useUpdateApi = <T>({ key, url, redirectPath }: { url: string; key: 
         return data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const errorMessage = error.response?.data?.message || "Failed to updating data";
-          ToastMessage({ color: "#b91c1c", message: errorMessage });
-          throw new Error(errorMessage);
+          const responseData = error.response?.data;
+          if (responseData?.data) {
+            const errorMessages = responseData.data.map((err: { field: string; message: string[] }) => `${err.field}: ${err.message.join(", ")}`).join("\n");
+            throw new Error(errorMessages);
+          }
+          throw new Error(responseData?.message || "Failed to add data");
         }
         throw new Error("An unexpected error occurred");
       }
@@ -109,7 +117,7 @@ export const useUpdateApi = <T>({ key, url, redirectPath }: { url: string; key: 
     },
     onError: (error: unknown) => {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      ToastMessage({ message: errorMessage, color: "#b91c1c" });
+      toast.error(errorMessage);
     },
   });
 };
@@ -121,7 +129,7 @@ export const useDeleteApi = ({ key, url, redirectPath }: { url: string; key: Que
     mutationFn: async (id: string) => {
       try {
         const { data } = await axios.delete<Payload<string>>(`${baseApiURL}/${url}/${id}`, getHeaders());
-        ToastMessage({ message: data.message || "Success deleting data", color: "#b91c1c" });
+        toast.success(data.message || "Success deleting data");
         if (redirectPath) {
           setTimeout(() => {
             window.location.href = redirectPath;
@@ -130,10 +138,15 @@ export const useDeleteApi = ({ key, url, redirectPath }: { url: string; key: Que
         }
         return data;
       } catch (error) {
-        const errorMessage = axios.isAxiosError(error) ? error.response?.data?.message || "Failed to deleting data" : "An unexpected error occurred";
-
-        ToastMessage({ message: errorMessage, color: "#b91c1c" });
-        throw new Error(errorMessage);
+        if (axios.isAxiosError(error)) {
+          const responseData = error.response?.data;
+          if (responseData?.data) {
+            const errorMessages = responseData.data.map((err: { field: string; message: string[] }) => `${err.field}: ${err.message.join(", ")}`).join("\n");
+            throw new Error(errorMessages);
+          }
+          throw new Error(responseData?.message || "Failed to add data");
+        }
+        throw new Error("An unexpected error occurred");
       }
     },
     onSuccess: () => {
@@ -141,7 +154,7 @@ export const useDeleteApi = ({ key, url, redirectPath }: { url: string; key: Que
     },
     onError: (error: unknown) => {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      ToastMessage({ message: errorMessage, color: "#b91c1c" });
+      toast.error(errorMessage);
     },
   });
 };

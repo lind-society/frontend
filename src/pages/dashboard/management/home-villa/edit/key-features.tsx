@@ -21,8 +21,14 @@ interface Facilities {
 }
 
 export const KeyFeatures = () => {
-  const useStore = usePersistentData<Partial<Villa>>("get-villa");
-  const { setData, data } = useStore();
+  // store data to session storage
+  const useStore = usePersistentData<Villa>("get-villa");
+  const useEdit = usePersistentData<Villa>("edit-villa");
+
+  const { data: dataBeforeEdit } = useStore();
+  const { setData, data: dataAfterEdit } = useEdit();
+
+  const data = dataAfterEdit.facilities ? dataAfterEdit : dataBeforeEdit;
 
   const [facilities, setFacilities] = React.useState<Facilities[]>([]);
   const [idIcon, setIdIcon] = React.useState<string>();
@@ -61,9 +67,14 @@ export const KeyFeatures = () => {
 
   const handleSubmitService = (e: React.MouseEvent) => {
     e.preventDefault();
-
+    // Submit key features data here
     const formattedData = {
-      facilities: facilities.map((feature) => ({ facilityId: feature.id, description: feature.includeDescription ? feature.description : "" })) as unknown as Villa["facilities"],
+      facilities: facilities
+        .filter((feature) => feature.description !== "")
+        .map((feature) => ({
+          id: feature.id,
+          description: feature.includeDescription ? feature.description : "",
+        })) as Villa["facilities"],
     };
 
     setData(formattedData);

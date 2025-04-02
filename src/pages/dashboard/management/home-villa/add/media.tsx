@@ -53,12 +53,14 @@ export const Media = () => {
   const { uploadFile } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi({ url: "storages", key: ["photoAdditional"] });
 
+  // handle pop up modal with condition
   const handleModal = () => {
     if (initAdditional.filter((add) => !additional.some((item) => item.title === add.title)).length > 0) {
       setModalAdditional(true);
     }
   };
 
+  // add additional from modal
   const addAdditional = (title: string) => {
     setAdditional((prevAdditional) => [{ title, field: [{ id: crypto.randomUUID(), description: "", name: "", photos: [], photosURLView: [] }] }, ...prevAdditional]);
     setModalAdditional(false);
@@ -155,8 +157,8 @@ export const Media = () => {
 
   const handleSubmitMedia = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const formattedData: Partial<Villa> = {
+    // Submit media data here
+    const formattedData = {
       additionals: additional.flatMap((section) =>
         section.field
           .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)

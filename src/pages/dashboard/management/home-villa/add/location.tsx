@@ -2,9 +2,8 @@ import * as React from "react";
 
 import { usePersistentData } from "../../../../../hooks";
 
-import { Button, Modal, GoogleMaps, ToastMessage, LocationSelector } from "../../../../../components";
+import { Button, GoogleMaps, ToastMessage, LocationSelector, NumberInput } from "../../../../../components";
 
-import { IoMdSearch } from "react-icons/io";
 import { FaMinus, FaPlus } from "react-icons/fa";
 
 import { OptionType, Villa } from "../../../../../types";
@@ -13,14 +12,6 @@ interface PlaceNearby {
   name: string;
   distance: number;
 }
-
-const placeNearbyDefault: PlaceNearby[] = [
-  { name: "Kuta", distance: 100 },
-  { name: "Ubud", distance: 200 },
-  { name: "Seminyak", distance: 150 },
-  { name: "Canggu", distance: 180 },
-  { name: "Nusa Dua", distance: 250 },
-];
 
 export const Location = () => {
   // store data to session storage
@@ -31,8 +22,9 @@ export const Location = () => {
   const defaultState = data.state ? { label: data.state, value: data.state } : null;
   const defaultCity = data.city ? { label: data.city, value: data.city } : null;
 
-  const [modalInput, setModalInput] = React.useState<boolean>(false);
-  const [placeNearby, setPlaceNearby] = React.useState<PlaceNearby[]>(data.placeNearby || [{ name: "Uluwatu", distance: 300 }]);
+  const [placeName, setPlaceName] = React.useState<string>("");
+  const [placeDistance, setPlaceDistance] = React.useState<string>("");
+  const [placeNearby, setPlaceNearby] = React.useState<PlaceNearby[]>(data.placeNearby || []);
   const [address, setAddress] = React.useState<string>(data.address || "");
   const [postalCode, setPostalCode] = React.useState<string>(data.postalCode || "");
   const [mapLink, setMapLink] = React.useState<string>(data.mapLink || "");
@@ -41,8 +33,7 @@ export const Location = () => {
   const [selectedCity, setSelectedCity] = React.useState<OptionType | null>(defaultCity);
 
   const addPlaceNearby = (name: string, distance: number) => {
-    setPlaceNearby([...placeNearby, { name, distance }]);
-    setModalInput(false);
+    setPlaceNearby((prev) => [...prev, { name, distance }]);
   };
 
   const removePlaceNearby = (id: number) => {
@@ -76,19 +67,16 @@ export const Location = () => {
           setSelectedCity={setSelectedCity}
         />
 
-        {/* Location name */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Address *</label>
           <input type="text" required className="input-text" placeholder="Jln. Soekarno Hatta No. 59" value={address} onChange={(e) => setAddress(e.target.value)} />
         </div>
 
-        {/* Postal code */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Postal code *</label>
           <input type="text" required className="input-text" placeholder="1234567" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
         </div>
 
-        {/* Google Map Link */}
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Google Map Link *</label>
           <input type="text" required className="input-text" placeholder="https://maps.app.goo.gl/aDuVPL5Z71jRMsjz5" value={mapLink} onChange={(e) => setMapLink(e.target.value)} />
@@ -100,13 +88,21 @@ export const Location = () => {
           <GoogleMaps mapUrl="https://maps.app.goo.gl/rcrFYutJQTHq2Cs67" />
         </div>
 
-        {/* Nearest Place */}
-        <h2 className="mt-8 heading">Nearest Place</h2>
-        <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/30">
-          <input type="text" placeholder="Search place" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" onClick={() => setModalInput(true)} readOnly />
-          <button type="button" className="flex items-center justify-center h-10 text-light bg-primary w-14">
-            <IoMdSearch size={25} />
-          </button>
+        <div className="space-y-2">
+          <h2 className="mt-8 heading">Nearest Place</h2>
+          <div className="flex items-stretch w-full gap-2">
+            <input
+              type="text"
+              placeholder={`Enter the name of the closest place from ${data.name || "property"}`}
+              className="input-text"
+              value={placeName}
+              onChange={(e) => setPlaceName(e.target.value)}
+            />
+            <NumberInput placeholder="Enter the distance in meters" className="input-text max-w-60" value={placeDistance} onChange={(e) => setPlaceDistance(e.target.value)} />
+            <Button type="button" className="flex items-center gap-2 btn-primary whitespace-nowrap" onClick={() => addPlaceNearby(placeName, +placeDistance)}>
+              <FaPlus size={20} /> Add
+            </Button>
+          </div>
         </div>
 
         <div className="mt-4 space-y-2">
@@ -123,7 +119,6 @@ export const Location = () => {
           ))}
         </div>
 
-        {/* Save and Cancel Buttons */}
         <div className="flex justify-end gap-4 mt-8">
           {/* <Button type="button" className="btn-outline">
             Reset
@@ -133,30 +128,6 @@ export const Location = () => {
           </Button>
         </div>
       </form>
-
-      <Modal isVisible={modalInput} onClose={() => setModalInput(false)}>
-        <div className="flex items-stretch w-full mt-4 overflow-hidden border rounded border-dark/30">
-          <input type="text" placeholder="Search place" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" />
-          <button type="button" className="flex items-center justify-center h-10 text-light bg-primary w-14">
-            <IoMdSearch size={25} />
-          </button>
-        </div>
-        <div className="mt-6 space-y-4">
-          {placeNearbyDefault
-            .filter((place) => !placeNearby.some((f) => f.name === place.name))
-            .map((place, index) => (
-              <span key={index} className="flex items-center justify-between w-full px-8 pb-4 border-b border-dark/30">
-                <p>{place.name}</p>
-                <p className="flex items-center gap-8">
-                  {place.distance} m
-                  <button type="button" onClick={() => addPlaceNearby(place.name, place.distance)}>
-                    <FaPlus size={24} />
-                  </button>
-                </p>
-              </span>
-            ))}
-        </div>
-      </Modal>
     </div>
   );
 };

@@ -1,20 +1,22 @@
 import * as React from "react";
 
-import { useUpdateApi } from "../../../../hooks";
+import { useCreateApi } from "../../../../hooks";
 
 import { Button, Modal, NumberInput } from "../../../../components";
 
-import { FaEdit } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 
 import { deleteKeysObject } from "../../../../utils";
 
 import { Owner } from "../../../../types";
 
-export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
-  const [editModal, setEditModal] = React.useState<boolean>(false);
-  const [owner, setOwner] = React.useState<Owner>(ownerItem);
+const initValue = { name: "", type: "", companyName: "", email: "", phoneNumber: "", address: "", website: "", status: "" };
 
-  const { mutate: editOwner } = useUpdateApi({ key: ["edit-owner"], url: "owners", redirectPath: "/dashboard/management/owner" });
+export const AddOwnerPage = () => {
+  const [addModal, setAddModal] = React.useState<boolean>(false);
+  const [owner, setOwner] = React.useState<Partial<Owner>>(initValue);
+
+  const { mutate: addOwner } = useCreateApi({ key: ["add-owner"], url: "owners", redirectPath: "/dashboard/management/owner" });
 
   const handleChange = (key: keyof Owner, value: string) => {
     setOwner((prev) => ({ ...prev, [key]: value }));
@@ -23,17 +25,16 @@ export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const ownerProcess = deleteKeysObject(owner, ["id", "activities", "properties", "villas", "createdAt", "updatedAt"]);
-    editOwner({ id: owner.id, updatedItem: ownerProcess });
+    addOwner(ownerProcess);
   };
 
   return (
     <>
-      <button onClick={() => setEditModal(true)}>
-        <FaEdit size={20} className="cursor-pointer text-primary" />
-      </button>
-
-      <Modal onClose={() => setEditModal(false)} isVisible={editModal}>
-        <h2 className="heading">Edit Owner Data</h2>
+      <Button className="flex items-center gap-2 btn-primary" onClick={() => setAddModal(true)}>
+        <FaPlus /> Add Owner
+      </Button>
+      <Modal onClose={() => setAddModal(false)} isVisible={addModal}>
+        <h2 className="heading">Add Owner Data</h2>
 
         <form className="mt-6 space-y-8" onSubmit={handleSubmit}>
           {/* Property name */}
@@ -51,7 +52,7 @@ export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
           </div>
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-60">Status *</label>
-            <select className="w-full input-select" value={owner.status} onChange={(e) => handleChange("status", e.target.value)}>
+            <select className="w-full input-select" value={owner.status} onChange={(e) => handleChange("status", e.target.value)} required>
               <option disabled value="">
                 Select status
               </option>
@@ -61,7 +62,7 @@ export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
           </div>
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-60">Type *</label>
-            <select className="w-full input-select" value={owner.type} onChange={(e) => handleChange("type", e.target.value)}>
+            <select className="w-full input-select" value={owner.type} onChange={(e) => handleChange("type", e.target.value)} required>
               <option disabled value="">
                 Select type
               </option>

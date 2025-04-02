@@ -26,6 +26,7 @@ export default {
         1000: "1000",
         10000: "10000",
         100000: "100000",
+        max: "999999",
       },
       boxShadow: {
         "custom-border": "0 0 0 2px rgba(185, 28, 28, 0.9)",

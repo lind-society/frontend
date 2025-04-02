@@ -197,7 +197,7 @@ input[type="number"]::-webkit-outer-spin-button {
     @apply w-full p-2 text-sm border rounded text-dark outline-none border-dark/30 focus:border-teal-500 focus:ring-1 focus:ring-teal-500;
   }
   .input-select {
-    @apply p-2 text-sm border border-dark/30 focus:border-teal-500 outline-none rounded focus:ring-1 focus:ring-teal-500;
+    @apply p-2 text-sm border border-dark/30 text-dark focus:border-teal-500 outline-none rounded focus:ring-1 focus:ring-teal-500;
   }
   .popover {
     @apply absolute p-4 space-y-2 -translate-x-1/2 border border-gray rounded shadow-lg left-1/2 w-full bg-light text-dark z-100;

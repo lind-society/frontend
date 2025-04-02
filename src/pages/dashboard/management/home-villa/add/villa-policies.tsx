@@ -39,6 +39,7 @@ export const VillaPolicies = () => {
 
   const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault();
+    // Submit policies data here
     const formattedData = {
       policies: [
         ...houseRules.map((rule) => ({
@@ -67,7 +68,6 @@ export const VillaPolicies = () => {
       <SectionPolicy title="House Rules" categories={houseRulesLists} defaultPolicies={houseRules} onUpdate={updatePolicies} />
       <SectionPolicy title="Payment Terms" categories={paymentTermsLists} defaultPolicies={paymentTerms} onUpdate={updatePolicies} />
 
-      {/* Save and Cancel Buttons */}
       <div className="flex justify-end gap-4">
         {/* <Button className="btn-outline">Reset</Button> */}
         <Button onClick={handleSubmit} className="btn-primary">

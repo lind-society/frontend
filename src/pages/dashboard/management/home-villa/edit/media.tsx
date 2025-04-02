@@ -29,17 +29,20 @@ const initAdditional = ["Bedrooms", "Outdoor Areas", "Indoor Areas", "More Pictu
 }));
 
 export const Media = () => {
-  const useStore = usePersistentData<Partial<Villa>>("get-villa");
-  const { setData, data } = useStore();
+  // store data to session storage
+  const useStore = usePersistentData<Villa>("get-villa");
+  const useEdit = usePersistentData<Villa>("edit-villa");
+
+  const { data: dataBeforeEdit } = useStore();
+  const { setData, data: dataAfterEdit } = useEdit();
+
+  const data = dataAfterEdit.photos || dataAfterEdit.video360s || dataAfterEdit.videos || dataAfterEdit.additionals ? dataAfterEdit : dataBeforeEdit;
 
   const defaultAdditional: Section[] = Object.values(
     data.additionals?.reduce((acc, additional) => {
       const key = additional.type; // Group by type
-
       if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
-
       acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos, photosURLView: [] });
-
       return acc;
     }, {} as Record<string, Section>) || {}
   );
@@ -54,12 +57,14 @@ export const Media = () => {
   const { uploadFile } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi({ url: "storages", key: ["photoAdditional"] });
 
+  // handle pop up modal with condition
   const handleModal = () => {
     if (initAdditional.filter((add) => !additional.some((item) => item.title === add.title)).length > 0) {
       setModalAdditional(true);
     }
   };
 
+  // add additional from modal
   const addAdditional = (title: string) => {
     setAdditional((prevAdditional) => [{ title, field: [{ id: crypto.randomUUID(), description: "", name: "", photos: [], photosURLView: [] }] }, ...prevAdditional]);
     setModalAdditional(false);
@@ -156,8 +161,8 @@ export const Media = () => {
 
   const handleSubmitMedia = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const formattedData: Partial<Villa> = {
+    // Submit media data here
+    const formattedData = {
       additionals: additional.flatMap((section) =>
         section.field
           .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)

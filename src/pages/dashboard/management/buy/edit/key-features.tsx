@@ -10,7 +10,7 @@ import { GrPowerReset } from "react-icons/gr";
 import { IoClose } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 
-import { Data, Payload, Villa } from "../../../../../types";
+import { Data, Payload, Property } from "../../../../../types";
 
 interface Facilities {
   id: string;
@@ -21,14 +21,20 @@ interface Facilities {
 }
 
 export const KeyFeatures = () => {
-  const useStore = usePersistentData<Partial<Villa>>("get-villa");
-  const { setData, data } = useStore();
+  // store data to session storage
+  const useStore = usePersistentData<Property>("get-property");
+  const useEdit = usePersistentData<Property>("edit-property");
+
+  const { data: dataBeforeEdit } = useStore();
+  const { setData, data: dataAfterEdit } = useEdit();
+
+  const data = dataAfterEdit.facilities ? dataAfterEdit : dataBeforeEdit;
 
   const [facilities, setFacilities] = React.useState<Facilities[]>([]);
   const [idIcon, setIdIcon] = React.useState<string>();
   const [modalFeature, setModalFeature] = React.useState<boolean>(false);
 
-  const { data: responseFacilities } = useGetApi<Payload<Data<Villa["facilities"]>>>({ key: ["facilities"], url: "facilities", params: { limit: "20" } });
+  const { data: responseFacilities } = useGetApi<Payload<Data<Property["facilities"]>>>({ key: ["facilities"], url: "facilities", params: { limit: "20" } });
 
   // const addFacility = () => {
   //   setFacilities((prevFacilities) => [{ id: crypto.randomUUID(), name: "", icon: { url: "", key: "" }, description: "", includeDescription: true }, ...prevFacilities]);
@@ -61,9 +67,14 @@ export const KeyFeatures = () => {
 
   const handleSubmitService = (e: React.MouseEvent) => {
     e.preventDefault();
-
+    // Submit key features data here
     const formattedData = {
-      facilities: facilities.map((feature) => ({ facilityId: feature.id, description: feature.includeDescription ? feature.description : "" })) as unknown as Villa["facilities"],
+      facilities: facilities
+        .filter((feature) => feature.description !== "")
+        .map((feature) => ({
+          id: feature.id,
+          description: feature.includeDescription ? feature.description : "",
+        })) as Property["facilities"],
     };
 
     setData(formattedData);

@@ -32,7 +32,6 @@ export const AddPackagePage = () => {
             <input type="text" className="input-text" placeholder="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veritatis, vel?" />
           </div>
 
-          {/* Save and Cancel Buttons */}
           <div className="flex justify-end gap-4">
             <Button className="btn-outline">Reset</Button>
             <Button className="btn-primary">Save</Button>

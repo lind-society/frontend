@@ -16,16 +16,16 @@ import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks
 import { Payload, Property } from "../../../../../types";
 import { deleteKeysObject } from "../../../../../utils";
 
-const tabs = ["Rent Management", "General", "Media", "Location", "Service & Features"];
+const tabs = ["Rent Management", "General", "Media", "Location", "Key Features", "Service & Features"];
 
 export const EditBuyPage = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const params = useParams();
 
-  const { mutate: editProperty } = useUpdateApi<Partial<Property>>({ url: "property", key: ["editing-property"], redirectPath: "/dashboard/management/buy" });
+  const { mutate: editProperty } = useUpdateApi<Partial<Property>>({ url: "properties", key: ["editing-property"], redirectPath: "/dashboard/management/buy" });
 
-  const { data: responseProperty, isLoading } = useGetApi<Payload<Property>>({ url: `property/${params.id}`, key: ["get-property"] });
+  const { data: responseProperty, isLoading } = useGetApi<Payload<Property>>({ url: `properties/${params.id}`, key: ["get-property"] });
 
   const useStore = usePersistentData<Property>("get-property");
   const useEdit = usePersistentData<Property>("edit-property");
