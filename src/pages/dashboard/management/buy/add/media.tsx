@@ -53,17 +53,14 @@ export const Media = () => {
   const { uploadFile } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi({ url: "storages", key: ["photoAdditional"] });
 
-  // handle pop up modal with condition
-  const handleModal = () => {
-    if (initAdditional.filter((add) => !additional.some((item) => item.title === add.title)).length > 0) {
-      setModalAdditional(true);
-    }
-  };
+  const otherAdditional = initAdditional.filter((add) => !additional.some((item) => item.title === add.title));
 
   // add additional from modal
   const addAdditional = (title: string) => {
     setAdditional((prevAdditional) => [{ title, field: [{ id: crypto.randomUUID(), description: "", name: "", photos: [], photosURLView: [] }] }, ...prevAdditional]);
-    setModalAdditional(false);
+    if (otherAdditional.length <= 1) {
+      setModalAdditional(false);
+    }
   };
 
   // add field of sections
@@ -137,7 +134,7 @@ export const Media = () => {
 
   // remove image inside field
   const removeImage = async (additionalIndex: number, fieldId: string, imgIndex: number) => {
-    if (!window.confirm("Are you sure you want to remove?")) return;
+    if (!window.confirm("Are you sure want to remove this image?")) return;
 
     deleteFile({ key: additional[additionalIndex].field.find((item) => item.id === fieldId)?.photos[imgIndex] });
 
@@ -201,68 +198,78 @@ export const Media = () => {
         <UploadPhoto folder="property" type="video360s" title="360 Tour" description="360 Tour *" fileUrl={video360s} setFileUrl={setVideo360s} />
 
         {/* Additional Sections */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="heading">Additional</h2>
-            <Button onClick={handleModal} className="flex items-center gap-2 btn-primary" type="button">
-              <FaPlus /> Add Additional
-            </Button>
+            {otherAdditional.length > 0 && (
+              <Button onClick={() => setModalAdditional(true)} className="flex items-center gap-2 btn-primary" type="button">
+                <FaPlus /> Add Additional
+              </Button>
+            )}
           </div>
-          <div className="space-y-8">
+          <div className="space-y-12">
             {additional.map((section, additionalIndex) => (
-              <div key={additionalIndex} className="pt-2 space-y-4">
-                <h2 className="text-lg font-semibold">{section.title}</h2>
-                {section.field.map((field) => (
-                  <div key={field.id} className="space-y-2">
-                    <div className="flex items-center">
-                      <label className="whitespace-nowrap min-w-60">Name</label>
-                      <input type="text" placeholder={section.title} value={field.name} onChange={(e) => handleInputChange(additionalIndex, field.id, "name", e.target.value)} className="input-text" />
-                      <label className="px-8 whitespace-nowrap">Description</label>
-                      <input
-                        type="text"
-                        placeholder="King bed, Single bed, Bathroom"
-                        value={field.description}
-                        onChange={(e) => handleInputChange(additionalIndex, field.id, "description", e.target.value)}
-                        className="input-text"
-                      />
-                    </div>
-                    <div className="flex items-center">
-                      <label className="whitespace-nowrap min-w-60">Photo</label>
-                      <div className="relative">
-                        <input type="file" id={field.name} onChange={(e) => handleFileInputChange(additionalIndex, field.id, e)} hidden accept="image/*" multiple />
-                        <label htmlFor={field.name} className="file-label">
-                          <FaUpload /> Browse
-                        </label>
+              <div key={additionalIndex} className="space-y-2">
+                <h2 className="text-lg font-bold">{section.title}</h2>
+                <div className="space-y-6">
+                  {section.field.map((field) => (
+                    <div key={field.id} className="space-y-2">
+                      <div className="flex items-center">
+                        <label className="whitespace-nowrap min-w-60">Name</label>
+                        <input
+                          type="text"
+                          placeholder={section.title}
+                          value={field.name}
+                          onChange={(e) => handleInputChange(additionalIndex, field.id, "name", e.target.value)}
+                          className="input-text"
+                        />
+                        <label className="px-8 whitespace-nowrap">Description</label>
+                        <input
+                          type="text"
+                          placeholder="King bed, Single bed, Bathroom"
+                          value={field.description}
+                          onChange={(e) => handleInputChange(additionalIndex, field.id, "description", e.target.value)}
+                          className="input-text"
+                        />
                       </div>
-                      <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
-                    </div>
-                    <div className="grid grid-cols-4 gap-2">
-                      {field.photos.map((image, index) => (
-                        <div key={index} className="relative">
-                          <button
-                            onClick={() => removeImage(additionalIndex, field.id, index)}
-                            type="button"
-                            className="absolute flex items-center justify-center w-5 h-5 rounded-full -top-2 -right-2 z-1 bg-secondary"
-                          >
-                            <IoCloseOutline className="text-light" />
-                          </button>
-                          <Img src={image || "/temp-business.webp"} alt={`Selected image ${index + 1}`} className="w-full h-48 rounded" />
+                      <div className="flex items-center pt-1">
+                        <label className="whitespace-nowrap min-w-60">Photo</label>
+                        <div className="relative">
+                          <input type="file" id={field.name} onChange={(e) => handleFileInputChange(additionalIndex, field.id, e)} hidden accept="image/*" multiple />
+                          <label htmlFor={field.name} className="file-label">
+                            <FaUpload /> Browse
+                          </label>
                         </div>
-                      ))}
+                        <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
+                      </div>
+                      <div className="grid grid-cols-4 gap-2.5 pt-2">
+                        {field.photos.map((image, index) => (
+                          <div key={index} className="relative">
+                            <button
+                              onClick={() => removeImage(additionalIndex, field.id, index)}
+                              type="button"
+                              className="absolute flex items-center justify-center w-5 h-5 rounded-full -top-2 -right-2 z-1 bg-secondary"
+                            >
+                              <IoCloseOutline className="text-light" />
+                            </button>
+                            <Img src={image || "/temp-business.webp"} alt={`Selected image ${index + 1}`} className="w-full h-48 rounded" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <Button type="button" onClick={(e: React.MouseEvent) => resetField(e, additionalIndex, field.id)} className="w-full btn-outline">
+                          Reset
+                        </Button>
+                        <Button type="button" onClick={() => deleteField(additionalIndex, field.id)} className="w-full btn-red">
+                          Delete
+                        </Button>
+                        <Button type="button" onClick={(e: React.MouseEvent) => addField(e, additionalIndex)} className="flex items-center justify-center w-full gap-2 btn-primary">
+                          <FaPlus /> Add More
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <Button type="button" onClick={(e: React.MouseEvent) => resetField(e, additionalIndex, field.id)} className="w-full btn-outline">
-                        Reset
-                      </Button>
-                      <Button type="button" onClick={() => deleteField(additionalIndex, field.id)} className="w-full btn-red">
-                        Delete
-                      </Button>
-                      <Button type="button" onClick={(e: React.MouseEvent) => addField(e, additionalIndex)} className="flex items-center justify-center w-full gap-2 btn-primary">
-                        <FaPlus /> Add More
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             ))}
           </div>
@@ -276,16 +283,14 @@ export const Media = () => {
       <Modal isVisible={modalAdditional} onClose={() => setModalAdditional(false)}>
         <h2 className="text-lg font-bold">Add Additional</h2>
         <div className="mt-4 overflow-y-auto border border-dark/30">
-          {initAdditional
-            .filter((add) => !additional.some((item) => item.title === add.title))
-            .map((add, index) => (
-              <div key={index} className="flex items-center justify-between p-2 border-b border-dark/30">
-                <span>{add.title}</span>
-                <Button onClick={() => addAdditional(add.title)} className="btn-outline">
-                  <FaPlus />
-                </Button>
-              </div>
-            ))}
+          {otherAdditional.map((add, index) => (
+            <div key={index} className="flex items-center justify-between p-2 border-b border-dark/30">
+              <span>{add.title}</span>
+              <Button onClick={() => addAdditional(add.title)} className="btn-outline">
+                <FaPlus />
+              </Button>
+            </div>
+          ))}
         </div>
         {/* <div className="flex items-center w-full my-6">
                 <div className="flex-grow h-px bg-dark/30"></div>

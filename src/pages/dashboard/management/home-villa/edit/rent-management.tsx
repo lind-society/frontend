@@ -1,9 +1,9 @@
 import * as React from "react";
 
-import { Button, Img, Pagination } from "../../../../../components";
+import { Img, Pagination } from "../../../../../components";
 
 import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
-import { IoMdLink, IoMdNotifications, IoMdSearch } from "react-icons/io";
+import { IoMdLink, IoMdSearch } from "react-icons/io";
 
 const statuses = ["On Negotiation", "Payment", "Completed", "Cancelled"];
 const names = [
@@ -83,13 +83,6 @@ export const RentManagement = () => {
   return (
     <div className="p-8 space-y-4 border rounded-b bg-light border-dark/30">
       <h2 className="heading">Rent Management</h2>
-      <div className="flex justify-between gap-4">
-        <div className="flex items-center w-full gap-1 px-1 border rounded bg-light text-primary border-dark/30">
-          <IoMdNotifications size={20} />
-          You have <strong>9</strong> new unchecked bookings!
-        </div>
-        <Button className="btn-outline">Filters</Button>
-      </div>
       <div className="flex items-stretch w-full overflow-hidden border rounded border-dark/30">
         <input type="text" placeholder="Search by villa, property, or activity name" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" />
         <button className="flex items-center justify-center h-10 text-light bg-primary w-14">

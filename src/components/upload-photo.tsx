@@ -29,7 +29,7 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
   };
 
   const handleRemoveFiles = (index: number) => {
-    if (!window.confirm("Are you sure you want to remove?")) return;
+    if (!window.confirm("Are you sure want to remove this image?")) return;
 
     deleteFile({ key: fileUrl[index] });
 

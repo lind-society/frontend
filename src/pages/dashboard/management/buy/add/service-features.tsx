@@ -13,7 +13,7 @@ import { GrPowerReset } from "react-icons/gr";
 import { FaTrashAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 
-import { baseCurrency, Feature, ItemFeature, mainFeatures, otherFeatures } from "../../../../../static";
+import { baseCurrency, Feature, ItemFeature, mainFeatures, optionalFeatures } from "../../../../../static";
 
 import { Currency, Data, OptionType, Payload, Property } from "../../../../../types";
 
@@ -44,9 +44,7 @@ export const ServiceFeatures = () => {
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
 
-  // useEffect(() => {
-  //   localStorage.setItem("categories", JSON.stringify(categories));
-  // }, [categories]);
+  const otherFeatures = [...mainFeatures, ...optionalFeatures].filter((feature) => !features.some((item) => item.name === feature.name));
 
   const updateFeatureIcon = (key: string | null, e: React.MouseEvent) => {
     const url = (e.target as HTMLImageElement).src; // Extract src as string
@@ -80,11 +78,9 @@ export const ServiceFeatures = () => {
   };
 
   const addOtherFeature = (name: string, icon: Feature["icon"]) => {
-    const mergedFeatures = [...mainFeatures, ...otherFeatures];
-    const findDefaultFeatureValue = mergedFeatures.find((mergedFeature) => mergedFeature.name === name);
     setFeatures((prevFeatures) => [
       {
-        id: findDefaultFeatureValue?.id || "",
+        id: crypto.randomUUID(),
         name,
         icon,
         items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
@@ -92,12 +88,11 @@ export const ServiceFeatures = () => {
       },
       ...prevFeatures,
     ]);
-    setModalFeature(false);
   };
 
   const resetFeature = (featureId: string) => {
     if (!window.confirm("Are you sure you want to reset?")) return;
-    const mergedFeatures = [...mainFeatures, ...otherFeatures];
+    const mergedFeatures = [...mainFeatures, ...optionalFeatures];
     const findDefaultFeatureValue = mergedFeatures.find((mergedFeature) => mergedFeature.id === featureId);
     setFeatures((prevFeatures) =>
       prevFeatures.map((feature) =>
@@ -300,19 +295,17 @@ export const ServiceFeatures = () => {
       </div>
       <Modal isVisible={modalFeature} onClose={() => setModalFeature(false)}>
         <h2 className="text-lg font-bold">Add New Category</h2>
-        <div className="mt-4 border border-dark/30">
-          {[...mainFeatures, ...otherFeatures]
-            .filter((feature) => !features.some((item) => item.name === feature.name))
-            .map((feature, index) => (
-              <div key={index} className="flex items-center justify-between p-2 border-b border-dark/30">
-                <span>{feature.name}</span>
-                <Button onClick={() => addOtherFeature(feature.name, feature.icon)} className="btn-outline">
-                  <FaPlus />
-                </Button>
-              </div>
-            ))}
+        <div className={`mt-4 border-dark/30 ${otherFeatures.length > 0 && "border"}`}>
+          {otherFeatures.map((feature, index) => (
+            <div key={index} className={`flex items-center justify-between p-2 border-dark/30 ${otherFeatures.length > 0 && "[&:not(:last-child)]:border-b"}`}>
+              <span>{feature.name}</span>
+              <Button onClick={() => addOtherFeature(feature.name, feature.icon)} className="btn-outline">
+                <FaPlus />
+              </Button>
+            </div>
+          ))}
         </div>
-        <div className="flex items-center w-full my-6">
+        <div className={`items-center w-full my-6 ${otherFeatures.length > 0 ? "flex" : "hidden"}`}>
           <div className="flex-grow h-px bg-dark/30"></div>
           <span className="flex-shrink-0 px-3 text-sm text-dark">or</span>
           <div className="flex-grow h-px bg-dark/30"></div>

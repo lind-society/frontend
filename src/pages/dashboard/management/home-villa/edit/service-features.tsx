@@ -8,12 +8,12 @@ import Select from "react-select";
 
 import { Button, Modal, NumberInput, ToastMessage } from "../../../../../components";
 
-import { FaPenAlt, FaPlus } from "react-icons/fa";
+import { FaEdit, FaEye, FaPenAlt, FaPlus } from "react-icons/fa";
 import { GrPowerReset } from "react-icons/gr";
 import { FaTrashAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 
-import { baseCurrency, Feature, ItemFeature, mainFeatures, otherFeatures } from "../../../../../static";
+import { baseCurrency, Feature, ItemFeature, mainFeatures, optionalFeatures } from "../../../../../static";
 
 import { Currency, Data, Payload, Villa } from "../../../../../types";
 
@@ -45,11 +45,15 @@ export const ServiceFeatures = () => {
     }, {} as Record<string, Feature>) || {}
   );
 
+  const [editMode, setEditMode] = React.useState<boolean>(false);
+
   const [features, setFeatures] = React.useState<Feature[]>(defaultFeature.length > 0 ? defaultFeature : mainFeatures);
   const [modalFeature, setModalFeature] = React.useState<boolean>(false);
   const [idIcon, setIdIcon] = React.useState<string>();
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
+
+  const otherFeatures = [...mainFeatures, ...optionalFeatures].filter((feature) => !features.some((item) => item.name === feature.name));
 
   const updateFeatureIcon = (key: string | null, e: React.MouseEvent<HTMLElement>) => {
     const url = (e.target as HTMLImageElement).src;
@@ -83,11 +87,9 @@ export const ServiceFeatures = () => {
   };
 
   const addOtherFeature = (name: string, icon: Feature["icon"]) => {
-    const mergedFeatures = [...mainFeatures, ...otherFeatures];
-    const findDefaultFeatureValue = mergedFeatures.find((mergedFeature) => mergedFeature.name === name);
     setFeatures((prevFeatures) => [
       {
-        id: findDefaultFeatureValue?.id || "",
+        id: crypto.randomUUID(),
         name,
         icon,
         items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
@@ -95,12 +97,11 @@ export const ServiceFeatures = () => {
       },
       ...prevFeatures,
     ]);
-    setModalFeature(false);
   };
 
   const resetFeature = (featureId: string) => {
     if (!window.confirm("Are you sure you want to reset?")) return;
-    const mergedFeatures = [...mainFeatures, ...otherFeatures];
+    const mergedFeatures = [...mainFeatures, ...optionalFeatures];
     const findDefaultFeatureValue = mergedFeatures.find((mergedFeature) => mergedFeature.id === featureId);
     setFeatures((prevFeatures) =>
       prevFeatures.map((feature) =>
@@ -195,127 +196,144 @@ export const ServiceFeatures = () => {
       <div className="p-8 space-y-8 border rounded-b bg-light border-dark/30">
         <div className="flex items-center justify-between">
           <h2 className="heading">Service & Features</h2>
-          <Button onClick={() => setModalFeature(true)} className="flex items-center justify-center gap-2 btn-primary">
-            <FaPlus /> Add New Category
-          </Button>
-        </div>
-        {features.map((feature) => (
-          <div key={feature.id} className="p-4 mt-4 border-b border-dark/30">
-            <div className="flex items-center justify-between min-h-10">
-              {feature.isEditing ? (
-                <div className="flex items-center gap-4 max-w-80">
-                  <input
-                    type="text"
-                    value={feature.name}
-                    onChange={(e) => updateFeatureName(feature.id, e.target.value)}
-                    onBlur={() => finishEditingFeatureName(feature.id)}
-                    className="input-text"
-                    autoFocus
-                  />
-                  {feature.name === "" && <small className="text-red-600 whitespace-nowrap">title must be filled</small>}
+          <div className="flex items-center gap-2">
+            {editMode && (
+              <Button onClick={() => setModalFeature(true)} className="flex items-center justify-center gap-2 btn-primary">
+                <FaPlus /> Add New Category
+              </Button>
+            )}
+            <Button className="btn-outline" onClick={() => setEditMode((prev) => !prev)}>
+              {editMode ? (
+                <div className="flex items-center gap-2">
+                  <FaEye size={18} />
+                  Show Mode
                 </div>
               ) : (
-                <div className="flex items-center justify-between gap-4">
-                  <div onClick={() => setIdIcon(feature.id)}>
-                    <IconifyPicker onChange={updateFeatureIcon} value={feature.icon.key} />
-                  </div>
-                  <span className="font-semibold">{feature.name}</span>
-                  <button onClick={() => toggleEditFeatureName(feature.id)}>
-                    <FaPenAlt />
-                  </button>
+                <div className="flex items-center gap-2">
+                  <FaEdit size={18} />
+                  Edit Mode
                 </div>
               )}
-              <div className="flex gap-4">
-                <Button className="flex items-center gap-1 btn-primary" onClick={() => addItem(feature.id)}>
-                  <FaPlus size={12} /> Add Item
-                </Button>
-                <Button className="flex items-center gap-1 btn-blue" onClick={() => resetFeature(feature.id)}>
-                  <GrPowerReset color="plain" /> Reset
-                </Button>
-                <Button className="flex items-center gap-1 btn-red" onClick={() => deleteFeature(feature.id)}>
-                  <FaTrashAlt /> Delete
-                </Button>
+            </Button>
+          </div>
+        </div>
+        <div className="relative">
+          <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-5"}`}></div>
+          {features.map((feature) => (
+            <div key={feature.id} className="p-4 mt-4 border-b border-dark/30">
+              <div className="flex items-center justify-between min-h-10">
+                {feature.isEditing ? (
+                  <div className="flex items-center gap-4 max-w-80">
+                    <input
+                      type="text"
+                      value={feature.name}
+                      onChange={(e) => updateFeatureName(feature.id, e.target.value)}
+                      onBlur={() => finishEditingFeatureName(feature.id)}
+                      className="input-text"
+                      autoFocus
+                    />
+                    {feature.name === "" && <small className="text-red-600 whitespace-nowrap">title must be filled</small>}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-4">
+                    <div onClick={() => setIdIcon(feature.id)}>
+                      <IconifyPicker onChange={updateFeatureIcon} value={feature.icon.key} />
+                    </div>
+                    <span className="font-semibold">{feature.name}</span>
+                    <button onClick={() => toggleEditFeatureName(feature.id)}>
+                      <FaPenAlt />
+                    </button>
+                  </div>
+                )}
+                <div className="flex gap-4">
+                  <Button className="flex items-center gap-1 btn-primary" onClick={() => addItem(feature.id)}>
+                    <FaPlus size={12} /> Add Item
+                  </Button>
+                  <Button className="flex items-center gap-1 btn-blue" onClick={() => resetFeature(feature.id)}>
+                    <GrPowerReset color="plain" /> Reset
+                  </Button>
+                  <Button className="flex items-center gap-1 btn-red" onClick={() => deleteFeature(feature.id)}>
+                    <FaTrashAlt /> Delete
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-4">
+                {feature.items.map((item) => (
+                  <div key={item.id} className="flex w-full gap-8 p-2 mt-2">
+                    <div className="w-full space-y-1">
+                      <label className="block text-sm">Title *</label>
+                      <input type="text" placeholder="Title" value={item.title} onChange={(e) => updateItems(feature.id, item.id, "title", e.target.value)} className="input-text" required />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-sm">Free *</label>
+                      <div className="flex items-center gap-8 pt-1.5">
+                        <label className="flex items-center gap-2">
+                          Yes <input type="checkbox" className="accent-primary size-4" checked={item.free} onChange={() => updateItems(feature.id, item.id, "free", true)} />
+                        </label>
+                        <label className="flex items-center gap-2">
+                          No <input type="checkbox" className="accent-primary size-4" checked={!item.free} onChange={() => updateItems(feature.id, item.id, "free", false)} />
+                        </label>
+                      </div>
+                    </div>
+                    <div className="w-full space-y-1">
+                      <label className="block text-sm">Price *</label>
+                      <div className="flex items-center w-full gap-2">
+                        <Select
+                          className="w-full text-sm"
+                          options={currencies?.data.data.map((currency) => ({ value: currency.id, label: currency.code }))}
+                          value={item.currency}
+                          onChange={(option) => updateItems(feature.id, item.id, "currency", option as OptionType)}
+                          placeholder="Select Currency"
+                          isDisabled={item.free}
+                          required
+                        />
+                        <NumberInput
+                          className="input-text"
+                          placeholder={item.currency?.label ? `Enter currency in ${item.currency?.label}` : "Select currency first"}
+                          value={item.price}
+                          onChange={(e) => updateItems(feature.id, item.id, "price", e.target.value)}
+                          disabled={item.free || !item.currency}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-sm opacity-0">Action</label>
+                      <div className="flex items-center gap-8 pt-1.5">
+                        {/* <button onClick={() => toggleItemHidden(feature.id, item.id)}>{item.hidden ? <FaEye size={24} /> : <FaEyeSlash size={24} />}</button> */}
+                        <button onClick={() => resetItem(feature.id, item.id)}>
+                          <GrPowerReset size={22} />
+                        </button>
+                        <button onClick={() => deleteItem(feature.id, item.id)}>
+                          <IoClose size={28} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="space-y-4">
-              {feature.items.map((item) => (
-                <div key={item.id} className="flex w-full gap-8 p-2 mt-2">
-                  <div className="w-full space-y-1">
-                    <label className="block text-sm">Title *</label>
-                    <input type="text" placeholder="Title" value={item.title} onChange={(e) => updateItems(feature.id, item.id, "title", e.target.value)} className="input-text" required />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block text-sm">Free *</label>
-                    <div className="flex items-center gap-8 pt-1.5">
-                      <label className="flex items-center gap-2">
-                        Yes <input type="checkbox" className="accent-primary size-4" checked={item.free} onChange={() => updateItems(feature.id, item.id, "free", true)} />
-                      </label>
-                      <label className="flex items-center gap-2">
-                        No <input type="checkbox" className="accent-primary size-4" checked={!item.free} onChange={() => updateItems(feature.id, item.id, "free", false)} />
-                      </label>
-                    </div>
-                  </div>
-                  <div className="w-full space-y-1">
-                    <label className="block text-sm">Price *</label>
-                    <div className="flex items-center w-full gap-2">
-                      <Select
-                        className="w-full text-sm"
-                        options={currencies?.data.data.map((currency) => ({ value: currency.id, label: currency.code }))}
-                        value={item.currency}
-                        onChange={(option) => updateItems(feature.id, item.id, "currency", option as OptionType)}
-                        placeholder="Select Currency"
-                        isDisabled={item.free}
-                        required
-                      />
-                      <NumberInput
-                        className="input-text"
-                        placeholder={item.currency?.label ? `Enter currency in ${item.currency?.label}` : "Select currency first"}
-                        value={item.price}
-                        onChange={(e) => updateItems(feature.id, item.id, "price", e.target.value)}
-                        disabled={item.free || !item.currency}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="block text-sm opacity-0">Action</label>
-                    <div className="flex items-center gap-8 pt-1.5">
-                      {/* <button onClick={() => toggleItemHidden(feature.id, item.id)}>{item.hidden ? <FaEye size={24} /> : <FaEyeSlash size={24} />}</button> */}
-                      <button onClick={() => resetItem(feature.id, item.id)}>
-                        <GrPowerReset size={22} />
-                      </button>
-                      <button onClick={() => deleteItem(feature.id, item.id)}>
-                        <IoClose size={28} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+          ))}
 
-        <div className="flex justify-end gap-4">
-          {/* <Button className="btn-outline">Reset</Button> */}
-          <Button className="btn-primary" onClick={handleSubmitService}>
-            Save
-          </Button>
+          <div className={`justify-end gap-4 ${editMode ? "flex" : "hidden"}`}>
+            <Button className="btn-primary" onClick={handleSubmitService}>
+              Save
+            </Button>
+          </div>
         </div>
       </div>
       <Modal isVisible={modalFeature} onClose={() => setModalFeature(false)}>
         <h2 className="text-lg font-bold">Add New Category</h2>
-        <div className="mt-4 border border-dark/30">
-          {[...mainFeatures, ...otherFeatures]
-            .filter((feature) => !features.some((item) => item.name === feature.name))
-            .map((feature, index) => (
-              <div key={index} className="flex items-center justify-between p-2 border-b border-dark/30">
-                <span>{feature.name}</span>
-                <Button onClick={() => addOtherFeature(feature.name, feature.icon)} className="btn-outline">
-                  <FaPlus />
-                </Button>
-              </div>
-            ))}
+        <div className={`mt-4 border-dark/30 ${otherFeatures.length > 0 && "border"}`}>
+          {otherFeatures.map((feature, index) => (
+            <div key={index} className={`flex items-center justify-between p-2 border-dark/30 ${otherFeatures.length > 0 && "[&:not(:last-child)]:border-b"}`}>
+              <span>{feature.name}</span>
+              <Button onClick={() => addOtherFeature(feature.name, feature.icon)} className="btn-outline">
+                <FaPlus />
+              </Button>
+            </div>
+          ))}
         </div>
-        <div className="flex items-center w-full my-6">
+        <div className={`items-center w-full my-6 ${otherFeatures.length > 0 ? "flex" : "hidden"}`}>
           <div className="flex-grow h-px bg-dark/30"></div>
           <span className="flex-shrink-0 px-3 text-sm text-dark">or</span>
           <div className="flex-grow h-px bg-dark/30"></div>

@@ -23,7 +23,6 @@ export const SectionPolicy = ({ title, categories, onUpdate, defaultPolicies }: 
 
   const addPolicies = (title: string) => {
     setPolicies((prevPolicies) => [...prevPolicies, { id: crypto.randomUUID(), title, icon: { key: "mdi:office-building", url: "https://api.iconify.design/mdi/office-building.svg" }, value: "" }]);
-    setModalPolicies(false);
   };
 
   const updatePoliciesValue = (id: string, value: string) => {

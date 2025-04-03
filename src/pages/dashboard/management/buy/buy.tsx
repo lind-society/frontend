@@ -1,11 +1,14 @@
+import { useState } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
 
 import { useDeleteApi, useGetApi } from "../../../../hooks";
 
 import { Layout } from "../../../../components/ui";
-import { Button, Img } from "../../../../components";
+import { Button, Img, Modal } from "../../../../components";
 
 import { FaBath, FaBed, FaPlus, FaUser } from "react-icons/fa";
+import { GrClose } from "react-icons/gr";
 
 import { Data, Payload, Property } from "../../../../types";
 
@@ -14,8 +17,11 @@ import { capitalize } from "../../../../utils";
 export const BuyPage = () => {
   const navigate = useNavigate();
 
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [property, setProperty] = useState<Property>();
+
   const { data: properties, isLoading } = useGetApi<Payload<Data<Property[]>>>({ key: ["get-properties"], url: `properties` });
-  const { mutate: deleteProperty } = useDeleteApi({ url: "properties", key: ["delete-property"], redirectPath: "/dashboard/management/buy" });
+  const { mutate: deleteProperty, isPending } = useDeleteApi({ url: "properties", key: ["delete-property"], redirectPath: "/dashboard/management/buy" });
 
   const handleDeleteProperty = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -56,8 +62,14 @@ export const BuyPage = () => {
                 <div key={property.id} className="overflow-hidden card-shadow">
                   <div className="relative w-full">
                     {property && (
-                      <button onClick={(e) => handleDeleteProperty(e, property.id)} className="absolute top-0 left-0 px-2 py-1 text-sm bg-red-500 rounded-ee-md text-light z-1">
-                        X
+                      <button
+                        onClick={() => {
+                          setProperty(property);
+                          setDeleteModal(true);
+                        }}
+                        className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1"
+                      >
+                        <GrClose />
                       </button>
                     )}
                     <Img src={property.photos[0] || "/temp.png"} alt={property.name} className="object-cover w-full h-60" />
@@ -97,6 +109,16 @@ export const BuyPage = () => {
           )}
         </>
       )}
+
+      <Modal onClose={() => setDeleteModal(false)} isVisible={deleteModal}>
+        <h2 className="heading">Delete Property Data</h2>
+        <p className="mt-2 mb-6">Are you sure you want to delete this property {property?.name}?</p>
+        <div className="flex justify-end">
+          <Button type="submit" className={`btn-red ${isPending && "animate-pulse"}`} onClick={(e) => handleDeleteProperty(e, property?.id || "")}>
+            Delete
+          </Button>
+        </div>
+      </Modal>
     </Layout>
   );
 };

@@ -34,6 +34,8 @@ export const Location = () => {
 
   const addPlaceNearby = (name: string, distance: number) => {
     setPlaceNearby((prev) => [...prev, { name, distance }]);
+    setPlaceName("");
+    setPlaceDistance("");
   };
 
   const removePlaceNearby = (id: number) => {

@@ -52,7 +52,7 @@ export const mainFeatures: Feature[] = [
   },
 ];
 
-export const otherFeatures: Feature[] = [
+export const optionalFeatures: Feature[] = [
   {
     id: crypto.randomUUID(),
     name: "Kids",

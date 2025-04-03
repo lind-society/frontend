@@ -1,11 +1,14 @@
+import { useState } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
 
 import { useDeleteApi, useGetApi } from "../../../../hooks";
 
 import { Layout } from "../../../../components/ui";
-import { Button, Img } from "../../../../components";
+import { Button, Img, Modal } from "../../../../components";
 
 import { FaBath, FaBed, FaPlus, FaStar, FaUser } from "react-icons/fa";
+import { GrClose } from "react-icons/gr";
 
 import { calculateAverageRating, capitalize } from "../../../../utils";
 
@@ -14,8 +17,11 @@ import { Data, Payload, Villa } from "../../../../types";
 export const HomeVillaPage = () => {
   const navigate = useNavigate();
 
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [villa, setVilla] = useState<Villa>();
+
   const { data: villas, isLoading } = useGetApi<Payload<Data<Villa[]>>>({ key: ["get-villas"], url: `villas` });
-  const { mutate: deleteVilla } = useDeleteApi({ url: "villas", key: ["delete-villa"], redirectPath: "/dashboard/management/home-villa" });
+  const { mutate: deleteVilla, isPending } = useDeleteApi({ url: "villas", key: ["delete-villa"], redirectPath: "/dashboard/management/home-villa" });
 
   const handleDeleteVilla = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -57,8 +63,14 @@ export const HomeVillaPage = () => {
                 <div key={villa.id} className="overflow-hidden card-shadow">
                   <div className="relative w-full">
                     {villa && (
-                      <button onClick={(e) => handleDeleteVilla(e, villa.id)} className="absolute top-0 left-0 px-2 py-1 text-sm bg-red-500 rounded-ee-md text-light z-1">
-                        X
+                      <button
+                        onClick={() => {
+                          setVilla(villa);
+                          setDeleteModal(true);
+                        }}
+                        className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1"
+                      >
+                        <GrClose />
                       </button>
                     )}
                     <Img src={villa.photos[0] || "/temp.png"} alt={villa.name} className="object-cover w-full h-60" />
@@ -100,6 +112,15 @@ export const HomeVillaPage = () => {
           )}
         </>
       )}
+      <Modal onClose={() => setDeleteModal(false)} isVisible={deleteModal}>
+        <h2 className="heading">Delete Villa Data</h2>
+        <p className="mt-2 mb-6">Are you sure you want to delete this villa {villa?.name}?</p>
+        <div className="flex justify-end">
+          <Button type="submit" className={`btn-red ${isPending && "animate-pulse"}`} onClick={(e) => handleDeleteVilla(e, villa?.id || "")}>
+            Delete
+          </Button>
+        </div>
+      </Modal>
     </Layout>
   );
 };

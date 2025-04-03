@@ -31,17 +31,20 @@ export const KeyFeatures = () => {
 
   const { data: responseFacilities } = useGetApi<Payload<Data<Villa["facilities"]>>>({ key: ["facilities"], url: "facilities", params: { limit: "20" } });
 
+  const otherDataFacilities = responseFacilities?.data.data.filter((facility) => !facilities.some((item) => item.name === facility.name));
   // const addFacility = () => {
   //   setFacilities((prevFacilities) => [{ id: crypto.randomUUID(), name: "", icon: { url: "", key: "" }, description: "", includeDescription: true }, ...prevFacilities]);
-  //   setModalFeature(false);
   // };
 
   const addOtherFacility = (facilityId: string, name: string, icon: Facilities["icon"]) => {
     setFacilities((prevFacilities) => [{ id: facilityId, name, icon, description: "", includeDescription: true }, ...prevFacilities]);
-    setModalFeature(false);
+    if (otherDataFacilities?.length! <= 1) {
+      setModalFeature(false);
+    }
   };
 
   const deleteFacility = (id: string) => {
+    if (!window.confirm("Are you sure want to remove this facility?")) return;
     setFacilities((prevFacilities) => prevFacilities.filter((facility) => facility.id !== id));
   };
 
@@ -108,9 +111,11 @@ export const KeyFeatures = () => {
       <div className="p-8 space-y-8 border rounded-b bg-light border-dark/30">
         <div className="flex items-center justify-between">
           <h2 className="heading">Key Features</h2>
-          <Button onClick={() => setModalFeature(true)} className="flex items-center gap-2 btn-primary">
-            <FaPlus /> Add Key Features
-          </Button>
+          {otherDataFacilities?.length! > 0 && (
+            <Button onClick={() => setModalFeature(true)} className="flex items-center gap-2 btn-primary">
+              <FaPlus /> Add Key Features
+            </Button>
+          )}
         </div>
         {facilities.map((facility) => (
           <div key={facility.id} className="flex items-center gap-4 p-4 mt-4 border-b border-dark/30">
@@ -185,16 +190,14 @@ export const KeyFeatures = () => {
       <Modal isVisible={modalFeature} onClose={() => setModalFeature(false)}>
         <h2 className="text-lg font-bold">Add Key Features</h2>
         <div className="mt-4 overflow-y-auto border border-dark/30">
-          {responseFacilities?.data.data
-            .filter((facility) => !facilities.some((item) => item.name === facility.name))
-            .map((facility, index) => (
-              <div key={index} className="flex items-center justify-between p-2 border-b border-dark/30">
-                <span>{facility.name}</span>
-                <Button onClick={() => addOtherFacility(facility.id, facility.name, facility.icon)} className="btn-outline">
-                  <FaPlus />
-                </Button>
-              </div>
-            ))}
+          {otherDataFacilities?.map((facility, index) => (
+            <div key={index} className="flex items-center justify-between p-2 border-b border-dark/30">
+              <span>{facility.name}</span>
+              <Button onClick={() => addOtherFacility(facility.id, facility.name, facility.icon)} className="btn-outline">
+                <FaPlus />
+              </Button>
+            </div>
+          ))}
         </div>
         {/* <div className="flex items-center w-full my-6">
           <div className="flex-grow h-px bg-dark/30"></div>
