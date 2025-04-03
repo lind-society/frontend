@@ -7,11 +7,12 @@ import Select from "react-select";
 import { Button, NumberInput, ToastMessage } from "../../../../../components";
 
 import { Currency, Data, OptionType, Owner, Payload, Property } from "../../../../../types";
+import { FaEdit, FaEye } from "react-icons/fa";
 
 export const General = () => {
   // store data to session storage
   const useStore = usePersistentData<Property>("get-property");
-  const useEdit = usePersistentData<Property>("edit-Property");
+  const useEdit = usePersistentData<Property>("edit-property");
 
   const { data: dataBeforeEdit } = useStore();
   const { setData, data: dataAfterEdit } = useEdit();
@@ -23,6 +24,8 @@ export const General = () => {
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
 
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
+
+  const [editMode, setEditMode] = React.useState<boolean>(false);
 
   const [name, setName] = React.useState<string>(data.name || "");
   const [secondaryName, setSecondaryName] = React.useState<string>(data.secondaryName || "");
@@ -43,7 +46,7 @@ export const General = () => {
       highlight,
       currencyId: currency?.value || "",
       ownerId: owner?.value || "",
-      ownershipType: ownershipType,
+      ownershipType,
       price: +price || 0,
       discount: +discount || 0,
       soldStatus,
@@ -69,8 +72,24 @@ export const General = () => {
 
   return (
     <div className="p-8 border rounded-b bg-light border-dark/30">
-      <h2 className="heading">General</h2>
-      <form className="mt-6 space-y-8" onSubmit={handleSubmitGeneral}>
+      <div className="flex items-center justify-between">
+        <h2 className="heading">General</h2>
+        <Button className="btn-outline" onClick={() => setEditMode((prev) => !prev)}>
+          {editMode ? (
+            <div className="flex items-center gap-2">
+              <FaEye size={18} />
+              Show Mode
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <FaEdit size={18} />
+              Edit Mode
+            </div>
+          )}
+        </Button>
+      </div>
+      <form className="relative mt-4 space-y-8" onSubmit={handleSubmitGeneral}>
+        <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-5"}`}></div>
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Property name *</label>
           <input type="text" className="input-text" placeholder="Urna Santal Property" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -171,7 +190,7 @@ export const General = () => {
           />
         </div>
 
-        <div className="flex justify-end gap-4">
+        <div className={`justify-end gap-4 ${editMode ? "flex" : "hidden"}`}>
           <Button className="btn-primary" type="submit">
             Save
           </Button>

@@ -4,7 +4,7 @@ import { usePersistentData } from "../../../../../hooks";
 
 import { Button, GoogleMaps, ToastMessage, LocationSelector, NumberInput } from "../../../../../components";
 
-import { FaMinus, FaPlus } from "react-icons/fa";
+import { FaEdit, FaEye, FaMinus, FaPlus } from "react-icons/fa";
 
 import { Property } from "../../../../../types";
 
@@ -32,6 +32,8 @@ export const Location = () => {
   const defaultCountry = data.country ? { label: data.country, value: data.country } : null;
   const defaultState = data.state ? { label: data.state, value: data.state } : null;
   const defaultCity = data.city ? { label: data.city, value: data.city } : null;
+
+  const [editMode, setEditMode] = React.useState<boolean>(false);
 
   const [placeName, setPlaceName] = React.useState<string>("");
   const [placeDistance, setPlaceDistance] = React.useState<string>("");
@@ -67,8 +69,26 @@ export const Location = () => {
 
   return (
     <div className="p-8 border rounded-b bg-light border-dark/30">
-      <h2 className="heading">Location</h2>
-      <form className="mt-6 space-y-6" onSubmit={handleSubmitLocation}>
+      <div className="flex items-center justify-between">
+        <h2 className="heading">Location</h2>
+        <Button className="btn-outline" onClick={() => setEditMode((prev) => !prev)}>
+          {editMode ? (
+            <div className="flex items-center gap-2">
+              <FaEye size={18} />
+              Show Mode
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <FaEdit size={18} />
+              Edit Mode
+            </div>
+          )}
+        </Button>
+      </div>
+
+      <form className="relative space-y-8" onSubmit={handleSubmitLocation}>
+        <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-5"}`}></div>
+
         <LocationSelector
           selectedCountry={selectedCountry}
           setSelectedCountry={setSelectedCountry}
@@ -130,11 +150,8 @@ export const Location = () => {
           ))}
         </div>
 
-        <div className="flex justify-end gap-4 mt-8">
-          {/* <Button type="button" className="btn-outline">
-            Reset
-          </Button> */}
-          <Button type="submit" className="btn-primary">
+        <div className={`justify-end gap-4 ${editMode ? "flex" : "hidden"}`}>
+          <Button className="btn-primary" type="submit">
             Save
           </Button>
         </div>

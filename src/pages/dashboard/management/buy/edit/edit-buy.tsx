@@ -1,6 +1,10 @@
 import * as React from "react";
-import { Layout } from "../../../../../components/ui";
 
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+
+import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
+
+import { Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
 import { FaDownload } from "react-icons/fa";
@@ -11,10 +15,10 @@ import { Location } from "./location";
 import { ServiceFeatures } from "./service-features";
 import { RentManagement } from "./rent-management";
 import { KeyFeatures } from "./key-features";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
-import { Payload, Property } from "../../../../../types";
+
 import { deleteKeysObject } from "../../../../../utils";
+
+import { Payload, Property } from "../../../../../types";
 
 const tabs = ["Rent Management", "General", "Media", "Location", "Key Features", "Service & Features"];
 
@@ -23,7 +27,7 @@ export const EditBuyPage = () => {
   const navigate = useNavigate();
   const params = useParams();
 
-  const { mutate: editProperty } = useUpdateApi<Partial<Property>>({ url: "properties", key: ["editing-property"], redirectPath: "/dashboard/management/buy" });
+  const { mutate: editProperty, isPending } = useUpdateApi<Partial<Property>>({ url: "properties", key: ["editing-property"], redirectPath: "/dashboard/management/buy" });
 
   const { data: responseProperty, isLoading } = useGetApi<Payload<Property>>({ url: `properties/${params.id}`, key: ["get-property"] });
 
@@ -91,11 +95,6 @@ export const EditBuyPage = () => {
     }
   }, [responseProperty]);
 
-  // const handleSaveDraft = (e: React.MouseEvent) => {
-  //   e.preventDefault();
-  //   setData(data);
-  // };
-
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
     const processData = deleteKeysObject(data, ["currency", "pivotId", "facilities", "priceAfterDiscount", "createdAt", "updatedAt", "id", "reviews"]);
@@ -109,11 +108,14 @@ export const EditBuyPage = () => {
         <h1 className="text-2xl font-bold">{responseProperty?.data.name}</h1>
 
         <div className="flex items-center gap-4">
-          {/* <Button className="flex items-center gap-2 btn-outline">
-              <FaFirstdraft /> Save as draft
-            </Button> */}
-          <Button onClick={handlePublish} className="flex items-center gap-2 btn-primary">
-            <FaDownload /> Publish
+          <Button onClick={handlePublish} className="btn-primary">
+            {isPending ? (
+              <div className="loader size-4 after:size-4"></div>
+            ) : (
+              <div className="flex items-center gap-2 ">
+                <FaDownload /> Publish
+              </div>
+            )}
           </Button>
         </div>
       </header>

@@ -16,8 +16,9 @@ import { KeyFeatures } from "./key-features";
 
 import { FaDownload } from "react-icons/fa";
 
-import { Villa } from "../../../../../types";
 import { deleteKeysObject } from "../../../../../utils";
+
+import { Villa } from "../../../../../types";
 
 const tabs = ["General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies"];
 
@@ -25,7 +26,7 @@ export const AddHomeVillaPage = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const { mutate: addVillas } = useCreateApi<Partial<Villa>>({ url: "villas", key: ["add-villa"], redirectPath: "/dashboard/management/home-villa" });
+  const { mutate: addVillas, isPending } = useCreateApi<Partial<Villa>>({ url: "villas", key: ["add-villa"], redirectPath: "/dashboard/management/home-villa" });
 
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
 
@@ -56,11 +57,6 @@ export const AddHomeVillaPage = () => {
     };
   }, [activeTab, pathname, navigate]);
 
-  // const handleSaveDraft = (e: React.MouseEvent) => {
-  //   e.preventDefault();
-  //   setData(data);
-  // };
-
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
     const processData = deleteKeysObject(data, ["currency"]);
@@ -74,11 +70,14 @@ export const AddHomeVillaPage = () => {
         <h1 className="text-2xl font-bold">Add New Home & Villa</h1>
 
         <div className="flex items-center gap-4">
-          {/* <Button className="flex items-center gap-2 btn-outline" onClick={handleSaveDraft}>
-            <FaFirstdraft /> Save as draft
-          </Button> */}
-          <Button className="flex items-center gap-2 btn-primary" onClick={handlePublish}>
-            <FaDownload /> Publish
+          <Button onClick={handlePublish} className="btn-primary">
+            {isPending ? (
+              <div className="loader size-4 after:size-4"></div>
+            ) : (
+              <div className="flex items-center gap-2 ">
+                <FaDownload /> Publish
+              </div>
+            )}
           </Button>
         </div>
       </header>

@@ -37,9 +37,9 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
   };
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 ${type === "photos" && "!mt-1"}`}>
       <div className="space-y-4">
-        <h2 className="heading whitespace-nowrap min-w-60">{title}</h2>
+        <h2 className="heading">{title}</h2>
         <div className="flex items-center">
           <p className="whitespace-nowrap min-w-60">{description}</p>
           <div className="relative">
@@ -80,7 +80,7 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
           <>
             {fileUrl.map((video, index) => (
               <div key={index} className="relative">
-                <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full z-100 -top-2 -right-2 bg-secondary">
+                <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full z-1000 -top-2 -right-2 bg-secondary">
                   <IoCloseOutline className="text-light" />
                 </button>
                 <Images360 src={video} />

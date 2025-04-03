@@ -60,7 +60,7 @@ export const KeyFeatures = () => {
     setFacilities((prevFacilities) => prevFacilities.map((feature) => (feature.id === id ? { ...feature, [field]: value } : feature)));
   };
 
-  const updateFacilityIcon = (key: string | null, e: React.MouseEvent<HTMLElement>) => {
+  const updateFacilityIcon = (key: string | null, e: React.MouseEvent) => {
     const url = (e.target as HTMLImageElement).src;
     setFacilities((prevFacilities) => prevFacilities.map((feature) => (feature.id === idIcon ? { ...feature, icon: { url, key: key ?? "" } } : feature)));
   };

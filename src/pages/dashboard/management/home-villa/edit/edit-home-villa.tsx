@@ -18,6 +18,7 @@ import { RentManagement } from "./rent-management";
 import { KeyFeatures } from "./key-features";
 
 import { Payload, Villa } from "../../../../../types";
+
 import { deleteKeysObject } from "../../../../../utils";
 
 const tabs = ["Rent Management", "General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies"];
@@ -27,7 +28,7 @@ export const EditHomeVillaPage = () => {
   const navigate = useNavigate();
   const params = useParams();
 
-  const { mutate: editVilla } = useUpdateApi<Partial<Villa>>({ url: "villas", key: ["editing-villa"], redirectPath: "/dashboard/management/home-villa" });
+  const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ url: "villas", key: ["editing-villa"], redirectPath: "/dashboard/management/home-villa" });
 
   const { data: responseVilla, isLoading } = useGetApi<Payload<Villa>>({ url: `villas/${params.id}`, key: ["get-villa"] });
 
@@ -103,11 +104,6 @@ export const EditHomeVillaPage = () => {
     }
   }, [responseVilla]);
 
-  // const handleSaveDraft = (e: React.MouseEvent) => {
-  //   e.preventDefault();
-  //   setData(data);
-  // };
-
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
     const processData = deleteKeysObject(data, ["currency", "pivotId", "facilities", "priceAfterDiscount", "createdAt", "updatedAt", "id", "reviews"]);
@@ -121,11 +117,14 @@ export const EditHomeVillaPage = () => {
         <h1 className="text-2xl font-bold">{responseVilla?.data.name}</h1>
 
         <div className="flex items-center gap-4">
-          {/* <Button className="flex items-center gap-2 btn-outline">
-            <FaFirstdraft /> Save as draft
-          </Button> */}
-          <Button onClick={handlePublish} className="flex items-center gap-2 btn-primary">
-            <FaDownload /> Publish
+          <Button onClick={handlePublish} className="btn-primary">
+            {isPending ? (
+              <div className="loader size-4 after:size-4"></div>
+            ) : (
+              <div className="flex items-center gap-2 ">
+                <FaDownload /> Publish
+              </div>
+            )}
           </Button>
         </div>
       </header>

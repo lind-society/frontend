@@ -16,7 +16,7 @@ export const TopBar = ({ setOpenNav, data }: { setOpenNav: React.Dispatch<React.
 
   const [loading, setLoading] = React.useState<boolean>(false);
 
-  const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
     setLoading(true);
     await authentication.logout();
@@ -24,7 +24,7 @@ export const TopBar = ({ setOpenNav, data }: { setOpenNav: React.Dispatch<React.
   };
 
   return (
-    <div className="sticky top-0 block w-full duration-300 border-b z-1000 bg-light">
+    <div className="sticky top-0 block w-full duration-300 border-b z-9999 bg-light">
       <div className="flex justify-between p-2 mx-6">
         <div className="flex gap-4 lg:hidden">
           <button className="z-20 text-primary" onClick={() => setOpenNav((prev) => !prev)}>

@@ -7,6 +7,7 @@ import Select from "react-select";
 import { Button, NumberInput, ToastMessage } from "../../../../../components";
 
 import { Currency, Data, Payload, Villa } from "../../../../../types";
+import { FaEdit, FaEye } from "react-icons/fa";
 
 type AvailabilityType = "daily" | "monthly" | "yearly";
 type OptionType = { value: string; label: string };
@@ -31,6 +32,8 @@ export const General = () => {
   const defaultAvailability = { daily: data.availability?.includes("daily") || true, monthly: data.availability?.includes("monthly") || false, yearly: data.availability?.includes("yearly") || false };
   const defaultAvailabilityPriceMonthly = String(data.availabilityPerPrice?.find((item) => item.availability === "monthly")?.quota);
   const defaultAvailabilityPriceYearly = String(data.availabilityPerPrice?.find((item) => item.availability === "yearly")?.quota);
+
+  const [editMode, setEditMode] = React.useState<boolean>(false);
 
   const [name, setName] = React.useState<string>(data.name || "");
   const [secondaryName, setSecondaryName] = React.useState<string>(data.secondaryName || "");
@@ -103,8 +106,24 @@ export const General = () => {
 
   return (
     <div className="p-8 border rounded-b bg-light border-dark/30">
-      <h2 className="heading">General</h2>
-      <form className="mt-6 space-y-8" onSubmit={handleSubmitGeneral}>
+      <div className="flex items-center justify-between">
+        <h2 className="heading">General</h2>
+        <Button className="btn-outline" onClick={() => setEditMode((prev) => !prev)}>
+          {editMode ? (
+            <div className="flex items-center gap-2">
+              <FaEye size={18} />
+              Show Mode
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <FaEdit size={18} />
+              Edit Mode
+            </div>
+          )}
+        </Button>
+      </div>
+      <form className="relative space-y-8" onSubmit={handleSubmitGeneral}>
+        <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-5"}`}></div>
         <div className="flex items-center">
           <label className="block whitespace-nowrap min-w-60">Property name *</label>
           <input type="text" className="input-text" placeholder="Urna Santal Villa" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -206,7 +225,7 @@ export const General = () => {
           />
         </div>
 
-        <div className="flex justify-end gap-4">
+        <div className={`justify-end gap-4 ${editMode ? "flex" : "hidden"}`}>
           <Button className="btn-primary" type="submit">
             Save
           </Button>

@@ -55,8 +55,8 @@ export const useCreateApi = <T>({ key, url, redirectPath }: { url: string; key: 
         toast.success(data.message || "Success adding data");
         if (redirectPath) {
           setTimeout(() => {
-            window.location.href = redirectPath;
             sessionStorage.clear();
+            window.location.href = redirectPath;
           }, 2000);
           return;
         }
@@ -94,8 +94,8 @@ export const useUpdateApi = <T>({ key, url, redirectPath }: { url: string; key: 
         toast.success(data.message || "Success updating data");
         if (redirectPath) {
           setTimeout(() => {
-            window.location.href = redirectPath;
             sessionStorage.clear();
+            window.location.href = redirectPath;
           }, 2000);
           return;
         }

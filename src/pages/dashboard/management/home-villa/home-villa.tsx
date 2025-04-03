@@ -6,9 +6,10 @@ import { Layout } from "../../../../components/ui";
 import { Button, Img } from "../../../../components";
 
 import { FaBath, FaBed, FaPlus, FaStar, FaUser } from "react-icons/fa";
-import { IoMdNotifications } from "react-icons/io";
-import { Data, Payload, Villa } from "../../../../types";
+
 import { calculateAverageRating, capitalize } from "../../../../utils";
+
+import { Data, Payload, Villa } from "../../../../types";
 
 export const HomeVillaPage = () => {
   const navigate = useNavigate();
@@ -33,13 +34,10 @@ export const HomeVillaPage = () => {
       </header>
 
       {/* Notification and filters*/}
-      <div className="flex justify-between gap-8 mb-8">
-        <div className="flex items-center w-full gap-1 px-1 border rounded bg-light text-primary border-dark/30">
-          <IoMdNotifications size={20} />
-          You have <strong>9</strong> new unchecked bookings!
-        </div>
+      {/* <div className="flex justify-between gap-8 mb-8">
+        <div className="flex items-center w-full gap-1 px-1 border rounded bg-light text-primary border-dark/30"></div>
         <Button className="btn-outline">Filters</Button>
-      </div>
+      </div> */}
 
       {/* Villas Grid */}
 

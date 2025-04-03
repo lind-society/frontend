@@ -34,13 +34,10 @@ export const BuyPage = () => {
       </header>
 
       {/* Notification and filters*/}
-      <div className="flex justify-between gap-8 mb-8">
-        <div className="flex items-center w-full gap-1 px-1 border rounded bg-light text-primary border-dark/30">
-          {/* <IoMdNotifications size={20} /> */}
-          You have <strong>9</strong> new unchecked bookings!
-        </div>
+      {/* <div className="flex justify-between gap-8 mb-8">
+        <div className="flex items-center w-full gap-1 px-1 border rounded bg-light text-primary border-dark/30"></div>
         <Button className="btn-outline">Filters</Button>
-      </div>
+      </div> */}
 
       {/* Properties Grid */}
       {isLoading ? (

@@ -55,7 +55,7 @@ export const ServiceFeatures = () => {
   //   localStorage.setItem("categories", JSON.stringify(categories));
   // }, [categories]);
 
-  const updateFeatureIcon = (key: string | null, e: React.MouseEvent<HTMLElement>) => {
+  const updateFeatureIcon = (key: string | null, e: React.MouseEvent) => {
     const url = (e.target as HTMLImageElement).src; // Extract src as string
     setFeatures((prevFeatures) => prevFeatures.map((feature) => (feature.id === idIcon ? { ...feature, icon: { url, key: key ?? "" } } : feature)));
   };

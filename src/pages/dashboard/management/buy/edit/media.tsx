@@ -6,7 +6,7 @@ import { useCreateApi, usePersistentData, useUploads } from "../../../../../hook
 
 import { Button, Img, Modal, ToastMessage, UploadPhoto } from "../../../../../components";
 
-import { FaPlus, FaUpload } from "react-icons/fa";
+import { FaEdit, FaEye, FaPlus, FaUpload } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 
 import { FileData, Payload, Property } from "../../../../../types";
@@ -47,9 +47,10 @@ export const Media = () => {
     }, {} as Record<string, Section>) || {}
   );
 
+  const [editMode, setEditMode] = React.useState<boolean>(false);
+
   const [additional, setAdditional] = React.useState<Section[]>(defaultAdditional.length > 0 ? defaultAdditional : initAdditional);
   const [modalAdditional, setModalAdditional] = React.useState<boolean>(false);
-
   const [photos, setPhotos] = React.useState<string[]>([]);
   const [videos, setVideos] = React.useState<string[]>([]);
   const [video360s, setVideo360s] = React.useState<string[]>([]);
@@ -193,8 +194,22 @@ export const Media = () => {
   }, []);
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/30">
-      <form className="space-y-8" onSubmit={handleSubmitMedia}>
+    <div className="relative p-8 border rounded-b bg-light border-dark/30">
+      <Button className="absolute right-8 btn-outline z-3000" onClick={() => setEditMode((prev) => !prev)}>
+        {editMode ? (
+          <div className="flex items-center gap-2">
+            <FaEye size={18} />
+            Show Mode
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <FaEdit size={18} />
+            Edit Mode
+          </div>
+        )}
+      </Button>
+      <form className="relative space-y-8" onSubmit={handleSubmitMedia}>
+        <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-2000"}`}></div>
         {/* Catalog Photo */}
         <UploadPhoto folder="property" type="photos" title="Photo" description="Catalog Photo *" fileUrl={photos} setFileUrl={setPhotos} />
 
@@ -230,7 +245,7 @@ export const Media = () => {
                         className="input-text"
                       />
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center pt-1">
                       <label className="whitespace-nowrap min-w-60">Photo</label>
                       <div className="relative">
                         <input type="file" id={field.name} onChange={(e) => handleFileInputChange(additionalIndex, field.id, e)} hidden accept="image/*" multiple />
@@ -240,7 +255,7 @@ export const Media = () => {
                       </div>
                       <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
                     </div>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-4 gap-2.5 pt-2">
                       {field.photos.map((image, index) => (
                         <div key={index} className="relative">
                           <button
@@ -271,8 +286,8 @@ export const Media = () => {
             ))}
           </div>
         </div>
-        <div className="flex justify-end gap-4">
-          <Button type="submit" className="btn-primary">
+        <div className={`justify-end gap-4 ${editMode ? "flex" : "hidden"}`}>
+          <Button className="btn-primary" type="submit">
             Save
           </Button>
         </div>
