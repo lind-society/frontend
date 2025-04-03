@@ -87,7 +87,7 @@ export const Location = () => {
         <div className="flex items-center">
           <label className="block opacity-0 whitespace-nowrap min-w-60">Map Link</label>
 
-          <GoogleMaps mapUrl="https://maps.app.goo.gl/rcrFYutJQTHq2Cs67" />
+          <GoogleMaps />
         </div>
 
         <div className="space-y-2">
