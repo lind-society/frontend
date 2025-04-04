@@ -20,7 +20,7 @@ export const ProtectedRoute = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="loader size-32 after:size-32"></div>
+        <div className="loader size-24 after:size-24"></div>
       </div>
     );
   }

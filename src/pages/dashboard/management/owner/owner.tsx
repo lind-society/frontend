@@ -33,7 +33,7 @@ export const OwnerPage = () => {
         <div className="mb-8 overflow-y-auto scrollbar">
           {isFetching ? (
             <div className="flex items-center justify-center min-h-200">
-              <div className="loader"></div>
+              <div className="loader size-12 after:size-12"></div>
             </div>
           ) : (
             <table className="min-w-full bg-light">

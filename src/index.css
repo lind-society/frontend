@@ -60,7 +60,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .loader {
   border-radius: 50%;
   display: inline-block;
-  border-top: 4px solid #fff;
+  border-top: 4px solid #2e5153;
   border-right: 4px solid transparent;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;

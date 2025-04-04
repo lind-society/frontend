@@ -16,7 +16,7 @@ export const AddOwnerPage = () => {
   const [addModal, setAddModal] = React.useState<boolean>(false);
   const [owner, setOwner] = React.useState<Partial<Owner>>(initValue);
 
-  const { mutate: addOwner } = useCreateApi({ key: ["add-owner"], url: "owners", redirectPath: "/dashboard/management/owner" });
+  const { mutate: addOwner, isPending } = useCreateApi({ key: ["add-owner"], url: "owners", redirectPath: "/dashboard/management/owner" });
 
   const handleChange = (key: keyof Owner, value: string) => {
     setOwner((prev) => ({ ...prev, [key]: value }));
@@ -104,7 +104,7 @@ export const AddOwnerPage = () => {
 
           <div className="flex justify-end gap-4">
             <Button className="btn-outline">Reset</Button>
-            <Button className="btn-primary">Save</Button>
+            <Button className="btn-primary">{isPending ? <div className="loader size-5 after:size-5"></div> : "Save"}</Button>
           </div>
         </form>
       </Modal>

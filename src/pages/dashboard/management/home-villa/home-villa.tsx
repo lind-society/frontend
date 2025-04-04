@@ -49,7 +49,7 @@ export const HomeVillaPage = () => {
 
       {isLoading ? (
         <div className="flex justify-center min-h-200">
-          <div className="loader"></div>
+          <div className="loader size-12 after:size-12"></div>
         </div>
       ) : (
         <>
