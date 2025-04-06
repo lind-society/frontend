@@ -35,7 +35,6 @@ const App = () => {
           <Route path="/dashboard/management/rent" element={<RentPage />} />
           <Route path="/dashboard/management/rent/edit/:id" element={<EditRentPage />} />
           {/* 
-          <Route path="/dashboard/management/owner/edit/:id" element={<EditOwnerPage />} />
           <Route path="/dashboard/management/property" element={<PropertyPage />} />
           <Route path="/dashboard/management/property/package/add" element={<AddPackagePage />} /> 
           */}

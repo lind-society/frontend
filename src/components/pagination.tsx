@@ -1,22 +1,31 @@
 import { useMemo } from "react";
-
+import { useSearchParams } from "react-router-dom";
 import { PaginationProps } from "../types";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
-export const Pagination = ({ setPage, page, totalPage, isNumbering }: PaginationProps) => {
+export const Pagination = ({ setPage, page, totalPage, isNumbering, withQuerySync = false }: PaginationProps) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const maxVisiblePages = 3;
 
-  // Utility for dynamic class handling
+  const updatePage = (newPage: number) => {
+    setPage(newPage);
+    if (withQuerySync) {
+      const updatedParams = new URLSearchParams(searchParams);
+      updatedParams.set("page", newPage.toString());
+      setSearchParams(updatedParams);
+    }
+  };
+
   const getButtonClass = (isDisabled: boolean) => `pagination-button group ${isDisabled ? "text-dark/50" : "hover:text-light hover:bg-primary"}`;
 
   const getIconClass = (isDisabled: boolean) => `duration-300 ${isDisabled ? "fill-dark/50" : "fill-primary group-hover:fill-light"}`;
 
   const handleNextPage = () => {
-    setPage((prevPage) => Math.min(prevPage + 1, totalPage));
+    updatePage(Math.min(page + 1, totalPage));
   };
 
   const handlePreviousPage = () => {
-    setPage((prevPage) => Math.max(prevPage - 1, 1));
+    updatePage(Math.max(page - 1, 1));
   };
 
   const pageNumbers = useMemo(() => {
@@ -24,7 +33,6 @@ export const Pagination = ({ setPage, page, totalPage, isNumbering }: Pagination
     const half = Math.floor(maxVisiblePages / 2);
 
     pages.push(1);
-
     if (page > half + 2) pages.push("...");
 
     const start = Math.max(2, page - half);
@@ -35,11 +43,10 @@ export const Pagination = ({ setPage, page, totalPage, isNumbering }: Pagination
     }
 
     if (page + half < totalPage - 1) pages.push("...");
-
     if (totalPage > 1) pages.push(totalPage);
 
     return pages;
-  }, [page, totalPage, maxVisiblePages]);
+  }, [page, totalPage]);
 
   return (
     <div className="flex items-center justify-between gap-1 sm:gap-4">
@@ -52,7 +59,7 @@ export const Pagination = ({ setPage, page, totalPage, isNumbering }: Pagination
         {isNumbering &&
           pageNumbers.map((numberPage, index) =>
             typeof numberPage === "number" ? (
-              <button key={index} type="button" onClick={() => setPage(numberPage)} className={`pagination-number ${numberPage === page ? "bg-primary text-light" : "bg-light text-dark"}`}>
+              <button key={index} type="button" onClick={() => updatePage(numberPage)} className={`pagination-number ${numberPage === page ? "bg-primary text-light" : "bg-light text-dark"}`}>
                 {numberPage}
               </button>
             ) : (

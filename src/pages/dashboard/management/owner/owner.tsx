@@ -75,7 +75,7 @@ export const OwnerPage = () => {
                 </tbody>
               </table>
               {owners && owners.data.data.length! < 1 && (
-                <div className="flex items-center justify-center min-h-200 w-full">
+                <div className="flex items-center justify-center w-full min-h-200">
                   <span className="text-3xl font-bold text-dark/50">Owners not found</span>
                 </div>
               )}

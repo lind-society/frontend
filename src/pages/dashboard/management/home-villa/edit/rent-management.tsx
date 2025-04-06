@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { useGetApi } from "../../../../../hooks";
 
@@ -25,17 +25,64 @@ export const RentManagement = () => {
   const { id } = useParams();
 
   const [page, setPage] = React.useState<number>(1);
+  const [search, setSearch] = React.useState<string>("");
+  const [inputValue, setInputValue] = React.useState<string>("");
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const { data: respBookings, isPending } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings", id], url: "bookings", params: { "filter.villaId": id }, enabled: !!id });
+  const { data: respBookings, isPending } = useGetApi<Payload<Data<Booking[]>>>({
+    key: ["get-bookings", id, search, page],
+    url: "bookings",
+    params: { "filter.villaId": id, search, page },
+    enabled: !!id,
+  });
 
   const totalPage = respBookings?.data.meta.totalPages || 1;
+
+  const handleSearch = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setPage(1);
+    setSearch(inputValue);
+    setSearchParams({ search: inputValue, page: "1" });
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    setSearchParams((prev) => {
+      const updatedParams = new URLSearchParams(prev);
+      updatedParams.set("page", newPage.toString());
+      if (search) updatedParams.set("search", search);
+      return updatedParams;
+    });
+  };
+
+  React.useEffect(() => {
+    const q = searchParams.get("search") || "";
+    const p = Number(searchParams.get("page")) || 1;
+    setSearch(q);
+    setInputValue(q);
+    setPage(p);
+  }, []);
 
   return (
     <div className="p-8 space-y-4 border rounded-b bg-light border-dark/30">
       <h2 className="heading">Rent Management</h2>
       <div className="flex items-stretch w-full overflow-hidden border rounded border-dark/30">
-        <input type="text" placeholder="Search by villa, property, or activity name" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" />
-        <button className="flex items-center justify-center h-10 text-light bg-primary w-14">
+        <input
+          type="text"
+          placeholder="Search bookings..."
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setSearch(inputValue);
+              setPage(1);
+              setSearchParams({ search: inputValue, page: "1" });
+            }
+          }}
+          className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none"
+        />
+
+        <button type="button" onClick={handleSearch} className="flex items-center justify-center h-10 text-light bg-primary w-14">
           <IoMdSearch size={25} />
         </button>
       </div>
@@ -87,14 +134,14 @@ export const RentManagement = () => {
               </tbody>
             </table>
             {respBookings && respBookings.data.data.length! < 1 && (
-              <div className="flex items-center justify-center min-h-200 w-full">
+              <div className="flex items-center justify-center w-full min-h-200">
                 <span className="text-3xl font-bold text-dark/50">Bookings not found</span>
               </div>
             )}
           </>
         )}
       </div>
-      <Pagination page={page} setPage={setPage} totalPage={totalPage} isNumbering />
+      <Pagination page={page} setPage={handlePageChange} totalPage={totalPage} isNumbering />
     </div>
   );
 };

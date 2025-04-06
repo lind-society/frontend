@@ -1,6 +1,7 @@
 export interface PaginationProps {
-  setPage: React.Dispatch<React.SetStateAction<number>>;
   page: number;
+  setPage: (page: number) => void;
   totalPage: number;
   isNumbering?: boolean;
+  withQuerySync?: boolean;
 }
