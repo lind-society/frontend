@@ -1,57 +1,78 @@
 import * as React from "react";
 
-import { Layout } from "../../../../components/ui";
-import { Button } from "../../../../components";
-import { useNavigate } from "react-router-dom";
-import { FaPlus } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
 
-interface Service {
-  id: number;
-  title: string;
-  isFree: boolean;
-  price: string;
-  currency: string;
-}
+import { useGetApi, useUpdateApi } from "../../../../hooks";
+
+import Select from "react-select";
+
+import { Layout } from "../../../../components/ui";
+import { Button, NumberInput } from "../../../../components";
+
+import { statusBookings } from "../../../../static";
+
+import { Booking, Currency, Data, OptionType, Payload } from "../../../../types";
 
 export const EditRentPage = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+
   const [email, setEmail] = React.useState<string>("");
-  const [fullname, setFullname] = React.useState<string>("");
-  const [propertyName, setPropertyName] = React.useState<string>("");
-  const [secondPropertyName, setSecondPropertyName] = React.useState<string>("");
-  const [message, setMessage] = React.useState<string>("");
-  const [checkIn, setCheckIn] = React.useState<Date | null>(new Date());
-  const [checkOut, setCheckOut] = React.useState<Date | null>(new Date());
+  const [name, setName] = React.useState<string>("");
+  const [phoneNumber, setPhoneNumber] = React.useState<string>("");
+  const [phoneCountryCode, setPhoneCountryCode] = React.useState<OptionType | null>(null);
 
-  const [services, setServices] = React.useState<Service[]>([{ id: 1, title: "", isFree: false, price: "", currency: "Rp" }]);
+  const [totalAmount, setTotalAmount] = React.useState<string>("");
+  const [totalGuest, setTotalGuest] = React.useState<string>("");
+  const [status, setStatus] = React.useState<string>("");
+  const [checkInDate, setCheckInDate] = React.useState<string>("");
+  const [checkOutDate, setCheckOutDate] = React.useState<string>("");
+  const [currency, setCurrency] = React.useState<OptionType | null>(null);
 
-  const addService = (e: React.MouseEvent) => {
+  const { data: respBooking } = useGetApi<Payload<Booking>>({ key: ["get-booking", id], url: `bookings/${id}` });
+  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
+  const { data: phoneCodes } = useGetApi({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
+
+  const { mutate: editBooking } = useUpdateApi({ key: ["edit-booking"], url: "bookings", redirectPath: `/dashboard/management/rent/edit/${id}` });
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setServices([...services, { id: Date.now(), title: "", isFree: false, price: "", currency: "Rupiah (Rp)" }]);
+    const formattedData = {
+      customer: {
+        email,
+        name,
+        phoneNumber,
+        phoneCountryCode: phoneCountryCode?.value,
+      },
+      totalAmount: Number(totalAmount),
+      totalGuest: Number(totalGuest),
+      status,
+      checkInDate,
+      checkOutDate,
+      currencyId: currency?.value,
+    };
+    editBooking({ id: id || "", updatedItem: formattedData });
   };
 
-  const updateService = (id: number, key: string, value: string | boolean) => {
-    setServices(services.map((service) => (service.id === id ? { ...service, [key]: value } : service)));
-  };
+  React.useEffect(() => {
+    if (respBooking && currencies && phoneCodes) {
+      const customer = respBooking.data.customer;
+      const findCurrency = currencies.data.data.find((c) => c.id === respBooking.data.currencyId);
+      const findPhoneCode = phoneCodes.find((phone: any) => phone.dial_code === customer.phoneCountryCode);
 
-  const removeService = (id: number) => {
-    setServices(services.filter((service) => service.id !== id));
-  };
+      setName(customer.name);
+      setEmail(customer.email);
+      setPhoneNumber(customer.phoneNumber);
+      setPhoneCountryCode({ value: findPhoneCode.dial_code, label: `${findPhoneCode.name} (${findPhoneCode.dial_code})` });
 
-  const resetService = (e: React.MouseEvent, id: number) => {
-    e.preventDefault();
-    setServices(services.map((service) => (service.id === id ? { ...service, title: "", isFree: false, price: "", currency: "Rp" } : service)));
-    // setSections(sections.map((section) => (section.id === id ? { ...section, name: "", description: "", photo: null } : section)));
-  };
-
-  const calculateTotal = () => {
-    const nightlyRate = 4900000;
-    const nights = checkIn && checkOut ? Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)) : 1;
-    const roomCost = nightlyRate * nights;
-    const serviceFee = 400000;
-    const additionalCost = services.reduce((acc, service) => acc + +service.price, 0);
-    return roomCost + serviceFee + additionalCost;
-  };
+      setTotalAmount(String(respBooking.data.totalAmount));
+      setTotalGuest(String(respBooking.data.totalGuest));
+      setStatus(respBooking.data.status);
+      setCheckInDate(respBooking.data.checkInDate.split("T")[0]);
+      setCheckOutDate(respBooking.data.checkOutDate.split("T")[0]);
+      setCurrency({ value: findCurrency?.id || "", label: findCurrency?.code || "" });
+    }
+  }, [respBooking, currencies, phoneCodes]);
 
   return (
     <Layout>
@@ -59,7 +80,7 @@ export const EditRentPage = () => {
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="text-2xl font-bold">Edit Booking</h1>
 
-        <Button onClick={() => navigate("/dashboard/management/rent")} className="btn-outline">
+        <Button onClick={() => navigate(-1)} className="btn-outline">
           Close
         </Button>
       </header>
@@ -69,144 +90,119 @@ export const EditRentPage = () => {
       <div className="p-8 border rounded-b bg-light border-dark/30">
         <h2 className="heading">Edit Booking</h2>
 
-        <form className="mt-6 space-y-8">
+        <form className="mt-6 space-y-8" onSubmit={handleSubmit}>
           {/* Property name */}
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-60">Property name</label>
-            <input type="text" className="input-text" placeholder="Urna Santal Villa" value={propertyName} onChange={(e) => setPropertyName(e.target.value)} />
+            <input type="text" className="input-text" placeholder="Urna Santal Villa" value={respBooking?.data.villa.name || ""} readOnly />
           </div>
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-60">Secondary property name</label>
-            <input type="text" className="input-text" placeholder="Urna Cangau" value={secondPropertyName} onChange={(e) => setSecondPropertyName(e.target.value)} />
+            <input type="text" className="input-text" placeholder="Urna Cangau" value={respBooking?.data.villa.secondaryName || ""} readOnly />
           </div>
 
           {/* Rent */}
           <div className="flex items-center gap-8">
             <div className="flex items-center w-full">
-              <label className="block whitespace-nowrap min-w-60">Rent</label>
-              <select className="w-full input-select">
-                <option value="daily">Daily</option>
-                <option value="monthly">Monthly</option>
-                <option value="yearly">yearly</option>
+              <label className="block whitespace-nowrap min-w-60">Status</label>
+              <select className="w-full input-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                {statusBookings.map((status, index) => (
+                  <option key={index} value={status}>
+                    {status}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="flex items-center w-full max-w-lg gap-12">
               <div className="relative w-full">
                 <label className="block text-sm">Check In</label>
-                <input type="date" className="text-sm appearance-none" onChange={(e) => setCheckIn(e.target.valueAsDate)} />
+                <input type="date" className="text-sm appearance-none" value={checkInDate} onChange={(e) => setCheckInDate(e.target.value)} />
               </div>
               <div className="relative w-full">
                 <label className="block text-sm">Check Out</label>
-                <input type="date" className="text-sm appearance-none" onChange={(e) => setCheckOut(e.target.valueAsDate)} />
+                <input type="date" className="text-sm appearance-none" value={checkOutDate} onChange={(e) => setCheckOutDate(e.target.value)} />
               </div>
             </div>
           </div>
 
           {/* price */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-2">
             <div className="flex items-center w-full">
               <label className="block whitespace-nowrap min-w-60">Price</label>
-              <select className="w-full input-select">
-                <option value="Rp">Rupiah (Rp)</option>
-                <option value="$">Dollar ($)</option>
-              </select>
+              <Select
+                className="w-full text-sm"
+                options={currencies?.data.data.map((currency) => ({ value: currency.id, label: currency.code }))}
+                value={currency}
+                onChange={(option) => setCurrency(option)}
+                placeholder="Select Currency"
+                required
+              />
             </div>
 
-            <input type="text" className="w-full max-w-lg input-text" placeholder="9000000" readOnly />
+            <NumberInput
+              className="input-text"
+              value={totalAmount}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (+value < 0) return;
+                setTotalAmount(value);
+              }}
+              placeholder={currency?.label ? `Enter currency in ${currency?.label}` : "Select currency first"}
+              disabled={!currency}
+              required
+            />
           </div>
 
-          {/* Identity email, fullname */}
+          {/* Identity email, name */}
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-60">Email</label>
             <input type="text" className="input-text" placeholder="johndoe.10@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Fullname</label>
-            <input type="text" className="input-text" placeholder="John Doe" value={fullname} onChange={(e) => setFullname(e.target.value)} />
+            <label className="block whitespace-nowrap min-w-60">Name</label>
+            <input type="text" className="input-text" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
           {/* price */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-2">
             <div className="flex items-center w-full">
               <label className="block whitespace-nowrap min-w-60">Phone Number</label>
-              <select className="w-full input-select">
-                <option value="">+62</option>
-                <option value="">+52</option>
-                <option value="">+78</option>
-              </select>
+              <Select
+                className="w-full text-sm"
+                options={phoneCodes?.map((phone: any) => ({ value: phone.dial_code, label: `${phone.name} (${phone.dial_code})` }))}
+                value={phoneCountryCode}
+                onChange={(option) => setPhoneCountryCode(option)}
+                placeholder="Select Currency"
+                required
+              />
             </div>
-
-            <input type="text" className="w-full max-w-lg input-text" placeholder="+62894613831" readOnly />
+            <NumberInput
+              className="w-full input-text"
+              value={phoneNumber}
+              placeholder="894613831"
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.length >= 16) return;
+                setPhoneNumber(value);
+              }}
+              required
+            />
           </div>
 
           {/* guest */}
           <div className="flex items-center w-full">
             <label className="block whitespace-nowrap min-w-60">Guest</label>
-            <select className="w-full input-select">
-              <option value="1">1 Guest</option>
-              <option value="2">2 Guest</option>
-              <option value="3">3 Guest</option>
+            <select className="w-full input-select" value={totalGuest} onChange={(e) => setTotalGuest(e.target.value)}>
+              {[...Array(10)].map((_, index) => (
+                <option key={index} value={index + 1}>
+                  {index + 1} Guest
+                </option>
+              ))}
             </select>
           </div>
 
-          {/* message */}
-          <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Message</label>
-            <textarea rows={2} className="input-text" placeholder="John Doe" value={message} onChange={(e) => setMessage(e.target.value)} />
-          </div>
-
-          <h2 className="mt-6 heading">Additional Services</h2>
-          <div className="space-y-4">
-            {services.map((service) => (
-              <div key={service.id} className="space-y-4">
-                <div className="flex items-center">
-                  <label className="block whitespace-nowrap min-w-60">Title *</label>
-                  <input
-                    type="text"
-                    placeholder="input the title service"
-                    value={service.title}
-                    onChange={(e) => updateService(service.id, "title", e.target.value)}
-                    className="w-full p-2 mt-1 border rounded"
-                  />
-                </div>
-                <div className="flex items-center">
-                  <div className="flex items-center w-full">
-                    <label className="block whitespace-nowrap min-w-60">Free *</label>
-                    <div className="flex items-center gap-8 px-8">
-                      <label className="flex items-center gap-4">
-                        Yes <input type="checkbox" className="accent-primary size-4" checked={service.isFree} onChange={() => updateService(service.id, "isFree", true)} />
-                      </label>
-                      <label className="flex items-center gap-4">
-                        No <input type="checkbox" className="accent-primary size-4" checked={!service.isFree} onChange={() => updateService(service.id, "isFree", false)} />
-                      </label>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="block whitespace-nowrap">Price *</label>
-                    <select value={service.currency} onChange={(e) => updateService(service.id, "currency", e.target.value)} className="input-select min-w-60">
-                      <option value="Rp">Rupiah (Rp)</option>
-                      <option value="$">Dollar ($)</option>
-                    </select>
-                    <input type="text" placeholder="2000000" value={service.price} onChange={(e) => updateService(service.id, "price", e.target.value)} className="input-text min-w-60" />
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Button onClick={(e: React.MouseEvent) => resetService(e, service.id)} className="w-full btn-outline">
-                    Reset
-                  </Button>
-                  <Button onClick={() => removeService(service.id)} className="w-full btn-red">
-                    Delete
-                  </Button>
-                  <Button onClick={addService} className="flex items-center w-full gap-2 btn-green">
-                    <FaPlus /> Add More
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="w-full max-w-xs bg-light ms-auto">
+          {/* <div className="w-full max-w-xs bg-light ms-auto">
             <p className="pb-2 text-lg font-semibold border-b border-dark/30">Price Details</p>
             <div className="my-2 space-y-2">
               <span className="flex items-center justify-between w-full text-sm">
@@ -220,11 +216,15 @@ export const EditRentPage = () => {
               </span>
             </div>
             <p className="pt-2 text-lg font-semibold border-t border-dark/30">Total: IDR {calculateTotal()}</p>
-          </div>
+          </div> */}
 
           <div className="flex justify-end gap-4">
-            <Button className="btn-outline">Reset</Button>
-            <Button className="btn-primary">Save</Button>
+            <Button type="button" className="btn-outline">
+              Reset
+            </Button>
+            <Button type="submit" className="btn-primary">
+              Save
+            </Button>
           </div>
         </form>
       </div>

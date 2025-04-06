@@ -18,3 +18,4 @@ export * from "./api/property";
 export * from "./api/review";
 export * from "./api/currency";
 export * from "./api/owner";
+export * from "./api/booking";

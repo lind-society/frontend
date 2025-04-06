@@ -33,7 +33,7 @@ const Google = () => {
   return isLoaded ? (
     <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={9} onLoad={onLoad} onUnmount={onUnmount}>
       {/* Child components, such as markers, info windows, etc. */}
-      <div>test marker</div>
+      <div>{}</div>
     </GoogleMap>
   ) : (
     <></>

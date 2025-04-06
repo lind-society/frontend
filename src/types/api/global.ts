@@ -1,3 +1,5 @@
+import { Currency } from "./currency";
+
 export interface PlaceNearby {
   name: string;
   distance: number;
@@ -6,17 +8,6 @@ export interface PlaceNearby {
 export interface Icon {
   key: string;
   url: string;
-}
-
-export interface Currency {
-  id: string;
-  code: string;
-  name: string;
-  symbol: string;
-  allowDecimal: string;
-  allowRound: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface AdditionalItem {

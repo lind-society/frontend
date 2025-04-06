@@ -4,6 +4,7 @@ export interface Owner {
   type: string;
   companyName: string;
   email: string;
+  phoneCountryCode: string;
   phoneNumber: string;
   address: string;
   website: string;

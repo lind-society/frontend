@@ -1,84 +1,34 @@
 import * as React from "react";
 
-import { Img, Pagination } from "../../../../../components";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { useGetApi } from "../../../../../hooks";
+
+import { Pagination } from "../../../../../components";
 
 import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
-import { IoMdLink, IoMdSearch } from "react-icons/io";
+import { IoMdSearch } from "react-icons/io";
 
-const statuses = ["On Negotiation", "Payment", "Completed", "Cancelled"];
-const names = [
-  "Asya Faris",
-  "Dimas Pratama",
-  "Nina Kusuma",
-  "Rizky Aditya",
-  "Sari Indah",
-  "Budi Santoso",
-  "Citra Melati",
-  "Rendi Saputra",
-  "Alya Rahma",
-  "Fajar Hidayat",
-  "Lina Kurnia",
-  "Andi Wijaya",
-  "Putri Maharani",
-  "Eko Susanto",
-  "Rina Amelia",
-  "Bagas Prasetyo",
-  "Nadia Syafira",
-  "Galih Pradana",
-  "Rizka Putra",
-  "Vina Lestari",
-  "Hendra Kusnadi",
-  "Dewi Anggraini",
-  "Toni Saputra",
-  "Wulan Sari",
-  "Bayu Firmansyah",
-  "Cindy Oktaviani",
-  "Dion Mahendra",
-  "Mega Wulandari",
-  "Arief Ramadhan",
-  "Siti Rohmah",
-  "Fauzan Malik",
-  "Jessica Tan",
-  "Reza Perdana",
-  "Hesti Anindita",
-  "Ilham Kurniawan",
-];
-
-const data = Array.from({ length: 35 }, (_, i) => ({
-  image: "/temp.png",
-  property: "Uma Santai Villa",
-  rent: ["Daily", "Weekly", "Monthly"][Math.floor(Math.random() * 3)],
-  fullName: names[i],
-  email: `${names[i].toLowerCase().replace(/\s+/g, "")}@gmail.com`,
-  phone: `+62${Math.floor(800000000000 + Math.random() * 999999999)}`,
-  guest: Math.floor(Math.random() * 5) + 1,
-  status: statuses[Math.floor(Math.random() * statuses.length)],
-}));
+import { Booking, Data, Payload } from "../../../../../types";
 
 const statusColors: Record<string, string> = {
-  "On Negotiation": "bg-red-300 text-red-700",
-  Payment: "bg-yellow-300 text-yellow-700",
-  Completed: "bg-green-300 text-green-700",
-  Cancelled: "bg-red-300 text-red-700",
+  requested: "bg-blue-300 text-blue-700",
+  negotiation: "bg-orange-300 text-orange-700",
+  "waiting for payment": "bg-yellow-300 text-yellow-700",
+  booked: "bg-purple-300 text-purple-700",
+  done: "bg-green-300 text-green-700",
+  canceled: "bg-red-300 text-red-700",
 };
 
 export const RentManagement = () => {
-  const limit = 10;
-  const [datas, setDatas] = React.useState<typeof data>([]);
+  const navigate = useNavigate();
+  const { id } = useParams();
 
   const [page, setPage] = React.useState<number>(1);
 
-  const [totalPage, setTotalPage] = React.useState<number>(Math.ceil(data.length / limit));
+  const { data: respBookings, isPending } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings", id], url: "bookings", params: { "filter.villaId": id }, enabled: !!id });
 
-  React.useEffect(() => {
-    const startIndex = (page - 1) * limit;
-    if (data) {
-      setDatas(data.slice(startIndex, startIndex + limit));
-      setTotalPage(Math.ceil(data.length / limit));
-    } else {
-      setTotalPage(0);
-    }
-  }, [data, page]);
+  const totalPage = respBookings?.data.meta.totalPages || 1;
 
   return (
     <div className="p-8 space-y-4 border rounded-b bg-light border-dark/30">
@@ -89,48 +39,60 @@ export const RentManagement = () => {
           <IoMdSearch size={25} />
         </button>
       </div>
-      <div className="overflow-y-auto scrollbar">
-        <table className="min-w-full bg-light">
-          <thead>
-            <tr className="bg-primary text-light">
-              <th className="px-4 py-3 text-left">Image</th>
-              <th className="px-4 py-3 text-left">Property</th>
-              <th className="px-4 py-3 text-left">Rent</th>
-              <th className="px-4 py-3 text-left">Full Name</th>
-              <th className="px-4 py-3 text-left">Email</th>
-              <th className="px-4 py-3 text-left">Phone</th>
-              <th className="px-4 py-3 text-left">Guest</th>
-              <th className="px-4 py-3 text-left">Status</th>
-              <th className="px-4 py-3 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {datas.map((item, index) => (
-              <tr key={index} className="h-full border-b whitespace-nowrap">
-                <td className="px-4 py-3">
-                  <Img src={item.image} alt="property" className="w-12 h-12 rounded" />
-                </td>
-                <td className="px-4 py-3">{item.property}</td>
-                <td className="px-4 py-3">{item.rent}</td>
-                <td className="px-4 py-3">{item.fullName}</td>
-                <td className="px-4 py-3">{item.email}</td>
-                <td className="px-4 py-3">{item.phone}</td>
-                <td className="px-4 py-3 text-center">{item.guest}</td>
-                <td className="px-4 py-3">
-                  <span className={`px-4 py-1 rounded-full text-xs ${statusColors[item.status]}`}>{item.status}</span>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center justify-center gap-2">
-                    <FaEdit size={20} className="cursor-pointer text-primary" />
-                    <IoMdLink size={20} className="cursor-pointer text-primary" />
-                    <FaCheckSquare size={20} className="text-green-600 cursor-pointer" />
-                    <FaWindowClose size={20} className="text-red-600 cursor-pointer" />
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mb-8 overflow-x-auto scrollbar">
+        {isPending ? (
+          <div className="flex items-center justify-center min-h-200">
+            <div className="loader size-12 after:size-12"></div>
+          </div>
+        ) : (
+          <>
+            <table className="min-w-full bg-light whitespace-nowrap">
+              <thead>
+                <tr className="bg-primary text-light">
+                  <th className="px-4 py-3 text-left">Villa</th>
+                  {/* <th className="px-4 py-3 text-left">Rent</th> */}
+                  <th className="px-4 py-3 text-left">Full Name</th>
+                  <th className="px-4 py-3 text-left">Email</th>
+                  <th className="px-4 py-3 text-left">Phone</th>
+                  <th className="px-4 py-3 text-left">Guest</th>
+                  <th className="px-4 py-3 text-left">Total Amount</th>
+                  <th className="px-4 py-3 text-left">Status</th>
+                  <th className="px-4 py-3 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {respBookings &&
+                  respBookings.data.data?.map((booking) => (
+                    <tr key={booking.id} className="h-full border-b">
+                      <td className="px-4 py-3">{booking.villa.name}</td>
+                      {/* <td className="px-4 py-3">{booking.rent}</td> */}
+                      <td className="px-4 py-3">{booking.customer.name}</td>
+                      <td className="px-4 py-3">{booking.customer.email}</td>
+                      <td className="px-4 py-3">{booking.customer.phoneNumber}</td>
+                      <td className="px-4 py-3 text-center">{booking.totalGuest}</td>
+                      <td className="px-4 py-3 text-center">{booking.totalAmount}</td>
+                      <td className="px-4 py-3">
+                        <span className={`px-4 py-2 rounded-full text-sm ${statusColors[booking.status]}`}>{booking.status}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-2">
+                          <FaEdit size={20} className="cursor-pointer text-primary" onClick={() => navigate(`/dashboard/management/rent/edit/${booking.id}`)} />
+                          {/* <IoMdLink size={20} className="cursor-pointer text-primary" /> */}
+                          <FaCheckSquare size={20} className="text-green-600 cursor-pointer" />
+                          <FaWindowClose size={20} className="text-red-600 cursor-pointer" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+            {respBookings && respBookings.data.data.length! < 1 && (
+              <div className="flex items-center justify-center min-h-200 w-full">
+                <span className="text-3xl font-bold text-dark/50">Bookings not found</span>
+              </div>
+            )}
+          </>
+        )}
       </div>
       <Pagination page={page} setPage={setPage} totalPage={totalPage} isNumbering />
     </div>

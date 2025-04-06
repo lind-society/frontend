@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useCreateApi } from "../../../../hooks";
+import { useCreateApi, useGetApi } from "../../../../hooks";
 
 import { Button, Modal, NumberInput } from "../../../../components";
 
@@ -18,6 +18,8 @@ export const AddOwnerPage = () => {
 
   const { mutate: addOwner, isPending } = useCreateApi({ key: ["add-owner"], url: "owners", redirectPath: "/dashboard/management/owner" });
 
+  const { data: phoneCodes } = useGetApi({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
+
   const handleChange = (key: keyof Owner, value: string) => {
     setOwner((prev) => ({ ...prev, [key]: value }));
   };
@@ -26,6 +28,7 @@ export const AddOwnerPage = () => {
     e.preventDefault();
     const ownerProcess = deleteKeysObject(owner, ["id", "activities", "properties", "villas", "createdAt", "updatedAt"]);
     addOwner(ownerProcess);
+    setOwner(initValue);
   };
 
   return (
@@ -39,19 +42,19 @@ export const AddOwnerPage = () => {
         <form className="mt-6 space-y-8" onSubmit={handleSubmit}>
           {/* Property name */}
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Full Name *</label>
+            <label className="block whitespace-nowrap min-w-44">Full Name *</label>
             <input type="text" className="input-text" value={owner.name} placeholder="Asya Faris" onChange={(e) => handleChange("name", e.target.value)} required />
           </div>
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Email *</label>
+            <label className="block whitespace-nowrap min-w-44">Email *</label>
             <input type="email" className="input-text" value={owner.email} placeholder="asyafaris@gmail.com" onChange={(e) => handleChange("email", e.target.value)} required />
           </div>
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Address *</label>
+            <label className="block whitespace-nowrap min-w-44">Address *</label>
             <input type="text" className="input-text" value={owner.address} placeholder="Jln. Raya Sawahan No.12" onChange={(e) => handleChange("address", e.target.value)} required />
           </div>
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Status *</label>
+            <label className="block whitespace-nowrap min-w-44">Status *</label>
             <select className="w-full input-select" value={owner.status} onChange={(e) => handleChange("status", e.target.value)} required>
               <option disabled value="">
                 Select status
@@ -61,7 +64,7 @@ export const AddOwnerPage = () => {
             </select>
           </div>
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Type *</label>
+            <label className="block whitespace-nowrap min-w-44">Type *</label>
             <select className="w-full input-select" value={owner.type} onChange={(e) => handleChange("type", e.target.value)} required>
               <option disabled value="">
                 Select type
@@ -72,11 +75,13 @@ export const AddOwnerPage = () => {
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center w-full">
-              <label className="block whitespace-nowrap min-w-60">Phone Number *</label>
-              <select className="w-full input-select">
-                <option value="">+62</option>
-                <option value="">+52</option>
-                <option value="">+78</option>
+              <label className="block whitespace-nowrap min-w-44">Phone Number *</label>
+              <select className="w-full input-select" value={owner.phoneCountryCode} onChange={(e) => handleChange("phoneCountryCode", e.target.value)} required>
+                {phoneCodes?.map((phone: any) => (
+                  <option key={phone.code} value={phone.dial_code}>
+                    {phone.name} ({phone.dial_code})
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -86,19 +91,19 @@ export const AddOwnerPage = () => {
               placeholder="894613831"
               onChange={(e) => {
                 const value = e.target.value;
-                if (value.length >= 12) return;
-                handleChange("phoneNumber", value);
+                if (value.length >= 16) return;
+                handleChange("phoneNumber", e.target.value);
               }}
               required
             />
           </div>
 
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Company Name</label>
+            <label className="block whitespace-nowrap min-w-44">Company Name</label>
             <input type="text" className="input-text" value={owner.companyName} placeholder="icodeu" onChange={(e) => handleChange("companyName", e.target.value)} />
           </div>
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Website</label>
+            <label className="block whitespace-nowrap min-w-44">Website</label>
             <input type="text" className="input-text" value={owner.website} placeholder="www.icodeu.com" onChange={(e) => handleChange("website", e.target.value)} />
           </div>
 

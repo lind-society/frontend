@@ -26,11 +26,11 @@ const tabs = ["Rent Management", "General", "Media", "Location", "Key Features",
 export const EditHomeVillaPage = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const params = useParams();
+  const { id } = useParams();
 
   const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ url: "villas", key: ["editing-villa"], redirectPath: "/dashboard/management/home-villa" });
 
-  const { data: responseVilla, isLoading } = useGetApi<Payload<Villa>>({ url: `villas/${params.id}`, key: ["get-villa"] });
+  const { data: responseVilla, isLoading } = useGetApi<Payload<Villa>>({ url: `villas/${id}`, key: ["get-villa", id] });
 
   const useStore = usePersistentData<Villa>("get-villa");
   const useEdit = usePersistentData<Villa>("edit-villa");
@@ -43,20 +43,20 @@ export const EditHomeVillaPage = () => {
   });
 
   React.useEffect(() => {
-    if (pathname === `/dashboard/management/home-villa/edit/${params.id}`) {
+    if (pathname === `/dashboard/management/home-villa/edit/${id}`) {
       sessionStorage.setItem("activeTab", activeTab);
     }
 
     // Cleanup function that runs when component unmounts or dependencies change
     return () => {
-      const isLeavingAddPage = pathname === `/dashboard/management/home-villa/edit/${params.id}` && window.location.pathname !== `/dashboard/management/home-villa/edit/${params.id}`;
+      const isLeavingAddPage = pathname === `/dashboard/management/home-villa/edit/${id}` && window.location.pathname !== `/dashboard/management/home-villa/edit/${id}`;
       if (isLeavingAddPage) {
         const confirmLeave = window.confirm("Are you sure you want to move the page before publish your villas?");
         if (confirmLeave) {
           sessionStorage.clear();
           localStorage.clear();
         } else {
-          navigate(`/dashboard/management/home-villa/edit/${params.id}`);
+          navigate(`/dashboard/management/home-villa/edit/${id}`);
         }
       }
     };
@@ -107,7 +107,7 @@ export const EditHomeVillaPage = () => {
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
     const processData = deleteKeysObject(data, ["currency", "pivotId", "facilities", "priceAfterDiscount", "createdAt", "updatedAt", "id", "reviews"]);
-    editVilla({ updatedItem: processData, id: params.id || "" });
+    editVilla({ updatedItem: processData, id: id || "" });
   };
 
   return (
@@ -137,21 +137,23 @@ export const EditHomeVillaPage = () => {
         ))}
       </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center min-h-200">
-          <div className="loader size-8 after:size-8"></div>
-        </div>
-      ) : (
-        <div className="bg-light">
-          {activeTab === "Rent Management" && <RentManagement />}
-          {activeTab === "General" && <General />}
-          {activeTab === "Media" && <Media />}
-          {activeTab === "Location" && <Location />}
-          {activeTab === "Key Features" && <KeyFeatures />}
-          {activeTab === "Service & Features" && <ServiceFeatures />}
-          {activeTab === "Villa Policies" && <VillaPolicies />}
-        </div>
-      )}
+      <div className="bg-light">
+        {isLoading ? (
+          <div className="flex items-center justify-center min-h-200">
+            <div className="loader size-8 after:size-8"></div>
+          </div>
+        ) : (
+          <>
+            {activeTab === "Rent Management" && <RentManagement />}
+            {activeTab === "General" && <General />}
+            {activeTab === "Media" && <Media />}
+            {activeTab === "Location" && <Location />}
+            {activeTab === "Key Features" && <KeyFeatures />}
+            {activeTab === "Service & Features" && <ServiceFeatures />}
+            {activeTab === "Villa Policies" && <VillaPolicies />}
+          </>
+        )}
+      </div>
     </Layout>
   );
 };

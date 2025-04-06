@@ -13,23 +13,22 @@ import { General } from "./general";
 import { Media } from "./media";
 import { Location } from "./location";
 import { ServiceFeatures } from "./service-features";
-import { RentManagement } from "./rent-management";
 import { KeyFeatures } from "./key-features";
 
 import { deleteKeysObject } from "../../../../../utils";
 
 import { Payload, Property } from "../../../../../types";
 
-const tabs = ["Rent Management", "General", "Media", "Location", "Key Features", "Service & Features"];
+const tabs = ["General", "Media", "Location", "Key Features", "Service & Features"];
 
 export const EditBuyPage = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const params = useParams();
+  const { id } = useParams();
 
   const { mutate: editProperty, isPending } = useUpdateApi<Partial<Property>>({ url: "properties", key: ["editing-property"], redirectPath: "/dashboard/management/buy" });
 
-  const { data: responseProperty, isLoading } = useGetApi<Payload<Property>>({ url: `properties/${params.id}`, key: ["get-property"] });
+  const { data: responseProperty, isLoading } = useGetApi<Payload<Property>>({ url: `properties/${id}`, key: ["get-property", id] });
 
   const useStore = usePersistentData<Property>("get-property");
   const useEdit = usePersistentData<Property>("edit-property");
@@ -42,20 +41,20 @@ export const EditBuyPage = () => {
   });
 
   React.useEffect(() => {
-    if (pathname === `/dashboard/management/buy/edit/${params.id}`) {
+    if (pathname === `/dashboard/management/buy/edit/${id}`) {
       sessionStorage.setItem("activeTab", activeTab);
     }
 
     // Cleanup function that runs when component unmounts or dependencies change
     return () => {
-      const isLeavingAddPage = pathname === `/dashboard/management/buy/edit/${params.id}` && window.location.pathname !== `/dashboard/management/buy/edit/${params.id}`;
+      const isLeavingAddPage = pathname === `/dashboard/management/buy/edit/${id}` && window.location.pathname !== `/dashboard/management/buy/edit/${id}`;
       if (isLeavingAddPage) {
         const confirmLeave = window.confirm("Are you sure you want to move the page before publish your properties?");
         if (confirmLeave) {
           sessionStorage.clear();
           localStorage.clear();
         } else {
-          navigate(`/dashboard/management/buy/edit/${params.id}`);
+          navigate(`/dashboard/management/buy/edit/${id}`);
         }
       }
     };
@@ -98,7 +97,7 @@ export const EditBuyPage = () => {
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
     const processData = deleteKeysObject(data, ["currency", "pivotId", "facilities", "priceAfterDiscount", "createdAt", "updatedAt", "id", "reviews"]);
-    editProperty({ updatedItem: processData, id: params.id || "" });
+    editProperty({ updatedItem: processData, id: id || "" });
   };
 
   return (
@@ -134,7 +133,6 @@ export const EditBuyPage = () => {
         </div>
       ) : (
         <div className="bg-light">
-          {activeTab === "Rent Management" && <RentManagement />}
           {activeTab === "General" && <General />}
           {activeTab === "Media" && <Media />}
           {activeTab === "Location" && <Location />}

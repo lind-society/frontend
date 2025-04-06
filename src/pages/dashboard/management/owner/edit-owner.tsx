@@ -6,14 +6,13 @@ import { Button, Modal, NumberInput } from "../../../../components";
 
 import { FaEdit } from "react-icons/fa";
 
+import { deleteKeysObject } from "../../../../utils";
+
 import { Owner } from "../../../../types";
 
 export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
   const [editModal, setEditModal] = React.useState<boolean>(false);
   const [owner, setOwner] = React.useState<Owner>(ownerItem);
-
-  const [phoneNumber, setPhoneNumber] = React.useState<string>("");
-  const [codePhoneNumber, setCodePhoneNumber] = React.useState<string>("");
 
   const { mutate: editOwner, isPending } = useUpdateApi({ key: ["edit-owner"], url: "owners", redirectPath: "/dashboard/management/owner" });
 
@@ -25,17 +24,8 @@ export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formatData = {
-      name: owner.name,
-      type: owner.type,
-      companyName: owner.companyName || "",
-      email: owner.email,
-      address: owner.address,
-      phoneNumber: owner.phoneNumber,
-      website: owner.website || "",
-      status: owner.status,
-    };
-    editOwner({ id: owner.id, updatedItem: formatData });
+    const ownerProcess = deleteKeysObject(owner, ["id", "activities", "properties", "villas", "createdAt", "updatedAt"]);
+    editOwner({ id: owner.id, updatedItem: ownerProcess });
   };
 
   return (
@@ -84,10 +74,10 @@ export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
           <div className="flex items-center gap-4">
             <div className="flex items-center w-full">
               <label className="block whitespace-nowrap min-w-44">Phone Number *</label>
-              <select className="w-full input-select" value={codePhoneNumber} onChange={(e) => setCodePhoneNumber(e.target.value)} required>
+              <select className="w-full input-select" value={owner.phoneCountryCode} onChange={(e) => handleChange("phoneCountryCode", e.target.value)} required>
                 {phoneCodes?.map((phone: any) => (
                   <option key={phone.code} value={phone.dial_code}>
-                    {phone.name}
+                    {phone.name} ({phone.dial_code})
                   </option>
                 ))}
               </select>
@@ -95,12 +85,12 @@ export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
 
             <NumberInput
               className="w-full max-w-lg input-text"
-              value={phoneNumber}
+              value={owner.phoneNumber}
               placeholder="894613831"
               onChange={(e) => {
                 const value = e.target.value;
                 if (value.length >= 16) return;
-                setPhoneNumber(value);
+                handleChange("phoneNumber", e.target.value);
               }}
               required
             />
