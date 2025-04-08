@@ -1,17 +1,12 @@
 import * as React from "react";
 
-import { usePersistentData } from "../../../../../hooks";
+import { useGetApi, usePersistentData } from "../../../../../hooks";
 
 import { Button, GoogleMaps, ToastMessage, LocationSelector, NumberInput } from "../../../../../components";
 
 import { FaMinus, FaPlus } from "react-icons/fa";
 
-import { OptionType, Villa } from "../../../../../types";
-
-interface PlaceNearby {
-  name: string;
-  distance: number;
-}
+import { Coordinate, OptionType, PlaceNearby, Villa } from "../../../../../types";
 
 export const Location = () => {
   // store data to session storage
@@ -31,6 +26,8 @@ export const Location = () => {
   const [selectedCountry, setSelectedCountry] = React.useState<OptionType | null>(defaultCountry);
   const [selectedProvince, setSelectedProvince] = React.useState<OptionType | null>(defaultState);
   const [selectedCity, setSelectedCity] = React.useState<OptionType | null>(defaultCity);
+
+  const { data: respCoordinates, isLoading, error } = useGetApi<Coordinate>({ key: ["get-coordinates", mapLink], url: "regions/coordinates", params: { shortUrl: mapLink }, enabled: !!mapLink });
 
   const addPlaceNearby = (name: string, distance: number) => {
     setPlaceNearby((prev) => [...prev, { name, distance }]);
@@ -87,7 +84,7 @@ export const Location = () => {
         <div className="flex items-center">
           <label className="block opacity-0 whitespace-nowrap min-w-60">Map Link</label>
 
-          <GoogleMaps />
+          {!isLoading && !!mapLink && !error && <GoogleMaps lat={respCoordinates?.latitude || 0} lng={respCoordinates?.longitude || 0} />}
         </div>
 
         <div className="space-y-2">

@@ -1,34 +1,109 @@
-import * as React from "react";
-
 import { useNavigate } from "react-router-dom";
 
-import { useGetApi } from "../../../../hooks";
+import { useGetApi, useSearchPagination } from "../../../../hooks";
 
 import { Layout } from "../../../../components/ui";
-import { Pagination } from "../../../../components";
+import { DataTable, Pagination, SearchBox, StatusBadge } from "../../../../components";
 
 import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
 import { FaCalendar } from "react-icons/fa";
 
 import { Booking, Data, Payload } from "../../../../types";
 
-const statusColors: Record<string, string> = {
-  requested: "bg-blue-300 text-blue-700",
-  negotiation: "bg-orange-300 text-orange-700",
-  "waiting for payment": "bg-yellow-300 text-yellow-700",
-  booked: "bg-purple-300 text-purple-700",
-  done: "bg-green-300 text-green-700",
-  canceled: "bg-red-300 text-red-700",
+interface BookingsTableProps {
+  bookings: Booking[];
+  onEdit: (id: string) => void;
+  onApprove?: (id: string) => void;
+  onCancel?: (id: string) => void;
+  isLoading?: boolean;
+  error?: unknown;
+}
+
+const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: BookingsTableProps) => {
+  const columns = [
+    {
+      key: "villa.name" as keyof Booking,
+      header: "Villa",
+      render: (booking: Booking) => booking.villa.name,
+    },
+    {
+      key: "customer.name" as keyof Booking,
+      header: "Full Name",
+      render: (booking: Booking) => booking.customer.name,
+    },
+    {
+      key: "customer.email" as keyof Booking,
+      header: "Email",
+      render: (booking: Booking) => booking.customer.email,
+    },
+    {
+      key: "customer.phoneNumber" as keyof Booking,
+      header: "Phone",
+      render: (booking: Booking) => booking.customer.phoneNumber,
+    },
+    {
+      key: "totalGuest" as keyof Booking,
+      header: "Guest",
+      className: "px-4 py-3 text-center",
+    },
+    {
+      key: "totalAmount" as keyof Booking,
+      header: "Total Amount",
+      className: "px-4 py-3 text-center",
+    },
+    {
+      key: "status" as keyof Booking,
+      header: "Status",
+      render: (booking: Booking) => <StatusBadge status={booking.status} />,
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (booking: Booking) => (
+        <div className="flex items-center justify-center gap-2">
+          <FaEdit size={20} className="cursor-pointer text-primary" onClick={() => onEdit(booking.id)} />
+          {onApprove && <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking.id)} />}
+          {onCancel && <FaWindowClose size={20} className="text-red-600 cursor-pointer" onClick={() => onCancel(booking.id)} />}
+        </div>
+      ),
+    },
+  ];
+
+  return <DataTable data={bookings} columns={columns} keyExtractor={(booking) => booking.id} isLoading={isLoading} error={error} emptyMessage="Bookings not found" />;
 };
 
 export const RentPage = () => {
   const navigate = useNavigate();
 
-  const [page, setPage] = React.useState<number>(1);
+  const { searchQuery, inputValue, setInputValue, handleSearch, currentPage, handlePageChange } = useSearchPagination();
 
-  const { data: bookings, isPending } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings"], url: "bookings" });
+  const {
+    data: respBookings,
+    isPending,
+    error,
+  } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings", searchQuery, currentPage], url: "bookings", params: { search: searchQuery, page: currentPage } });
 
-  const totalPage = bookings?.data.meta.totalPages || 1;
+  const bookings = respBookings?.data.data || [];
+  const totalPages = respBookings?.data.meta.totalPages || 1;
+
+  const formatted = new Intl.DateTimeFormat("en-US", {
+    dateStyle: "full",
+    timeStyle: "medium",
+  }).format(new Date());
+
+  const handleEdit = (bookingId: string) => {
+    navigate(`/dashboard/management/rent/edit/${bookingId}`);
+  };
+
+  const handleApprove = (bookingId: string) => {
+    // Implement booking approval logic
+    console.log(`Approve booking ${bookingId}`);
+  };
+
+  const handleCancel = (bookingId: string) => {
+    // Implement booking cancellation logic
+    console.log(`Cancel booking ${bookingId}`);
+  };
 
   return (
     <Layout>
@@ -37,67 +112,17 @@ export const RentPage = () => {
         <h1 className="text-2xl font-bold">Villa & Home Management</h1>
 
         <span className="flex items-center gap-2 px-4 py-2 rounded bg-light">
-          <FaCalendar /> Today
+          <FaCalendar /> {formatted}
         </span>
       </header>
 
-      <div className="pb-8 border rounded-b bg-light border-dark/30">
-        <div className="mb-8 overflow-x-auto scrollbar">
-          {isPending ? (
-            <div className="flex items-center justify-center min-h-200">
-              <div className="loader size-12 after:size-12"></div>
-            </div>
-          ) : (
-            <>
-              <table className="min-w-full bg-light whitespace-nowrap">
-                <thead>
-                  <tr className="bg-primary text-light">
-                    <th className="px-4 py-3 text-left">Villa</th>
-                    {/* <th className="px-4 py-3 text-left">Rent</th> */}
-                    <th className="px-4 py-3 text-left">Full Name</th>
-                    <th className="px-4 py-3 text-left">Email</th>
-                    <th className="px-4 py-3 text-left">Phone</th>
-                    <th className="px-4 py-3 text-left">Guest</th>
-                    <th className="px-4 py-3 text-left">Total Amount</th>
-                    <th className="px-4 py-3 text-left">Status</th>
-                    <th className="px-4 py-3 text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bookings?.data.data.map((booking) => (
-                    <tr key={booking.id} className="h-full border-b">
-                      <td className="px-4 py-3">{booking.villa.name}</td>
-                      {/* <td className="px-4 py-3">{booking.rent}</td> */}
-                      <td className="px-4 py-3">{booking.customer.name}</td>
-                      <td className="px-4 py-3">{booking.customer.email}</td>
-                      <td className="px-4 py-3">{booking.customer.phoneNumber}</td>
-                      <td className="px-4 py-3 text-center">{booking.totalGuest}</td>
-                      <td className="px-4 py-3 text-center">{booking.totalAmount}</td>
-                      <td className="px-4 py-3">
-                        <span className={`px-4 py-2 rounded-full text-sm ${statusColors[booking.status]}`}>{booking.status}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-center gap-2">
-                          <FaEdit size={20} className="cursor-pointer text-primary" onClick={() => navigate(`/dashboard/management/rent/edit/${booking.id}`)} />
-                          <FaCheckSquare size={20} className="text-green-600 cursor-pointer" />
-                          <FaWindowClose size={20} className="text-red-600 cursor-pointer" />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {bookings && bookings.data.data.length! < 1 && (
-                <div className="flex items-center justify-center min-h-200 w-full">
-                  <span className="text-3xl font-bold text-dark/50">Bookings not found</span>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+      <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
 
-        {/* Pagination */}
-        <Pagination page={page} setPage={setPage} totalPage={totalPage} isNumbering />
+      <div className="pb-8 mt-2 border rounded-b bg-light border-dark/30">
+        <div className="pb-2 overflow-x-auto scrollbar min-h-600">
+          <Table bookings={bookings} onEdit={handleEdit} onApprove={handleApprove} onCancel={handleCancel} isLoading={isPending} error={error} />
+        </div>
+        <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
       </div>
     </Layout>
   );

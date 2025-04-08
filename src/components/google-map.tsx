@@ -6,12 +6,7 @@ const containerStyle = {
   height: "300px",
 };
 
-const center = {
-  lat: -3.745,
-  lng: -38.523,
-};
-
-const Google = () => {
+const Google = ({ lat = -8.7225847, lng = 115.1694985 }: { lat: number; lng: number }) => {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: "AIzaSyB_2tYRauYMQnu7rbWsRykYuqN0Jdtuyg8",
@@ -20,7 +15,7 @@ const Google = () => {
   const [_, setMap] = React.useState(null);
 
   const onLoad = React.useCallback(function callback(map: any) {
-    const bounds = new window.google.maps.LatLngBounds(center);
+    const bounds = new window.google.maps.LatLngBounds({ lat, lng });
     map.fitBounds(bounds);
 
     setMap(map);
@@ -31,7 +26,7 @@ const Google = () => {
   }, []);
 
   return isLoaded ? (
-    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={9} onLoad={onLoad} onUnmount={onUnmount}>
+    <GoogleMap mapContainerStyle={containerStyle} center={{ lat, lng }} zoom={10} onLoad={onLoad} onUnmount={onUnmount}>
       {/* Child components, such as markers, info windows, etc. */}
       <div>{}</div>
     </GoogleMap>

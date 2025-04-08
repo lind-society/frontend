@@ -1,21 +1,77 @@
-import * as React from "react";
-
-import { useGetApiWithAuth } from "../../../../hooks";
+import { useGetApiWithAuth, useSearchPagination } from "../../../../hooks";
 
 import { Layout } from "../../../../components/ui";
-import { Pagination } from "../../../../components";
+import { DataTable, Pagination, SearchBox, StatusBadge } from "../../../../components";
 import { AddOwnerPage } from "./add-owner";
 import { EditOwnerPage } from "./edit-owner";
 import { DeleteOwnerPage } from "./delete-owner";
 
 import { Data, Owner, Payload } from "../../../../types";
 
+interface OwnersTableProps {
+  owners: Owner[];
+  isLoading?: boolean;
+  error?: unknown;
+}
+
+const Table = ({ owners, isLoading, error }: OwnersTableProps) => {
+  const columns = [
+    {
+      key: "name" as keyof Owner,
+      header: "Full Name",
+      render: (owner: Owner) => owner.name,
+    },
+    {
+      key: "phoneNumber" as keyof Owner,
+      header: "Phone Number",
+      render: (owner: Owner) => owner.phoneCountryCode + owner.phoneNumber,
+    },
+    {
+      key: "email" as keyof Owner,
+      header: "Email",
+      render: (owner: Owner) => owner.email,
+    },
+    {
+      key: "type" as keyof Owner,
+      header: "Type",
+      render: (owner: Owner) => owner.type,
+    },
+    {
+      key: "address" as keyof Owner,
+      header: "Address",
+      render: (owner: Owner) => owner.address,
+    },
+    {
+      key: "status" as keyof Owner,
+      header: "Status",
+      render: (owner: Owner) => <StatusBadge status={owner.status} />,
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (owner: Owner) => (
+        <div className="flex items-center justify-center gap-2">
+          <EditOwnerPage ownerItem={owner} />
+          <DeleteOwnerPage ownerItem={owner} />
+        </div>
+      ),
+    },
+  ];
+
+  return <DataTable data={owners} columns={columns} keyExtractor={(owner) => owner.id} isLoading={isLoading} error={error} emptyMessage="Owners not found" />;
+};
+
 export const OwnerPage = () => {
-  const [page, setPage] = React.useState<number>(1);
+  const { searchQuery, inputValue, setInputValue, handleSearch, currentPage, handlePageChange } = useSearchPagination();
 
-  const { data: owners, isPending } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners", page], url: "owners", params: { page } });
+  const {
+    data: respOwners,
+    isPending,
+    error,
+  } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners", searchQuery, currentPage], url: "owners", params: { search: searchQuery, page: currentPage } });
 
-  const totalPage = owners?.data.meta.totalPages || 1;
+  const owners = respOwners?.data.data || [];
+  const totalPage = respOwners?.data.meta.totalPages || 1;
 
   return (
     <Layout>
@@ -28,63 +84,16 @@ export const OwnerPage = () => {
         </div>
       </header>
 
+      <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
+
       {/* Table */}
-      <div className="pb-8 border rounded-b bg-light border-dark/30">
-        <div className="mb-8 overflow-x-auto scrollbar">
-          {isPending ? (
-            <div className="flex items-center justify-center min-h-200">
-              <div className="loader size-12 after:size-12"></div>
-            </div>
-          ) : (
-            <>
-              <table className="min-w-full bg-light">
-                <thead>
-                  <tr className="bg-primary text-light">
-                    <th className="px-4 py-3 text-left">Full Name</th>
-                    <th className="px-4 py-3 text-left">Phone Number</th>
-                    <th className="px-4 py-3 text-left">Email</th>
-                    <th className="px-4 py-3 text-left">Type</th>
-                    <th className="px-4 py-3 text-left">Address</th>
-                    <th className="px-4 py-3 text-left">Status</th>
-                    <th className="px-4 py-3 text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {owners &&
-                    owners.data.data.map((owner) => (
-                      <tr key={owner.id} className="h-full border-b whitespace-nowrap">
-                        <td className="px-4 py-3">{owner.name}</td>
-                        <td className="px-4 py-3">
-                          {owner.phoneCountryCode}
-                          {owner.phoneNumber}
-                        </td>
-                        <td className="px-4 py-3">{owner.email}</td>
-                        <td className="px-4 py-3">{owner.type}</td>
-                        <td className="px-4 py-3">{owner.address}</td>
-                        <td className="px-4 py-3">
-                          <span className={`block w-full p-1 font-medium text-center rounded text-light ${owner.status === "active" ? "bg-green-500" : "bg-red-500"}`}>{owner.status}</span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-center gap-4">
-                            <EditOwnerPage ownerItem={owner} />
-                            <DeleteOwnerPage ownerItem={owner} />
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-              {owners && owners.data.data.length! < 1 && (
-                <div className="flex items-center justify-center w-full min-h-200">
-                  <span className="text-3xl font-bold text-dark/50">Owners not found</span>
-                </div>
-              )}
-            </>
-          )}
+      <div className="pb-8 mt-2 border rounded-b bg-light border-dark/30">
+        <div className="pb-2 overflow-x-auto scrollbar min-h-600">
+          <Table owners={owners} isLoading={isPending} error={error} />
         </div>
 
         {/* Pagination */}
-        <Pagination page={page} setPage={setPage} totalPage={totalPage} isNumbering />
+        <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPage} isNumbering />
       </div>
     </Layout>
   );

@@ -138,13 +138,13 @@ export const EditHomeVillaPage = () => {
       </div>
 
       <div className="bg-light">
+        {activeTab === "Rent Management" && <RentManagement />}
         {isLoading ? (
           <div className="flex items-center justify-center min-h-200">
-            <div className="loader size-8 after:size-8"></div>
+            <div className="loader size-16 after:size-16"></div>
           </div>
         ) : (
           <>
-            {activeTab === "Rent Management" && <RentManagement />}
             {activeTab === "General" && <General />}
             {activeTab === "Media" && <Media />}
             {activeTab === "Location" && <Location />}

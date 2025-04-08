@@ -1,147 +1,117 @@
-import * as React from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useGetApi, useSearchPagination } from "../../../../../hooks";
 
-import { useGetApi } from "../../../../../hooks";
-
-import { Pagination } from "../../../../../components";
+import { DataTable, Pagination, SearchBox, StatusBadge } from "../../../../../components";
 
 import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
-import { IoMdSearch } from "react-icons/io";
 
 import { Booking, Data, Payload } from "../../../../../types";
 
-const statusColors: Record<string, string> = {
-  requested: "bg-blue-300 text-blue-700",
-  negotiation: "bg-orange-300 text-orange-700",
-  "waiting for payment": "bg-yellow-300 text-yellow-700",
-  booked: "bg-purple-300 text-purple-700",
-  done: "bg-green-300 text-green-700",
-  canceled: "bg-red-300 text-red-700",
+interface BookingsTableProps {
+  bookings: Booking[];
+  onEdit: (id: string) => void;
+  onApprove?: (id: string) => void;
+  onCancel?: (id: string) => void;
+  isLoading?: boolean;
+  error?: unknown;
+}
+
+const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: BookingsTableProps) => {
+  const columns = [
+    {
+      key: "villa.name" as keyof Booking,
+      header: "Villa",
+      render: (booking: Booking) => booking.villa.name,
+    },
+    {
+      key: "customer.name" as keyof Booking,
+      header: "Full Name",
+      render: (booking: Booking) => booking.customer.name,
+    },
+    {
+      key: "customer.email" as keyof Booking,
+      header: "Email",
+      render: (booking: Booking) => booking.customer.email,
+    },
+    {
+      key: "customer.phoneNumber" as keyof Booking,
+      header: "Phone",
+      render: (booking: Booking) => booking.customer.phoneNumber,
+    },
+    {
+      key: "totalGuest" as keyof Booking,
+      header: "Guest",
+      className: "px-4 py-3 text-center",
+    },
+    {
+      key: "totalAmount" as keyof Booking,
+      header: "Total Amount",
+      className: "px-4 py-3 text-center",
+    },
+    {
+      key: "status" as keyof Booking,
+      header: "Status",
+      render: (booking: Booking) => <StatusBadge status={booking.status} />,
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (booking: Booking) => (
+        <div className="flex items-center justify-center gap-2">
+          <FaEdit size={20} className="cursor-pointer text-primary" onClick={() => onEdit(booking.id)} />
+          {onApprove && <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking.id)} />}
+          {onCancel && <FaWindowClose size={20} className="text-red-600 cursor-pointer" onClick={() => onCancel(booking.id)} />}
+        </div>
+      ),
+    },
+  ];
+
+  return <DataTable data={bookings} columns={columns} keyExtractor={(booking) => booking.id} isLoading={isLoading} error={error} emptyMessage="Bookings not found" />;
 };
 
 export const RentManagement = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [page, setPage] = React.useState<number>(1);
-  const [search, setSearch] = React.useState<string>("");
-  const [inputValue, setInputValue] = React.useState<string>("");
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { searchQuery, inputValue, setInputValue, handleSearch, currentPage, handlePageChange } = useSearchPagination();
 
-  const { data: respBookings, isPending } = useGetApi<Payload<Data<Booking[]>>>({
-    key: ["get-bookings", id, search, page],
+  const {
+    data: respBookings,
+    isPending,
+    error,
+  } = useGetApi<Payload<Data<Booking[]>>>({
+    key: ["get-bookings", id, searchQuery, currentPage],
     url: "bookings",
-    params: { "filter.villaId": id, search, page },
-    enabled: !!id,
+    params: { "filter.villaId": id, search: searchQuery, page: currentPage },
+    enabled: Boolean(id),
   });
 
-  const totalPage = respBookings?.data.meta.totalPages || 1;
+  const bookings = respBookings?.data.data || [];
+  const totalPages = respBookings?.data.meta.totalPages || 1;
 
-  const handleSearch = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setPage(1);
-    setSearch(inputValue);
-    setSearchParams({ search: inputValue, page: "1" });
+  const handleEdit = (bookingId: string) => {
+    navigate(`/dashboard/management/rent/edit/${bookingId}`);
   };
 
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    setSearchParams((prev) => {
-      const updatedParams = new URLSearchParams(prev);
-      updatedParams.set("page", newPage.toString());
-      if (search) updatedParams.set("search", search);
-      return updatedParams;
-    });
+  const handleApprove = (bookingId: string) => {
+    // Implement booking approval logic
+    console.log(`Approve booking ${bookingId}`);
   };
 
-  React.useEffect(() => {
-    const q = searchParams.get("search") || "";
-    const p = Number(searchParams.get("page")) || 1;
-    setSearch(q);
-    setInputValue(q);
-    setPage(p);
-  }, []);
+  const handleCancel = (bookingId: string) => {
+    // Implement booking cancellation logic
+    console.log(`Cancel booking ${bookingId}`);
+  };
 
   return (
     <div className="p-8 space-y-4 border rounded-b bg-light border-dark/30">
       <h2 className="heading">Rent Management</h2>
-      <div className="flex items-stretch w-full overflow-hidden border rounded border-dark/30">
-        <input
-          type="text"
-          placeholder="Search bookings..."
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setSearch(inputValue);
-              setPage(1);
-              setSearchParams({ search: inputValue, page: "1" });
-            }
-          }}
-          className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none"
-        />
-
-        <button type="button" onClick={handleSearch} className="flex items-center justify-center h-10 text-light bg-primary w-14">
-          <IoMdSearch size={25} />
-        </button>
+      <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
+      <div className="pb-2 overflow-x-auto scrollbar min-h-600">
+        <Table bookings={bookings} onEdit={handleEdit} onApprove={handleApprove} onCancel={handleCancel} isLoading={isPending} error={error} />
       </div>
-      <div className="mb-8 overflow-x-auto scrollbar">
-        {isPending ? (
-          <div className="flex items-center justify-center min-h-200">
-            <div className="loader size-12 after:size-12"></div>
-          </div>
-        ) : (
-          <>
-            <table className="min-w-full bg-light whitespace-nowrap">
-              <thead>
-                <tr className="bg-primary text-light">
-                  <th className="px-4 py-3 text-left">Villa</th>
-                  {/* <th className="px-4 py-3 text-left">Rent</th> */}
-                  <th className="px-4 py-3 text-left">Full Name</th>
-                  <th className="px-4 py-3 text-left">Email</th>
-                  <th className="px-4 py-3 text-left">Phone</th>
-                  <th className="px-4 py-3 text-left">Guest</th>
-                  <th className="px-4 py-3 text-left">Total Amount</th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {respBookings &&
-                  respBookings.data.data?.map((booking) => (
-                    <tr key={booking.id} className="h-full border-b">
-                      <td className="px-4 py-3">{booking.villa.name}</td>
-                      {/* <td className="px-4 py-3">{booking.rent}</td> */}
-                      <td className="px-4 py-3">{booking.customer.name}</td>
-                      <td className="px-4 py-3">{booking.customer.email}</td>
-                      <td className="px-4 py-3">{booking.customer.phoneNumber}</td>
-                      <td className="px-4 py-3 text-center">{booking.totalGuest}</td>
-                      <td className="px-4 py-3 text-center">{booking.totalAmount}</td>
-                      <td className="px-4 py-3">
-                        <span className={`px-4 py-2 rounded-full text-sm ${statusColors[booking.status]}`}>{booking.status}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-center gap-2">
-                          <FaEdit size={20} className="cursor-pointer text-primary" onClick={() => navigate(`/dashboard/management/rent/edit/${booking.id}`)} />
-                          {/* <IoMdLink size={20} className="cursor-pointer text-primary" /> */}
-                          <FaCheckSquare size={20} className="text-green-600 cursor-pointer" />
-                          <FaWindowClose size={20} className="text-red-600 cursor-pointer" />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-            {respBookings && respBookings.data.data.length! < 1 && (
-              <div className="flex items-center justify-center w-full min-h-200">
-                <span className="text-3xl font-bold text-dark/50">Bookings not found</span>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-      <Pagination page={page} setPage={handlePageChange} totalPage={totalPage} isNumbering />
+      <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
     </div>
   );
 };

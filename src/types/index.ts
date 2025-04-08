@@ -11,6 +11,9 @@ export * from "./background";
 export * from "./upload-photo";
 export * from "./option";
 export * from "./location-selector";
+export * from "./table";
+export * from "./search-box";
+export * from "./status-badge";
 
 export * from "./api/payload";
 export * from "./api/villa";
@@ -19,3 +22,4 @@ export * from "./api/review";
 export * from "./api/currency";
 export * from "./api/owner";
 export * from "./api/booking";
+export * from "./api/global";

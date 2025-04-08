@@ -15,3 +15,6 @@ export * from "./google-map";
 export * from "./location-selector";
 export * from "./section-policy";
 export * from "./number-input";
+export * from "./search-box";
+export * from "./status-badge";
+export * from "./table";

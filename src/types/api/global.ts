@@ -1,5 +1,10 @@
 import { Currency } from "./currency";
 
+export interface Coordinate {
+  latitude: number;
+  longitude: number;
+}
+
 export interface PlaceNearby {
   name: string;
   distance: number;
