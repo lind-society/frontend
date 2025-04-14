@@ -25,7 +25,6 @@ interface FormState {
   owner: OptionType | null;
 }
 
-// Reusable form field component
 const FormField = ({ label, children, required = false }: { label: string; children: React.ReactNode; required?: boolean }) => (
   <div className="flex items-center">
     <label className="block whitespace-nowrap min-w-60">
@@ -41,10 +40,8 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
   const { setData, data } = useStore();
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
-
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
 
-  // Initialize form state with existing data
   const [formState, setFormState] = React.useState<FormState>({
     name: data.name || "",
     secondaryName: data.secondaryName || "",
@@ -72,18 +69,12 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     owner: null,
   });
 
-  // Track if form is complete
-  const [isFormComplete, setIsFormComplete] = React.useState(false);
-
-  // Update form state helper
   const updateFormState = (field: string, value: any) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Fixed updateNestedState function
   const updateNestedState = <T extends keyof FormState>(parent: T, key: string, value: any) => {
     setFormState((prev) => {
-      // Create a safe copy of the nested object
       const parentObj = prev[parent];
       const updatedParentObj = typeof parentObj === "object" && parentObj !== null ? { ...(parentObj as object), [key]: value } : { [key]: value };
 
@@ -91,14 +82,11 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     });
   };
 
-  // Handle availability toggle
   const handleAvailabilityChange = (type: AvailabilityType) => {
-    // Check if this is the only enabled availability and we're trying to disable it
     const isOnlyEnabledType = Object.entries(formState.availability)
       .filter(([key]) => key !== type)
       .every(([_, isEnabled]) => !isEnabled);
 
-    // If this is the only enabled type and we're trying to disable it, prevent the change
     if (isOnlyEnabledType && formState.availability[type]) {
       alert("At least one availability type must be selected");
       return;
@@ -107,51 +95,20 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     updateNestedState("availability", type, !formState.availability[type]);
   };
 
-  // Handle price change
   const handlePriceChange = (type: AvailabilityType, value: string) => {
     if (+value > 999999999999999 || +value < 0) return;
     updateNestedState("price", type, value);
   };
 
-  // Handle discount change
   const handleDiscountChange = (type: AvailabilityType, value: string) => {
     if (+value > 100 || +value < 0) return;
     updateNestedState("discount", type, value);
   };
 
-  // Calculate discounted price
   const calculateDiscountedPrice = (type: AvailabilityType) => {
     const basePrice = +formState.price[type] || 0;
     const discountPercent = +formState.discount[type] || 0;
     return basePrice - basePrice * (discountPercent / 100);
-  };
-
-  // Save data function
-  const saveData = () => {
-    const formattedData = {
-      name: formState.name,
-      secondaryName: formState.secondaryName,
-      highlight: formState.highlight,
-      currencyId: formState.currency?.value || "",
-      ownerId: formState.owner?.value || "",
-      availabilityPerPrice: [
-        { quota: +formState.availabilityPerPrice.monthly || 0, availability: "monthly" },
-        { quota: +formState.availabilityPerPrice.yearly || 0, availability: "yearly" },
-      ],
-      availability: Object.entries(formState.availability)
-        .filter(([_, isEnabled]) => isEnabled)
-        .map(([type]) => type) as string[],
-      priceDaily: formState.availability.daily ? +formState.price.daily : 0,
-      priceMonthly: formState.availability.monthly ? +formState.price.monthly : 0,
-      priceYearly: formState.availability.yearly ? +formState.price.yearly : 0,
-      discountDaily: formState.availability.daily ? +formState.discount.daily : 0,
-      discountMonthly: formState.availability.monthly ? +formState.discount.monthly : 0,
-      discountYearly: formState.availability.yearly ? +formState.discount.yearly : 0,
-      checkOutHour: "01:00",
-      checkInHour: "12:00",
-    };
-
-    setData(formattedData);
   };
 
   // Check if form is complete
@@ -171,18 +128,35 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
 
     const isComplete = requiredFields.every((field) => !!field) && requiredObjects.every((obj) => !!obj) && isPriceValid && hasValidMinRentTimes;
 
-    onChange(isComplete);
-    setIsFormComplete(isComplete);
+    if (isComplete) {
+      const formattedData = {
+        name: formState.name,
+        secondaryName: formState.secondaryName,
+        highlight: formState.highlight,
+        currencyId: formState.currency?.value || "",
+        ownerId: formState.owner?.value || "",
+        availabilityPerPrice: [
+          { quota: formState.availability.monthly ? +formState.availabilityPerPrice.monthly : 0, availability: "monthly" },
+          { quota: formState.availability.yearly ? +formState.availabilityPerPrice.yearly : 0, availability: "yearly" },
+        ],
+        availability: Object.entries(formState.availability)
+          .filter(([_, isEnabled]) => isEnabled)
+          .map(([type]) => type) as string[],
+        priceDaily: formState.availability.daily ? +formState.price.daily : 0,
+        priceMonthly: formState.availability.monthly ? +formState.price.monthly : 0,
+        priceYearly: formState.availability.yearly ? +formState.price.yearly : 0,
+        discountDaily: formState.availability.daily ? +formState.discount.daily : 0,
+        discountMonthly: formState.availability.monthly ? +formState.discount.monthly : 0,
+        discountYearly: formState.availability.yearly ? +formState.discount.yearly : 0,
+        checkOutHour: "01:00",
+        checkInHour: "12:00",
+      };
+
+      onChange(false);
+      setData(formattedData);
+    }
   }, [formState]);
 
-  // Auto-save when form is complete
-  React.useEffect(() => {
-    if (isFormComplete) {
-      saveData();
-    }
-  }, [isFormComplete]);
-
-  // Set currency and owners when data is loaded
   React.useEffect(() => {
     if (currencies && owners) {
       const findCurrency = currencies.data.data.find((c) => c.id === data.currencyId);

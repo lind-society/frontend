@@ -81,10 +81,9 @@ export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDa
   });
 
   React.useEffect(() => {
-    if (!onChange) return;
+    if (!onChange || !data.placeNearby) return;
 
-    // Todo to handle the place nearby
-    // const placeNearbyEqual = data.placeNearby?.some((item) => item.distance === +formState.placeDistance && item.name === formState.placeName);
+    const placeNearbyEqual = formState.placeNearby.length === data.placeNearby.length;
 
     const hasChanges =
       !arraysEqual(selectedCountry?.label || "", data.country || "") ||
@@ -92,7 +91,8 @@ export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDa
       !arraysEqual(selectedCity?.label || "", data.city || "") ||
       !arraysEqual(formState.address, data.address || "") ||
       !arraysEqual(formState.mapLink, data.mapLink || "") ||
-      !arraysEqual(formState.postalCode, data.postalCode || "");
+      !arraysEqual(formState.postalCode, data.postalCode || "") ||
+      !placeNearbyEqual;
 
     onChange(hasChanges);
   }, [formState, selectedCity, selectedProvince, selectedCountry]);

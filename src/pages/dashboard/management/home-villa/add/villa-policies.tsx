@@ -22,7 +22,6 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { setData, data } = useStore();
 
-  // Initialize house rules using houseRulesLists
   const defaultHouseRules =
     data.policies
       ?.filter((policy) => policy.type === "house rules")
@@ -44,8 +43,6 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
   const defaultCancellationTerms =
     data.policies?.filter((policy) => policy.type === "cancellation terms").map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) || [];
 
-  const hasBeenCompleteOnce = React.useRef(false);
-
   const [houseRules, setHouseRules] = React.useState<Policies[]>(defaultHouseRules);
   const [paymentTerms, setPaymentTerms] = React.useState<Policies[]>(defaultPaymentTerms);
   const [cancellationTerms, setCancellationTerms] = React.useState<Policies[]>(defaultCancellationTerms);
@@ -65,33 +62,6 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
     setHouseRules(updatedRules);
   };
 
-  const saveData = () => {
-    const formattedData = {
-      policies: [
-        ...houseRules.map((rule) => ({
-          name: rule.title,
-          type: "house rules",
-          description: rule.value,
-          icon: { key: "", url: "" },
-        })),
-        ...cancellationTerms.map((rule) => ({
-          name: rule.title,
-          type: "cancellation terms",
-          description: rule.value,
-          icon: { key: "", url: "" },
-        })),
-        ...paymentTerms.map((term) => ({
-          name: term.title,
-          type: "payment terms",
-          description: term.value,
-          icon: { key: "", url: "" },
-        })),
-      ] as Villa["policies"],
-    };
-
-    setData(formattedData);
-  };
-
   React.useEffect(() => {
     if (!onChange) return;
 
@@ -99,15 +69,30 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
     const isHouseRulesComplete = filledHouseRules.length === 3;
 
     if (isHouseRulesComplete) {
-      // Save once house rules are fully complete
-      if (!hasBeenCompleteOnce.current) {
-        onChange(true);
-        hasBeenCompleteOnce.current = true;
-      }
-    }
-
-    if (hasBeenCompleteOnce.current) {
-      saveData();
+      const formattedData = {
+        policies: [
+          ...houseRules.map((rule) => ({
+            name: rule.title,
+            type: "house rules",
+            description: rule.value,
+            icon: { key: "key", url: "url" },
+          })),
+          ...cancellationTerms.map((rule) => ({
+            name: rule.title,
+            type: "cancellation terms",
+            description: rule.value,
+            icon: { key: "key", url: "url" },
+          })),
+          ...paymentTerms.map((term) => ({
+            name: term.title,
+            type: "payment terms",
+            description: term.value,
+            icon: { key: "key", url: "url" },
+          })),
+        ] as Villa["policies"],
+      };
+      onChange(false);
+      setData(formattedData);
     }
   }, [houseRules, cancellationTerms, paymentTerms]);
 

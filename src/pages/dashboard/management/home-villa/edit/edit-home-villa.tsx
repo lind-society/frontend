@@ -4,22 +4,20 @@ import { useLocation, useParams } from "react-router-dom";
 
 import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
 
-import { EditMedia, Layout } from "../../../../../components/ui";
+import { EditKeyFeatures, EditLocation, EditMedia, Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
 import { FaDownload } from "react-icons/fa";
 
 import { General } from "./general";
-
-import { ServiceFeatures } from "./service-features";
 import { VillaPolicies } from "./villa-policies";
 import { RentManagement } from "./rent-management";
-import { KeyFeatures } from "./key-features";
+
+import { ServiceFeatures } from "./service-features";
 
 import { Payload, Villa } from "../../../../../types";
 
 import { deleteKeysObject } from "../../../../../utils";
-import { EditLocation } from "../../../../../components/ui/location/edit-location";
 
 const tabs = ["Rent Management", "General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies"];
 
@@ -69,14 +67,12 @@ export const EditHomeVillaPage = () => {
 
   const handleNavigateAway = (tab: string) => {
     if (hasUnsavedChanges) {
-      // Show a confirmation dialog
       const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
       if (!confirmLeave) {
-        return; // Stop navigation
+        return;
       }
     }
     setActiveTab(tab);
-    // Continue with navigation
   };
 
   React.useEffect(() => {
@@ -192,7 +188,15 @@ export const EditHomeVillaPage = () => {
                 }}
               />
             )}
-            {activeTab === "Key Features" && <KeyFeatures />}
+            {activeTab === "Key Features" && (
+              <EditKeyFeatures
+                persistedDataKey="get-villa"
+                editDataKey="edit-villa"
+                onChange={(hasChanges: boolean) => {
+                  setHasUnsavedChanges(hasChanges);
+                }}
+              />
+            )}
             {activeTab === "Service & Features" && <ServiceFeatures />}
             {activeTab === "Villa Policies" && (
               <VillaPolicies

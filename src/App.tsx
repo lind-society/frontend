@@ -2,7 +2,22 @@ import { useEffect } from "react";
 
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 
-import { AddBuyPage, AddHomeVillaPage, BuyPage, EditBuyPage, EditHomeVillaPage, EditRentPage, HomeVillaPage, LoginPage, MainPage, NotFoundPage, OwnerPage, RentPage } from "./pages";
+import {
+  AddBuyPage,
+  AddHomeVillaPage,
+  BuyPage,
+  EditBuyPage,
+  EditHomeVillaPage,
+  EditRentPage,
+  HomeVillaPage,
+  LoginPage,
+  MainPage,
+  NotFoundPage,
+  OwnerPage,
+  PropertyPage,
+  RentPage,
+  ReviewPage,
+} from "./pages";
 
 import { ProtectedRoute } from "./components";
 
@@ -34,10 +49,11 @@ const App = () => {
           <Route path="/dashboard/management/owner" element={<OwnerPage />} />
           <Route path="/dashboard/management/rent" element={<RentPage />} />
           <Route path="/dashboard/management/rent/edit/:id" element={<EditRentPage />} />
-          {/* 
           <Route path="/dashboard/management/property" element={<PropertyPage />} />
+          {/* 
           <Route path="/dashboard/management/property/package/add" element={<AddPackagePage />} /> 
           */}
+          <Route path="dashboard/customer-reviews" element={<ReviewPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

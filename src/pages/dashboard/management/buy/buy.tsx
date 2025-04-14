@@ -57,9 +57,9 @@ export const BuyPage = () => {
               <span className="text-4xl font-bold text-dark/50">Buy management not found</span>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-6">
+            <div className="flex flex-wrap gap-6">
               {properties?.data.data.map((property) => (
-                <div key={property.id} className="overflow-hidden card-shadow">
+                <div key={property.id} className="w-full overflow-hidden card-shadow max-w-80">
                   <div className="relative w-full">
                     {property && (
                       <button

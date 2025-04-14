@@ -26,17 +26,16 @@ export const TopBar = ({ setOpenNav, data }: { setOpenNav: React.Dispatch<React.
   return (
     <div className="sticky top-0 block w-full duration-300 border-b z-9999 bg-light">
       <div className="flex justify-between p-2 mx-6">
-        <div className="flex gap-4 lg:hidden">
+        <div className="flex w-full gap-4">
           <button className="z-20 text-primary" onClick={() => setOpenNav((prev) => !prev)}>
             <IoMdMenu size={28} />
           </button>
-        </div>
-
-        <div className="flex items-stretch w-full max-w-md overflow-hidden border rounded border-dark/30">
-          <input type="text" placeholder="Search by villa, property, or activity name" className="flex-1 px-4 py-2 text-dark placeholder-dark/30 focus:outline-none" />
-          <button className="flex items-center justify-center h-full text-light bg-primary w-14">
-            <IoMdSearch size={25} />
-          </button>
+          <div className="flex w-full max-w-md">
+            <input type="text" placeholder="Search by villa, property, or activity name" className="input-text !rounded-e-none" />
+            <button className="flex items-center justify-center w-12 text-light bg-primary rounded-e">
+              <IoMdSearch size={25} />
+            </button>
+          </div>
         </div>
 
         <div ref={ref} className="relative flex gap-4">

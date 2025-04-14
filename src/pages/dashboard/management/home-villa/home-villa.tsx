@@ -58,9 +58,9 @@ export const HomeVillaPage = () => {
               <span className="text-4xl font-bold text-dark/50">Villas not found</span>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-6">
+            <div className="flex flex-wrap gap-6">
               {villas?.data.data.map((villa) => (
-                <div key={villa.id} className="overflow-hidden card-shadow">
+                <div key={villa.id} className="w-full overflow-hidden card-shadow max-w-80">
                   <div className="relative w-full">
                     {villa && (
                       <button

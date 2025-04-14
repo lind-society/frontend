@@ -57,7 +57,7 @@ export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChang
     if (!onChange) return;
 
     const requiredFields: Array<keyof LocationFormState> = ["address", "postalCode", "mapLink", "country", "state", "city", "placeNearby"];
-    const allRequiredFieldsFilled = requiredFields.every((field) => {
+    const isComplete = requiredFields.every((field) => {
       if (field === "country" || field === "state" || field === "city") {
         return formState[field] !== null;
       }
@@ -67,20 +67,20 @@ export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChang
       return formState[field] !== "";
     });
 
-    if (allRequiredFieldsFilled) {
+    if (isComplete) {
       const dataToSave = {
         address: formState.address,
         postalCode: formState.postalCode,
         mapLink: formState.mapLink,
-        country: formState.country,
-        state: formState.state,
-        city: formState.city,
+        country: selectedCountry?.label,
+        state: selectedProvince?.label,
+        city: selectedCity?.label,
         placeNearby: formState.placeNearby,
       };
       onChange(true);
       setData(dataToSave);
     }
-  }, [formState]);
+  }, [formState, selectedCity, selectedCountry, selectedProvince]);
 
   const addPlaceNearby = () => {
     if (!formState.placeName || !formState.placeDistance) return;

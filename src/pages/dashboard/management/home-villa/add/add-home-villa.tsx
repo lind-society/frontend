@@ -4,21 +4,19 @@ import { useLocation } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
-import { Layout, AddMedia } from "../../../../../components/ui";
+import { Layout, AddMedia, AddLocation, AddKeyFeatures } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
 import { General } from "./general";
+import { VillaPolicies } from "./villa-policies";
 
 import { ServiceFeatures } from "./service-features";
-import { VillaPolicies } from "./villa-policies";
-import { KeyFeatures } from "./key-features";
 
 import { FaDownload } from "react-icons/fa";
 
 import { deleteKeysObject } from "../../../../../utils";
 
 import { Villa } from "../../../../../types";
-import { AddLocation } from "../../../../../components/ui/location/add-location";
 
 const tabs = ["General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies"];
 
@@ -34,6 +32,8 @@ export const AddHomeVillaPage = () => {
   const [activeTab, setActiveTab] = React.useState<string>(() => {
     return sessionStorage.getItem("activeTab") || "General";
   });
+
+  const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState<boolean>(true);
 
   React.useEffect(() => {
     // Set active tab in session storage when on the add villa page
@@ -65,6 +65,16 @@ export const AddHomeVillaPage = () => {
     addVillas(processData);
   };
 
+  const handleNavigateAway = (tab: string) => {
+    if (hasUnsavedChanges) {
+      const confirmLeave = window.confirm(`Please fill in the ${tab} section first!!`);
+      if (!confirmLeave) {
+        return;
+      }
+    }
+    setActiveTab(tab);
+  };
+
   return (
     <Layout>
       {/* Header */}
@@ -86,18 +96,56 @@ export const AddHomeVillaPage = () => {
 
       <div className="flex">
         {tabs.map((tab) => (
-          <button key={tab} className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`} onClick={() => setActiveTab(tab)}>
+          <button
+            key={tab}
+            className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
+            onClick={() => handleNavigateAway(tab)}
+          >
             {tab}
           </button>
         ))}
       </div>
 
-      {activeTab === "General" && <General />}
-      {activeTab === "Media" && <AddMedia persistedDataKey="add-villa" type="villa" />}
-      {activeTab === "Location" && <AddLocation persistedDataKey="add-villa" />}
-      {activeTab === "Key Features" && <KeyFeatures />}
+      {activeTab === "General" && (
+        <General
+          onChange={(hasChanges: boolean) => {
+            setHasUnsavedChanges(hasChanges);
+          }}
+        />
+      )}
+      {activeTab === "Media" && (
+        <AddMedia
+          persistedDataKey="add-villa"
+          type="villa"
+          onChange={(hasChanges: boolean) => {
+            setHasUnsavedChanges(hasChanges);
+          }}
+        />
+      )}
+      {activeTab === "Location" && (
+        <AddLocation
+          persistedDataKey="add-villa"
+          onChange={(hasChanges: boolean) => {
+            setHasUnsavedChanges(hasChanges);
+          }}
+        />
+      )}
+      {activeTab === "Key Features" && (
+        <AddKeyFeatures
+          persistedDataKey="add-villa"
+          onChange={(hasChanges: boolean) => {
+            setHasUnsavedChanges(hasChanges);
+          }}
+        />
+      )}
       {activeTab === "Service & Features" && <ServiceFeatures />}
-      {activeTab === "Villa Policies" && <VillaPolicies />}
+      {activeTab === "Villa Policies" && (
+        <VillaPolicies
+          onChange={(hasChanges: boolean) => {
+            setHasUnsavedChanges(hasChanges);
+          }}
+        />
+      )}
     </Layout>
   );
 };
