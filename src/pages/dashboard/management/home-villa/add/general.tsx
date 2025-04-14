@@ -1,209 +1,304 @@
 import * as React from "react";
 
-import { useGetApi, usePersistentData } from "../../../../../hooks";
+import { useGetApi, useGetApiWithAuth, usePersistentData } from "../../../../../hooks";
 
 import Select from "react-select";
 
-import { Button, NumberInput, ToastMessage } from "../../../../../components";
+import { NumberInput } from "../../../../../components";
 
-import { Currency, Data, OptionType, Payload, Villa } from "../../../../../types";
+import { Currency, Data, OptionType, Owner, Payload, Villa } from "../../../../../types";
 
 type AvailabilityType = "daily" | "monthly" | "yearly";
 
-const initAvailability = { daily: "", monthly: "", yearly: "" };
+interface FormState {
+  name: string;
+  secondaryName: string;
+  highlight: string;
+  availability: Record<AvailabilityType, boolean>;
+  price: Record<AvailabilityType, string>;
+  discount: Record<AvailabilityType, string>;
+  currency: OptionType | null;
+  availabilityPerPrice: {
+    monthly: string;
+    yearly: string;
+  };
+  owner: OptionType | null;
+}
 
-export const General = () => {
+// Reusable form field component
+const FormField = ({ label, children, required = false }: { label: string; children: React.ReactNode; required?: boolean }) => (
+  <div className="flex items-center">
+    <label className="block whitespace-nowrap min-w-60">
+      {label} {required && "*"}
+    </label>
+    {children}
+  </div>
+);
+
+export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { setData, data } = useStore();
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
 
-  const defaultPrice = { daily: String(data.priceDaily), monthly: String(data.priceMonthly), yearly: String(data.priceYearly) };
-  const defaultDiscount = { daily: String(data.discountDaily), monthly: String(data.discountMonthly), yearly: String(data.discountYearly) };
-  const defaultAvailability = { daily: data.availability?.includes("daily") || true, monthly: data.availability?.includes("monthly") || false, yearly: data.availability?.includes("yearly") || false };
-  const defaultAvailabilityPriceMonthly = String(data.availabilityPerPrice?.find((item) => item.availability === "monthly")?.quota);
-  const defaultAvailabilityPriceYearly = String(data.availabilityPerPrice?.find((item) => item.availability === "yearly")?.quota);
+  const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
 
-  const [name, setName] = React.useState<string>(data.name || "");
-  const [secondaryName, setSecondaryName] = React.useState<string>(data.secondaryName || "");
-  const [highlight, setHighlight] = React.useState<string>(data.highlight || "");
-  const [availability, setAvailability] = React.useState<Record<AvailabilityType, boolean>>(defaultAvailability);
-  const [price, setPrice] = React.useState<Record<AvailabilityType, string>>(defaultPrice || initAvailability);
-  const [discount, setDiscount] = React.useState<Record<AvailabilityType, string>>(defaultDiscount || initAvailability);
-  const [currency, setCurrency] = React.useState<OptionType | null>(null);
-  const [availabilityPriceMonthly, setAvailabilityPriceMonthly] = React.useState<string>(defaultAvailabilityPriceMonthly || "");
-  const [availabilityPriceYearly, setAvailabilityPriceYearly] = React.useState<string>(defaultAvailabilityPriceYearly || "");
+  // Initialize form state with existing data
+  const [formState, setFormState] = React.useState<FormState>({
+    name: data.name || "",
+    secondaryName: data.secondaryName || "",
+    highlight: data.highlight || "",
+    availability: {
+      daily: data.availability?.includes("daily") || true,
+      monthly: data.availability?.includes("monthly") || false,
+      yearly: data.availability?.includes("yearly") || false,
+    },
+    price: {
+      daily: String(data.priceDaily) || "",
+      monthly: String(data.priceMonthly) || "",
+      yearly: String(data.priceYearly) || "",
+    },
+    discount: {
+      daily: String(data.discountDaily) || "",
+      monthly: String(data.discountMonthly) || "",
+      yearly: String(data.discountYearly) || "",
+    },
+    currency: null,
+    availabilityPerPrice: {
+      monthly: String(data.availabilityPerPrice?.find((item) => item.availability === "monthly")?.quota) || "",
+      yearly: String(data.availabilityPerPrice?.find((item) => item.availability === "yearly")?.quota) || "",
+    },
+    owner: null,
+  });
 
-  const handleAvailabilityChange = (type: keyof typeof availability) => {
-    setAvailability((prev) => ({ ...prev, [type]: !prev[type] }));
+  // Track if form is complete
+  const [isFormComplete, setIsFormComplete] = React.useState(false);
+
+  // Update form state helper
+  const updateFormState = (field: string, value: any) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handlePriceChange = (type: string, value: string) => {
-    setPrice((prev) => ({ ...prev, [type]: value }));
+  // Fixed updateNestedState function
+  const updateNestedState = <T extends keyof FormState>(parent: T, key: string, value: any) => {
+    setFormState((prev) => {
+      // Create a safe copy of the nested object
+      const parentObj = prev[parent];
+      const updatedParentObj = typeof parentObj === "object" && parentObj !== null ? { ...(parentObj as object), [key]: value } : { [key]: value };
+
+      return { ...prev, [parent]: updatedParentObj };
+    });
   };
 
-  const handleDiscountChange = (key: string, value: string) => {
+  // Handle availability toggle
+  const handleAvailabilityChange = (type: AvailabilityType) => {
+    // Check if this is the only enabled availability and we're trying to disable it
+    const isOnlyEnabledType = Object.entries(formState.availability)
+      .filter(([key]) => key !== type)
+      .every(([_, isEnabled]) => !isEnabled);
+
+    // If this is the only enabled type and we're trying to disable it, prevent the change
+    if (isOnlyEnabledType && formState.availability[type]) {
+      alert("At least one availability type must be selected");
+      return;
+    }
+
+    updateNestedState("availability", type, !formState.availability[type]);
+  };
+
+  // Handle price change
+  const handlePriceChange = (type: AvailabilityType, value: string) => {
+    if (+value > 999999999999999 || +value < 0) return;
+    updateNestedState("price", type, value);
+  };
+
+  // Handle discount change
+  const handleDiscountChange = (type: AvailabilityType, value: string) => {
     if (+value > 100 || +value < 0) return;
-    setDiscount((prev) => ({ ...prev, [key]: value }));
+    updateNestedState("discount", type, value);
   };
 
-  const handleSubmitGeneral = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Submit general data here
+  // Calculate discounted price
+  const calculateDiscountedPrice = (type: AvailabilityType) => {
+    const basePrice = +formState.price[type] || 0;
+    const discountPercent = +formState.discount[type] || 0;
+    return basePrice - basePrice * (discountPercent / 100);
+  };
+
+  // Save data function
+  const saveData = () => {
     const formattedData = {
-      name,
-      secondaryName,
-      highlight,
-      currencyId: currency?.value,
+      name: formState.name,
+      secondaryName: formState.secondaryName,
+      highlight: formState.highlight,
+      currencyId: formState.currency?.value || "",
+      ownerId: formState.owner?.value || "",
       availabilityPerPrice: [
-        {
-          quota: +availabilityPriceMonthly || 0,
-          availability: "monthly",
-        },
-        {
-          quota: +availabilityPriceYearly || 0,
-          availability: "yearly",
-        },
+        { quota: +formState.availabilityPerPrice.monthly || 0, availability: "monthly" },
+        { quota: +formState.availabilityPerPrice.yearly || 0, availability: "yearly" },
       ],
-      availability: [availability.daily ? "daily" : null, availability.monthly ? "monthly" : null, availability.yearly ? "yearly" : null].filter(Boolean) as string[],
-      priceDaily: availability.daily ? +price.daily : 0,
-      priceMonthly: availability.monthly ? +price.monthly : 0,
-      priceYearly: availability.yearly ? +price.yearly : 0,
-      discountDaily: availability.daily ? +discount.daily : 0,
-      discountMonthly: availability.monthly ? +discount.monthly : 0,
-      discountYearly: availability.yearly ? +discount.yearly : 0,
-      checkOutHour: "10:00",
+      availability: Object.entries(formState.availability)
+        .filter(([_, isEnabled]) => isEnabled)
+        .map(([type]) => type) as string[],
+      priceDaily: formState.availability.daily ? +formState.price.daily : 0,
+      priceMonthly: formState.availability.monthly ? +formState.price.monthly : 0,
+      priceYearly: formState.availability.yearly ? +formState.price.yearly : 0,
+      discountDaily: formState.availability.daily ? +formState.discount.daily : 0,
+      discountMonthly: formState.availability.monthly ? +formState.discount.monthly : 0,
+      discountYearly: formState.availability.yearly ? +formState.discount.yearly : 0,
+      checkOutHour: "01:00",
       checkInHour: "12:00",
     };
 
     setData(formattedData);
-    ToastMessage({ message: "Success saving general", color: "#22c55e" });
-    setTimeout(() => {
-      window.location.reload();
-    }, 500);
   };
 
+  // Check if form is complete
   React.useEffect(() => {
-    if (currencies) {
-      const findCurrency = currencies.data.data.find((c) => c.id === data.currencyId);
+    if (!onChange) return;
 
-      if (findCurrency) {
-        setCurrency({ label: findCurrency.code, value: findCurrency.id });
+    const { name, secondaryName, highlight, currency, owner, availability, price } = formState;
+
+    const requiredFields = [name, secondaryName, highlight];
+    const requiredObjects = [currency, owner];
+
+    const isPriceValid = Object.entries(availability)
+      .filter(([_, isEnabled]) => isEnabled)
+      .every(([type]) => !!price[type as AvailabilityType]);
+
+    const hasValidMinRentTimes = (!availability.monthly || !!formState.availabilityPerPrice.monthly) && (!availability.yearly || !!formState.availabilityPerPrice.yearly);
+
+    const isComplete = requiredFields.every((field) => !!field) && requiredObjects.every((obj) => !!obj) && isPriceValid && hasValidMinRentTimes;
+
+    onChange(isComplete);
+    setIsFormComplete(isComplete);
+  }, [formState]);
+
+  // Auto-save when form is complete
+  React.useEffect(() => {
+    if (isFormComplete) {
+      saveData();
+    }
+  }, [isFormComplete]);
+
+  // Set currency and owners when data is loaded
+  React.useEffect(() => {
+    if (currencies && owners) {
+      const findCurrency = currencies.data.data.find((c) => c.id === data.currencyId);
+      const findOwner = owners.data.data.find((o) => o.id === data.ownerId);
+
+      if (findCurrency && findOwner) {
+        updateFormState("currency", { label: findCurrency.code, value: findCurrency.id });
+        updateFormState("owner", { label: findOwner.name, value: findOwner.id });
       }
     }
-  }, [currencies]);
+  }, [currencies, owners]);
 
   return (
     <div className="p-8 border rounded-b bg-light border-dark/30">
       <h2 className="heading">General</h2>
-      <form className="mt-6 space-y-8" onSubmit={handleSubmitGeneral}>
-        <div className="flex items-center">
-          <label className="block whitespace-nowrap min-w-60">Property name *</label>
-          <input type="text" className="input-text" placeholder="Urna Santal Villa" value={name} onChange={(e) => setName(e.target.value)} required />
-        </div>
-        <div className="flex items-center">
-          <label className="block whitespace-nowrap min-w-60">Secondary property name *</label>
-          <input type="text" className="input-text" placeholder="Urna Cangau" value={secondaryName} onChange={(e) => setSecondaryName(e.target.value)} required />
-        </div>
+      <form className="mt-6 space-y-8">
+        <FormField label="Property name" required>
+          <input type="text" className="input-text" placeholder="Urna Santal Villa" value={formState.name} onChange={(e) => updateFormState("name", e.target.value)} required />
+        </FormField>
 
-        <div className="flex items-center gap-4">
-          <label className="block whitespace-nowrap min-w-60">Availability *</label>
-          {(["daily", "monthly", "yearly"] as const).map((type) => (
-            <div key={type} className="flex items-center gap-2">
-              <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
-              <input
-                type="checkbox"
-                className="accent-primary"
-                checked={availability[type as keyof typeof availability]}
-                onChange={() => handleAvailabilityChange(type as keyof typeof availability)}
-              />
-            </div>
-          ))}
-        </div>
+        <FormField label="Secondary property name" required>
+          <input type="text" className="input-text" placeholder="Urna Cangau" value={formState.secondaryName} onChange={(e) => updateFormState("secondaryName", e.target.value)} required />
+        </FormField>
 
-        <div className="flex items-center">
-          <label className="block whitespace-nowrap min-w-60">Currency *</label>
+        <FormField label="Availability" required>
+          <div className="flex items-center gap-4">
+            {(["daily", "monthly", "yearly"] as const).map((type) => (
+              <div key={type} className="flex items-center gap-2">
+                <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+                <input type="checkbox" className="accent-primary" checked={formState.availability[type]} onChange={() => handleAvailabilityChange(type)} />
+              </div>
+            ))}
+          </div>
+        </FormField>
+
+        <FormField label="Owner" required>
+          <Select
+            className="w-full text-sm"
+            options={owners?.data.data.map((owner) => ({ value: owner.id, label: owner.name }))}
+            value={formState.owner}
+            onChange={(option) => updateFormState("owner", option)}
+            placeholder="Select Owner"
+            required
+          />
+        </FormField>
+
+        <FormField label="Currency" required>
           <Select
             className="w-full text-sm"
             options={currencies?.data.data.map((currency) => ({ value: currency.id, label: currency.code }))}
-            value={currency}
-            onChange={(option) => setCurrency(option)}
+            value={formState.currency}
+            onChange={(option) => updateFormState("currency", option)}
             placeholder="Select Currency"
             required
           />
-        </div>
+        </FormField>
 
         <div className="space-y-4">
           {(["daily", "monthly", "yearly"] as const)
-            .filter((type) => availability[type] === true)
+            .filter((type) => formState.availability[type] === true)
             .map((type) => (
-              <div key={type} className="flex items-center">
-                <label className="block whitespace-nowrap min-w-60">Price ({type}) *</label>
-
+              <FormField key={type} label={`Price (${type})`} required>
                 <div className="flex items-center w-full gap-4">
-                  <NumberInput className="input-text" value={price[type]} onChange={(e) => handlePriceChange(type, e.target.value)} placeholder={`Enter price in ${currency?.label}`} required />
+                  <NumberInput
+                    className="input-text"
+                    value={formState.price[type]}
+                    onChange={(e) => handlePriceChange(type, e.target.value)}
+                    placeholder={`Enter price in ${formState.currency?.label}`}
+                    required
+                  />
 
                   <label className="block whitespace-nowrap">Discount</label>
 
-                  <NumberInput className="input-text" value={discount[type]} onChange={(e) => handleDiscountChange(type, e.target.value)} placeholder="e.g. 0%" />
+                  <NumberInput className="input-text" value={formState.discount[type]} onChange={(e) => handleDiscountChange(type, e.target.value)} placeholder="e.g. 0%" />
 
                   <label className="block whitespace-nowrap">Discounted Price</label>
 
-                  <input type="number" className="input-text" value={+price[type] - +price[type] * ((+discount[type] || 0) / 100) || 0} readOnly />
+                  <input type="number" className="input-text" value={calculateDiscountedPrice(type)} readOnly />
                 </div>
-              </div>
+              </FormField>
             ))}
         </div>
 
-        {availability["monthly"] && (
-          <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">
-              Availability per price <br /> (Monthly) *
-            </label>
-
-            <select onChange={(e) => setAvailabilityPriceMonthly(e.target.value)} value={availabilityPriceMonthly} className="w-full input-select">
+        {formState.availability["monthly"] && (
+          <FormField label="Minimum rent time (Monthly)" required>
+            <select onChange={(e) => updateNestedState("availabilityPerPrice", "monthly", e.target.value)} value={formState.availabilityPerPrice.monthly} className="w-full input-select">
               {[...Array(12)].map((_, index) => (
                 <option key={index} value={index + 1}>
                   {index + 1}
                 </option>
               ))}
             </select>
-          </div>
+          </FormField>
         )}
 
-        {availability["yearly"] && (
-          <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">
-              Availability per price <br /> (Yearly) *
-            </label>
-
-            <select onChange={(e) => setAvailabilityPriceYearly(e.target.value)} value={availabilityPriceYearly} className="w-full input-select">
+        {formState.availability["yearly"] && (
+          <FormField label="Minimum rent time (Yearly)" required>
+            <select onChange={(e) => updateNestedState("availabilityPerPrice", "yearly", e.target.value)} value={formState.availabilityPerPrice.yearly} className="w-full input-select">
               {[...Array(10)].map((_, index) => (
                 <option key={index} value={index + 1}>
                   {index + 1}
                 </option>
               ))}
             </select>
-          </div>
+          </FormField>
         )}
 
-        <div className="flex items-center">
-          <label className="block whitespace-nowrap min-w-60">Highlights *</label>
+        <FormField label="Highlights" required>
           <textarea
             className="h-40 input-text"
-            value={highlight}
-            onChange={(e) => setHighlight(e.target.value)}
+            value={formState.highlight}
+            onChange={(e) => updateFormState("highlight", e.target.value)}
             placeholder="The beautiful Uma Santai Villa is set in the background of the Kerobokan paddy fields swaying in the tropical wind."
             required
           />
-        </div>
-
-        <div className="flex justify-end gap-4">
-          <Button className="btn-primary" type="submit">
-            Save
-          </Button>
-        </div>
+        </FormField>
       </form>
     </div>
   );

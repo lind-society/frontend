@@ -25,7 +25,7 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
 
     setLoading(false);
 
-    setFileUrl((prevUrls) => [...prevUrls, ...uploadedUrls]);
+    setFileUrl([...fileUrl, ...uploadedUrls]);
   };
 
   const handleRemoveFiles = (index: number) => {
@@ -33,7 +33,7 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
 
     deleteFile({ key: fileUrl[index] });
 
-    setFileUrl((prev) => prev.filter((_, i) => i !== index));
+    setFileUrl(fileUrl.filter((_, i) => i !== index));
   };
 
   return (

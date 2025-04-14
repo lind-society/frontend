@@ -4,5 +4,5 @@ export interface UploadPhotoProps {
   title: string;
   description: string;
   fileUrl: string[];
-  setFileUrl: React.Dispatch<React.SetStateAction<string[]>>;
+  setFileUrl: (urls: string[]) => void;
 }

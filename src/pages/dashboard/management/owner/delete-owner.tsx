@@ -13,7 +13,7 @@ export const DeleteOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
 
   const { mutate: deleteOwner } = useDeleteApi({ key: ["delete-owner"], url: "owners", redirectPath: "/dashboard/management/owner" });
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
     deleteOwner(ownerItem.id);
   };

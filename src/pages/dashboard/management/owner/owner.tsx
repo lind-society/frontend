@@ -14,6 +14,11 @@ interface OwnersTableProps {
   error?: unknown;
 }
 
+const STATUS_COLORS: Record<string, string> = {
+  active: "bg-green-300 text-green-700",
+  inactive: "bg-red-300 text-red-700",
+};
+
 const Table = ({ owners, isLoading, error }: OwnersTableProps) => {
   const columns = [
     {
@@ -44,7 +49,7 @@ const Table = ({ owners, isLoading, error }: OwnersTableProps) => {
     {
       key: "status" as keyof Owner,
       header: "Status",
-      render: (owner: Owner) => <StatusBadge status={owner.status} />,
+      render: (owner: Owner) => <StatusBadge status={owner.status} colors={STATUS_COLORS} />,
     },
     {
       key: "actions",

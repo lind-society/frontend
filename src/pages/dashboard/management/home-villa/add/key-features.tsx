@@ -32,6 +32,7 @@ export const KeyFeatures = () => {
   const { data: responseFacilities } = useGetApi<Payload<Data<Villa["facilities"]>>>({ key: ["facilities"], url: "facilities", params: { limit: "20" } });
 
   const otherDataFacilities = responseFacilities?.data.data.filter((facility) => !facilities.some((item) => item.name === facility.name));
+
   // const addFacility = () => {
   //   setFacilities((prevFacilities) => [{ id: crypto.randomUUID(), name: "", icon: { url: "", key: "" }, description: "", includeDescription: true }, ...prevFacilities]);
   // };

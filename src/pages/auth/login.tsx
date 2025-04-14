@@ -1,9 +1,13 @@
 // App.tsx
 import React, { useState } from "react";
 
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Background } from "../../components";
+import { Navigate } from "react-router-dom";
+
 import { authentication } from "../../hooks";
+
+import { Background } from "../../components";
+
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 interface LoginFormData {
   identifier: string;
@@ -35,16 +39,19 @@ export const LoginPage = () => {
 
     try {
       await authentication.login(formData.identifier, formData.password);
-
-      setTimeout(() => {
-        window.location.href = "/dashboard/main";
-      }, 2000);
+      window.location.href = "/admin/login";
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
     } finally {
       setIsLoading(false);
     }
   };
+
+  const identifier = authentication.getUser();
+
+  if (identifier) {
+    return <Navigate to="/dashboard/main" />;
+  }
 
   return (
     <Background src="/images/modern-villa-background.webp" alt="login background" className="flex items-center justify-center min-h-screen">

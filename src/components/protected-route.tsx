@@ -1,12 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { authentication, useGetApiWithAuth } from "../hooks";
-import { Payload } from "../types";
-
-interface UserData {
-  username: string;
-  email: string;
-  name: string;
-}
+import { Payload, User } from "../types";
 
 export const ProtectedRoute = () => {
   const isAuthenticated = authentication.isAuthenticated();
@@ -15,7 +9,7 @@ export const ProtectedRoute = () => {
 
   if (!isAuthenticated) return <Navigate to="/admin/login" />;
 
-  const { data, isLoading } = useGetApiWithAuth<Payload<UserData>>({ key: ["profile"], url: `admins/profile` });
+  const { data, isLoading } = useGetApiWithAuth<Payload<User>>({ key: ["profile"], url: `admins/profile` });
 
   if (isLoading) {
     return (

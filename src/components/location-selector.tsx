@@ -8,6 +8,9 @@ import { baseApiURL } from "../static";
 
 import { LocationSelectorProps } from "../types";
 
+const GC_TIME = 3 * 60 * 60 * 1000;
+const STALE_TIME = 2 * 60 * 60 * 1000;
+
 const fetchCountries = async () => {
   const { data } = await axios.get(`${baseApiURL}/regions/countries`);
   return data.map((c: any) => ({ value: c.id, label: c.name }));
@@ -24,15 +27,19 @@ const fetchCities = async (country: string, provinceId: string) => {
 };
 
 export const LocationSelector = ({ selectedCity, selectedCountry, selectedProvince, setSelectedCity, setSelectedCountry, setSelectedProvince }: LocationSelectorProps) => {
-  const { data: countries = [] } = useQuery({ queryKey: ["countries"], queryFn: fetchCountries });
+  const { data: countries = [] } = useQuery({ queryKey: ["countries"], queryFn: fetchCountries, gcTime: GC_TIME, staleTime: STALE_TIME });
   const { data: provinces = [], refetch: refetchProvinces } = useQuery({
     queryKey: ["provinces", selectedCountry?.value],
     queryFn: () => fetchProvinces(selectedCountry!.value),
+    gcTime: GC_TIME,
+    staleTime: STALE_TIME,
     enabled: !!selectedCountry,
   });
   const { data: cities = [], refetch: refetchCities } = useQuery({
     queryKey: ["cities", selectedCountry?.label, selectedProvince?.value],
     queryFn: () => fetchCities(selectedCountry!.label, selectedProvince!.value),
+    gcTime: GC_TIME,
+    staleTime: STALE_TIME,
     enabled: !!selectedCountry && !!selectedProvince,
   });
 

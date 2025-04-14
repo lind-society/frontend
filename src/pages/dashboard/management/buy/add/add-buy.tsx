@@ -66,7 +66,7 @@ export const AddBuyPage = () => {
     <Layout>
       {/* Header */}
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="text-2xl font-bold">Add Property</h1>
+        <h1 className="text-2xl font-bold">Add Buy Management</h1>
 
         <div className="flex items-center gap-4">
           <Button onClick={handlePublish} className="btn-primary">

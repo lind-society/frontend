@@ -55,7 +55,7 @@ export const ServiceFeatures = () => {
 
   const otherFeatures = [...mainFeatures, ...optionalFeatures].filter((feature) => !features.some((item) => item.name === feature.name));
 
-  const updateFeatureIcon = (key: string | null, e: React.MouseEvent<HTMLElement>) => {
+  const updateFeatureIcon = (key: string | null, e: React.MouseEvent) => {
     const url = (e.target as HTMLImageElement).src;
     setFeatures((prevFeatures) => prevFeatures.map((feature) => (feature.id === idIcon ? { ...feature, icon: { url, key: key ?? "" } } : feature)));
   };

@@ -1,5 +1,6 @@
 import { Currency } from "./currency";
 import { AdditionalItem, Facilities, Features, Icon, PlaceNearby } from "./global";
+import { Owner } from "./owner";
 import { Review } from "./review";
 
 interface AvailabilityPerPrice {
@@ -49,8 +50,9 @@ export interface Villa {
   photos: string[];
   videos: string[];
   video360s: string[];
-  ownerId: string | null;
-  currencyId: string | null;
+  ownerId: string;
+  owner: Owner;
+  currencyId: string;
   currency: Currency;
   createdAt: string;
   updatedAt: string;

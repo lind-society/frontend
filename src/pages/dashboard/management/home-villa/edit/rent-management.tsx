@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useGetApi, useSearchPagination } from "../../../../../hooks";
+import { useGetApi, useSearchPagination, useUpdateApi } from "../../../../../hooks";
 
 import { DataTable, Pagination, SearchBox, StatusBadge } from "../../../../../components";
 
@@ -22,7 +22,7 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
     {
       key: "villa.name" as keyof Booking,
       header: "Villa",
-      render: (booking: Booking) => booking.villa.name,
+      render: (booking: Booking) => booking.villa?.name,
     },
     {
       key: "customer.name" as keyof Booking,
@@ -87,6 +87,8 @@ export const RentManagement = () => {
     enabled: Boolean(id),
   });
 
+  const { mutate: editRent } = useUpdateApi({ key: ["edit-booking"], url: "bookings" });
+
   const bookings = respBookings?.data.data || [];
   const totalPages = respBookings?.data.meta.totalPages || 1;
 
@@ -95,20 +97,20 @@ export const RentManagement = () => {
   };
 
   const handleApprove = (bookingId: string) => {
-    // Implement booking approval logic
-    console.log(`Approve booking ${bookingId}`);
+    if (!window.confirm("Are you sure you want to approve?")) return;
+    editRent({ id: bookingId, updatedItem: { status: "done" } });
   };
 
   const handleCancel = (bookingId: string) => {
-    // Implement booking cancellation logic
-    console.log(`Cancel booking ${bookingId}`);
+    if (!window.confirm("Are you sure you want to cancel?")) return;
+    editRent({ id: bookingId, updatedItem: { status: "canceled" } });
   };
 
   return (
     <div className="p-8 space-y-4 border rounded-b bg-light border-dark/30">
       <h2 className="heading">Rent Management</h2>
       <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
-      <div className="pb-2 overflow-x-auto scrollbar min-h-600">
+      <div className="pb-2 mb-4 overflow-x-auto scrollbar min-h-600">
         <Table bookings={bookings} onEdit={handleEdit} onApprove={handleApprove} onCancel={handleCancel} isLoading={isPending} error={error} />
       </div>
       <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />

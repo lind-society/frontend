@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { ToastMessage } from "../components";
+import toast from "react-hot-toast";
 
 import { baseApiURL } from "../static";
 
@@ -29,11 +29,11 @@ export const useUploads = <T>(): UseFileUpload<T> => {
         },
       });
 
-      ToastMessage({ message: "Success upload file", color: "#0d9488" });
+      toast.success("Files uploaded successfully !!!");
 
       return { response: resData.data };
     } catch (error: any) {
-      ToastMessage({ message: error.response?.data.message || "Upload file error", color: "#b91c1c" });
+      toast.error(error.response?.data.message || "Upload file error");
 
       return { response: null };
     }

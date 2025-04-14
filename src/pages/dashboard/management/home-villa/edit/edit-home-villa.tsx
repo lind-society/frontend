@@ -1,17 +1,16 @@
 import * as React from "react";
 
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
 
-import { Layout } from "../../../../../components/ui";
+import { EditMedia, Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
 import { FaDownload } from "react-icons/fa";
 
 import { General } from "./general";
-import { Media } from "./media";
-import { Location } from "./location";
+
 import { ServiceFeatures } from "./service-features";
 import { VillaPolicies } from "./villa-policies";
 import { RentManagement } from "./rent-management";
@@ -20,15 +19,16 @@ import { KeyFeatures } from "./key-features";
 import { Payload, Villa } from "../../../../../types";
 
 import { deleteKeysObject } from "../../../../../utils";
+import { EditLocation } from "../../../../../components/ui/location/edit-location";
 
 const tabs = ["Rent Management", "General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies"];
 
 export const EditHomeVillaPage = () => {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { id } = useParams();
 
-  const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ url: "villas", key: ["editing-villa"], redirectPath: "/dashboard/management/home-villa" });
+  const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ url: "villas", key: ["editing-villa"], redirectPath: `/dashboard/management/home-villa/edit/${id}` });
 
   const { data: responseVilla, isLoading } = useGetApi<Payload<Villa>>({ url: `villas/${id}`, key: ["get-villa", id] });
 
@@ -42,6 +42,8 @@ export const EditHomeVillaPage = () => {
     return sessionStorage.getItem("activeTab") || "Rent Management";
   });
 
+  const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState<boolean>(false);
+
   React.useEffect(() => {
     if (pathname === `/dashboard/management/home-villa/edit/${id}`) {
       sessionStorage.setItem("activeTab", activeTab);
@@ -49,18 +51,33 @@ export const EditHomeVillaPage = () => {
 
     // Cleanup function that runs when component unmounts or dependencies change
     return () => {
-      const isLeavingAddPage = pathname === `/dashboard/management/home-villa/edit/${id}` && window.location.pathname !== `/dashboard/management/home-villa/edit/${id}`;
-      if (isLeavingAddPage) {
-        const confirmLeave = window.confirm("Are you sure you want to move the page before publish your villas?");
-        if (confirmLeave) {
-          sessionStorage.clear();
-          localStorage.clear();
-        } else {
-          navigate(`/dashboard/management/home-villa/edit/${id}`);
-        }
-      }
+      sessionStorage.removeItem("activeTab");
     };
+    // return () => {
+    //   const isLeavingAddPage = pathname === `/dashboard/management/home-villa/edit/${id}` && window.location.pathname !== `/dashboard/management/home-villa/edit/${id}`;
+    //   if (isLeavingAddPage) {
+    //     const confirmLeave = window.confirm("Are you sure you want to move the page before publish your villas?");
+    //     if (confirmLeave) {
+    //       sessionStorage.clear();
+    //       localStorage.clear();
+    //     } else {
+    //       navigate(`/dashboard/management/home-villa/edit/${id}`);
+    //     }
+    //   }
+    // };
   }, [pathname, activeTab]);
+
+  const handleNavigateAway = (tab: string) => {
+    if (hasUnsavedChanges) {
+      // Show a confirmation dialog
+      const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
+      if (!confirmLeave) {
+        return; // Stop navigation
+      }
+    }
+    setActiveTab(tab);
+    // Continue with navigation
+  };
 
   React.useEffect(() => {
     if (responseVilla) {
@@ -131,7 +148,11 @@ export const EditHomeVillaPage = () => {
 
       <div className="flex">
         {tabs.map((tab) => (
-          <button key={tab} className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`} onClick={() => setActiveTab(tab)}>
+          <button
+            key={tab}
+            className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
+            onClick={() => handleNavigateAway(tab)}
+          >
             {tab}
           </button>
         ))}
@@ -145,12 +166,41 @@ export const EditHomeVillaPage = () => {
           </div>
         ) : (
           <>
-            {activeTab === "General" && <General />}
-            {activeTab === "Media" && <Media />}
-            {activeTab === "Location" && <Location />}
+            {activeTab === "General" && (
+              <General
+                onChange={(hasChanges: boolean) => {
+                  setHasUnsavedChanges(hasChanges);
+                }}
+              />
+            )}
+            {activeTab === "Media" && (
+              <EditMedia
+                persistedDataKey="get-villa"
+                editDataKey="edit-villa"
+                type="villa"
+                onChange={(hasChanges: boolean) => {
+                  setHasUnsavedChanges(hasChanges);
+                }}
+              />
+            )}
+            {activeTab === "Location" && (
+              <EditLocation
+                persistedDataKey="get-villa"
+                editDataKey="edit-villa"
+                onChange={(hasChanges: boolean) => {
+                  setHasUnsavedChanges(hasChanges);
+                }}
+              />
+            )}
             {activeTab === "Key Features" && <KeyFeatures />}
             {activeTab === "Service & Features" && <ServiceFeatures />}
-            {activeTab === "Villa Policies" && <VillaPolicies />}
+            {activeTab === "Villa Policies" && (
+              <VillaPolicies
+                onChange={(hasChanges: boolean) => {
+                  setHasUnsavedChanges(hasChanges);
+                }}
+              />
+            )}
           </>
         )}
       </div>

@@ -1,15 +1,14 @@
 import * as React from "react";
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
-import { Layout } from "../../../../../components/ui";
+import { Layout, AddMedia } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
 import { General } from "./general";
-import { Media } from "./media";
-import { Location } from "./location";
+
 import { ServiceFeatures } from "./service-features";
 import { VillaPolicies } from "./villa-policies";
 import { KeyFeatures } from "./key-features";
@@ -19,14 +18,14 @@ import { FaDownload } from "react-icons/fa";
 import { deleteKeysObject } from "../../../../../utils";
 
 import { Villa } from "../../../../../types";
+import { AddLocation } from "../../../../../components/ui/location/add-location";
 
 const tabs = ["General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies"];
 
 export const AddHomeVillaPage = () => {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
 
-  const { mutate: addVillas, isPending } = useCreateApi<Partial<Villa>>({ url: "villas", key: ["add-villa"], redirectPath: "/dashboard/management/home-villa" });
+  const { mutate: addVillas, isPending } = useCreateApi<Partial<Villa>>({ url: "villas", key: ["add-villa"], redirectPath: "/dashboard/management/home-villa/add" });
 
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
 
@@ -44,18 +43,21 @@ export const AddHomeVillaPage = () => {
 
     // Cleanup function that runs when component unmounts or dependencies change
     return () => {
-      const isLeavingAddPage = pathname === "/dashboard/management/home-villa/add" && window.location.pathname !== "/dashboard/management/home-villa/add";
-      if (isLeavingAddPage) {
-        const confirmLeave = window.confirm("Are you sure you want to move the page before publish your villas?");
-        if (confirmLeave) {
-          sessionStorage.clear();
-          localStorage.clear();
-        } else {
-          navigate("/dashboard/management/home-villa/add");
-        }
-      }
+      sessionStorage.removeItem("activeTab");
     };
-  }, [activeTab, pathname, navigate]);
+    // return () => {
+    //   const isLeavingAddPage = pathname === "/dashboard/management/home-villa/add" && window.location.pathname !== "/dashboard/management/home-villa/add";
+    //   if (isLeavingAddPage) {
+    //     const confirmLeave = window.confirm("Are you sure you want to move the page before publish your villas?");
+    //     if (confirmLeave) {
+    //       sessionStorage.clear();
+    //       localStorage.clear();
+    //     } else {
+    //       navigate("/dashboard/management/home-villa/add");
+    //     }
+    //   }
+    // };
+  }, [activeTab, pathname]);
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -91,8 +93,8 @@ export const AddHomeVillaPage = () => {
       </div>
 
       {activeTab === "General" && <General />}
-      {activeTab === "Media" && <Media />}
-      {activeTab === "Location" && <Location />}
+      {activeTab === "Media" && <AddMedia persistedDataKey="add-villa" type="villa" />}
+      {activeTab === "Location" && <AddLocation persistedDataKey="add-villa" />}
       {activeTab === "Key Features" && <KeyFeatures />}
       {activeTab === "Service & Features" && <ServiceFeatures />}
       {activeTab === "Villa Policies" && <VillaPolicies />}

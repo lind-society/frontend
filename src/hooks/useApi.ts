@@ -32,8 +32,11 @@ interface FetchOptions<T> {
   select?: (data: any) => T;
 }
 
+const GC_TIME = 3 * 60 * 60 * 1000;
+const STALE_TIME = 2 * 60 * 60 * 1000;
+
 // Fetch all items
-export const useGetApi = <T = any>({ key, url, params, gcTime = 300000, staleTime = 60000, enabled = true, select }: FetchOptions<T>) => {
+export const useGetApi = <T = any>({ key, url, params, gcTime = GC_TIME, staleTime = STALE_TIME, enabled = true, select }: FetchOptions<T>) => {
   return useQuery<T, Error>({
     queryKey: key,
     queryFn: async () => {
@@ -59,7 +62,7 @@ export const useCreateApi = <T>({ key, url, redirectPath }: { url: string; key: 
           setTimeout(() => {
             sessionStorage.clear();
             window.location.href = redirectPath;
-          }, 2000);
+          }, 1000);
           return;
         }
         return data;
@@ -98,7 +101,7 @@ export const useUpdateApi = <T>({ key, url, redirectPath }: { url: string; key: 
           setTimeout(() => {
             sessionStorage.clear();
             window.location.href = redirectPath;
-          }, 2000);
+          }, 1000);
           return;
         }
         return data;
@@ -135,7 +138,7 @@ export const useDeleteApi = ({ key, url, redirectPath }: { url: string; key: Que
         if (redirectPath) {
           setTimeout(() => {
             window.location.href = redirectPath;
-          }, 2000);
+          }, 1000);
           return;
         }
         return data;
