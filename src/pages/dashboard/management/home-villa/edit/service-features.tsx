@@ -131,12 +131,6 @@ export const ServiceFeatures = () => {
     );
   };
 
-  // const toggleItemHidden = (catIndex: number, itemIndex: number) => {
-  //   const newCategories = [...categories];
-  //   newCategories[catIndex].items[itemIndex].hidden = !newCategories[catIndex].items[itemIndex].hidden;
-  //   setFeatures(newCategories);
-  // };
-
   const deleteItem = (featureId: string, itemId: string) => {
     if (features.find((feature) => feature.id === featureId)?.items.length! <= 1) return;
     if (!window.confirm("Are you sure you want to delete item?")) return;

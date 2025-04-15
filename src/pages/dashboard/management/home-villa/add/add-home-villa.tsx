@@ -4,13 +4,11 @@ import { useLocation } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
-import { Layout, AddMedia, AddLocation, AddKeyFeatures } from "../../../../../components/ui";
+import { Layout, AddMedia, AddLocation, AddKeyFeatures, AddServiceFeatures } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
 import { General } from "./general";
 import { VillaPolicies } from "./villa-policies";
-
-import { ServiceFeatures } from "./service-features";
 
 import { FaDownload } from "react-icons/fa";
 
@@ -138,7 +136,14 @@ export const AddHomeVillaPage = () => {
           }}
         />
       )}
-      {activeTab === "Service & Features" && <ServiceFeatures />}
+      {activeTab === "Service & Features" && (
+        <AddServiceFeatures
+          persistedDataKey="add-villa"
+          onChange={(hasChanges: boolean) => {
+            setHasUnsavedChanges(hasChanges);
+          }}
+        />
+      )}
       {activeTab === "Villa Policies" && (
         <VillaPolicies
           onChange={(hasChanges: boolean) => {

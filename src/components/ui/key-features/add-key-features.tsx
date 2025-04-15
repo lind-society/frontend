@@ -11,12 +11,12 @@ import { FaPlus } from "react-icons/fa";
 import { Facility, FeaturePersistedType } from "./types";
 import { Data, Facilities, Payload } from "../../../types";
 
-interface AddKeyFeaturesProps {
+interface KeyFeaturesProps {
   persistedDataKey: string;
   onChange?: (hasChanges: boolean) => void;
 }
 
-export const AddKeyFeatures: React.FC<AddKeyFeaturesProps> = ({ persistedDataKey, onChange }) => {
+export const AddKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, onChange }) => {
   const useStore = usePersistentData<Partial<FeaturePersistedType>>(persistedDataKey);
   const { setData, data } = useStore();
 

@@ -11,13 +11,13 @@ import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
 import { Facility, FeaturePersistedType } from "./types";
 import { Data, Facilities, Payload } from "../../../types";
 
-interface AddKeyFeaturesProps {
+interface KeyFeaturesProps {
   persistedDataKey: string;
   editDataKey: string;
   onChange?: (hasChanges: boolean) => void;
 }
 
-export const EditKeyFeatures: React.FC<AddKeyFeaturesProps> = ({ persistedDataKey, editDataKey, onChange }) => {
+export const EditKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, editDataKey, onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<FeaturePersistedType>(persistedDataKey);
   const useEdit = usePersistentData<FeaturePersistedType>(editDataKey);

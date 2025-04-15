@@ -8,3 +8,6 @@ export * from "./location/edit-location";
 
 export * from "./key-features/add-key-features";
 export * from "./key-features/edit-key-features";
+
+export * from "./service-features/add-service-features";
+export * from "./service-features/edit-service-features";
