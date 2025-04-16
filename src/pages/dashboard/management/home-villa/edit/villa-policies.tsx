@@ -26,7 +26,9 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
   const { data: dataBeforeEdit } = useStore();
   const { setData, data: dataAfterEdit } = useEdit();
 
-  const data = dataAfterEdit.policies ? dataAfterEdit : dataBeforeEdit;
+  const data = React.useMemo(() => {
+    return dataAfterEdit.policies ? dataAfterEdit : dataBeforeEdit;
+  }, [dataAfterEdit, dataBeforeEdit]);
 
   const defaultHouseRules =
     data.policies?.filter((policy) => policy.type === "house rules").map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) ||
@@ -117,7 +119,7 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
   };
 
   return (
-    <div className="relative p-8 border rounded-b bg-light border-dark/30">
+    <>
       <Button className="absolute top-6 right-8 btn-outline z-3000" onClick={() => setEditMode((prev) => !prev)}>
         {editMode ? (
           <div className="flex items-center gap-2">
@@ -165,6 +167,6 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
           </Button>
         </div>
       </div>
-    </div>
+    </>
   );
 };

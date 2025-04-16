@@ -80,23 +80,6 @@ export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDa
     enabled: !!formState.mapLink,
   });
 
-  React.useEffect(() => {
-    if (!onChange || !data.placeNearby) return;
-
-    const placeNearbyEqual = formState.placeNearby.length === data.placeNearby.length;
-
-    const hasChanges =
-      !arraysEqual(selectedCountry?.label || "", data.country || "") ||
-      !arraysEqual(selectedProvince?.label || "", data.state || "") ||
-      !arraysEqual(selectedCity?.label || "", data.city || "") ||
-      !arraysEqual(formState.address, data.address || "") ||
-      !arraysEqual(formState.mapLink, data.mapLink || "") ||
-      !arraysEqual(formState.postalCode, data.postalCode || "") ||
-      !placeNearbyEqual;
-
-    onChange(hasChanges);
-  }, [formState, selectedCity, selectedProvince, selectedCountry]);
-
   const updateFormState = (field: keyof LocationFormState, value: any) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
@@ -143,8 +126,25 @@ export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDa
     }, 200);
   };
 
+  React.useEffect(() => {
+    if (!onChange || !data.placeNearby) return;
+
+    const placeNearbyEqual = formState.placeNearby.length === data.placeNearby.length;
+
+    const hasChanges =
+      !arraysEqual(selectedCountry?.label || "", data.country || "") ||
+      !arraysEqual(selectedProvince?.label || "", data.state || "") ||
+      !arraysEqual(selectedCity?.label || "", data.city || "") ||
+      !arraysEqual(formState.address, data.address || "") ||
+      !arraysEqual(formState.mapLink, data.mapLink || "") ||
+      !arraysEqual(formState.postalCode, data.postalCode || "") ||
+      !placeNearbyEqual;
+
+    onChange(hasChanges);
+  }, [formState, selectedCity, selectedProvince, selectedCountry]);
+
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/30">
+    <>
       <div className="flex items-center justify-between">
         <h2 className="heading">Location</h2>
         <Button className="btn-outline" onClick={() => setEditMode((prev) => !prev)}>
@@ -229,6 +229,6 @@ export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDa
           </Button>
         </div>
       </form>
-    </div>
+    </>
   );
 };

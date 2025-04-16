@@ -61,17 +61,14 @@ export const AddHomeVillaPage = () => {
   };
 
   const handleNavigateAway = (tab: TabName) => {
-    // Get the current tab index and the target tab index
     const currentTabIndex = tabs.indexOf(activeTab);
     const targetTabIndex = tabs.indexOf(tab);
 
-    // Allow navigating back to previous tabs or staying on current tab
     if (targetTabIndex <= currentTabIndex) {
       setActiveTab(tab);
       return;
     }
 
-    // Only allow navigating to the next tab if current tab is valid
     if (targetTabIndex === currentTabIndex + 1) {
       if (tabValidationState[activeTab]) {
         alert("Please complete each section in order.");
@@ -79,7 +76,6 @@ export const AddHomeVillaPage = () => {
       }
       setActiveTab(tab);
     } else {
-      // If trying to skip tabs, prevent it
       alert("Please complete each section in order.");
     }
   };
@@ -123,70 +119,72 @@ export const AddHomeVillaPage = () => {
         ))}
       </div>
 
-      {activeTab === "General" && (
-        <div>
-          <General
+      <div className="p-8 border rounded-b bg-light border-dark/30">
+        {activeTab === "General" && (
+          <>
+            <General
+              onChange={(hasChanges: boolean) => {
+                updateTabValidation("General", hasChanges);
+              }}
+            />
+            {!tabValidationState["General"] && (
+              <div className="flex justify-end mt-4">
+                <Button onClick={() => goToNextTab()} className="btn-primary">
+                  Next
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+        {activeTab === "Media" && (
+          <>
+            <AddMedia
+              persistedDataKey="add-villa"
+              type="villa"
+              onChange={(hasChanges: boolean) => {
+                updateTabValidation("Media", hasChanges);
+              }}
+            />
+          </>
+        )}
+        {activeTab === "Location" && (
+          <>
+            <AddLocation
+              persistedDataKey="add-villa"
+              onChange={(hasChanges: boolean) => {
+                updateTabValidation("Location", hasChanges);
+              }}
+            />
+          </>
+        )}
+        {activeTab === "Key Features" && (
+          <>
+            <AddKeyFeatures
+              persistedDataKey="add-villa"
+              onChange={(hasChanges: boolean) => {
+                updateTabValidation("Key Features", hasChanges);
+              }}
+            />
+          </>
+        )}
+        {activeTab === "Service & Features" && (
+          <>
+            <AddServiceFeatures
+              persistedDataKey="add-villa"
+              onChange={(hasChanges: boolean) => {
+                updateTabValidation("Service & Features", hasChanges);
+              }}
+            />
+          </>
+        )}
+        {activeTab === "Villa Policies" && (
+          <VillaPolicies
             onChange={(hasChanges: boolean) => {
-              updateTabValidation("General", hasChanges);
+              updateTabValidation("Villa Policies", hasChanges);
             }}
           />
-          {!tabValidationState["General"] && (
-            <div className="flex justify-end mt-4">
-              <Button onClick={() => goToNextTab()} className="btn-primary">
-                Next
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
-      {activeTab === "Media" && (
-        <div>
-          <AddMedia
-            persistedDataKey="add-villa"
-            type="villa"
-            onChange={(hasChanges: boolean) => {
-              updateTabValidation("Media", hasChanges);
-            }}
-          />
-        </div>
-      )}
-      {activeTab === "Location" && (
-        <div>
-          <AddLocation
-            persistedDataKey="add-villa"
-            onChange={(hasChanges: boolean) => {
-              updateTabValidation("Location", hasChanges);
-            }}
-          />
-        </div>
-      )}
-      {activeTab === "Key Features" && (
-        <div>
-          <AddKeyFeatures
-            persistedDataKey="add-villa"
-            onChange={(hasChanges: boolean) => {
-              updateTabValidation("Key Features", hasChanges);
-            }}
-          />
-        </div>
-      )}
-      {activeTab === "Service & Features" && (
-        <div>
-          <AddServiceFeatures
-            persistedDataKey="add-villa"
-            onChange={(hasChanges: boolean) => {
-              updateTabValidation("Service & Features", hasChanges);
-            }}
-          />
-        </div>
-      )}
-      {activeTab === "Villa Policies" && (
-        <VillaPolicies
-          onChange={(hasChanges: boolean) => {
-            updateTabValidation("Villa Policies", hasChanges);
-          }}
-        />
-      )}
+        )}
+      </div>
     </Layout>
   );
 };

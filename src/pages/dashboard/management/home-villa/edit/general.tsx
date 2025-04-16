@@ -55,7 +55,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
   const { data: dataBeforeEdit } = useStore();
   const { setData, data: dataAfterEdit } = useEdit();
 
-  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
+  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
 
   const dataCondition =
@@ -113,9 +113,10 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     const findCurrency = currencies?.data.data.find((c) => c.id === data.currencyId);
     const findOwner = owners?.data.data.find((o) => o.id === data.ownerId);
 
-    const availabilityPerPriceEqual = data.availabilityPerPrice?.some(
-      (item) => String(item.quota) === formState.availabilityPerPrice.monthly && String(item.quota) === formState.availabilityPerPrice.yearly
-    );
+    const monthlyExists = data.availabilityPerPrice?.some((item) => String(item.quota) === formState.availabilityPerPrice.monthly);
+    const yearlyExists = data.availabilityPerPrice?.some((item) => String(item.quota) === formState.availabilityPerPrice.yearly);
+
+    const availabilityPerPriceEqual = monthlyExists && yearlyExists;
 
     const availabilityFromData: Record<AvailabilityType, boolean> = {
       daily: data.availability?.includes("daily") || true,
@@ -128,7 +129,6 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     const hasChanges =
       !arraysEqual(formState.name, data.name || "") ||
       !arraysEqual(formState.secondaryName, data.secondaryName || "") ||
-      !arraysEqual(formState.highlight, data.highlight || "") ||
       !arraysEqual(formState.price.daily, String(data.priceDaily || "")) ||
       !arraysEqual(formState.price.monthly, String(data.priceMonthly || "")) ||
       !arraysEqual(formState.price.yearly, String(data.priceYearly || "")) ||
@@ -137,8 +137,8 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||
       !arraysEqual(formState.currency?.value || "", String(findCurrency?.id)) ||
       !arraysEqual(formState.owner?.value || "", String(findOwner?.id)) ||
-      !availabilityPerPriceEqual ||
-      !availabilityEqual;
+      !availabilityEqual ||
+      !availabilityPerPriceEqual;
 
     onChange(hasChanges);
   }, [formState]);
@@ -148,8 +148,10 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       const findCurrency = currencies.data.data.find((c) => c.id === data.currencyId);
       const findOwner = owners.data.data.find((o) => o.id === data.ownerId);
 
-      if (findCurrency && findOwner) {
+      if (findCurrency) {
         updateFormState("currency", { label: findCurrency.code, value: findCurrency.id });
+      }
+      if (findOwner) {
         updateFormState("owner", { label: findOwner.name, value: findOwner.id });
       }
     }
@@ -232,7 +234,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
   };
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/30">
+    <>
       <div className="flex items-center justify-between">
         <h2 className="heading">General</h2>
         <Button className="btn-outline" onClick={() => setEditMode((prev) => !prev)}>
@@ -359,6 +361,6 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
           </Button>
         </div>
       </form>
-    </div>
+    </>
   );
 };

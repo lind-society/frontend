@@ -209,7 +209,7 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
   };
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/30">
+    <>
       <div className="space-y-8">
         <UploadPhoto folder={type} type="photos" title="Photo" description="Catalog Photo *" fileUrl={formState.photos} setFileUrl={(photos) => updateFormState({ photos })} />
 
@@ -257,6 +257,6 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
           ))}
         </div>
       </Modal>
-    </div>
+    </>
   );
 };

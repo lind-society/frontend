@@ -97,7 +97,7 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
   }, [houseRules, cancellationTerms, paymentTerms]);
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/30">
+    <>
       <div className="mb-8 space-y-8">
         <div className="flex items-center justify-between">
           <h2 className="heading">House Rules</h2>
@@ -123,6 +123,6 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
       <SectionPolicy title="Payment Terms" categories={paymentTermsLists} defaultPolicies={paymentTerms} onUpdate={updatePolicies} />
 
       <SectionPolicy title="Cancellation Terms" categories={cancellationTermsLists} defaultPolicies={cancellationTerms} onUpdate={updatePolicies} />
-    </div>
+    </>
   );
 };

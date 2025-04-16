@@ -152,7 +152,7 @@ export const EditHomeVillaPage = () => {
         ))}
       </div>
 
-      <div className="bg-light">
+      <div className="relative p-8 border rounded-b bg-light border-dark/30">
         {activeTab === "Rent Management" && <RentManagement />}
         {isLoading ? (
           <div className="flex items-center justify-center min-h-200">

@@ -43,7 +43,7 @@ export const AddServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKey
   const [modalFeature, setModalFeature] = React.useState<boolean>(false);
   const [idIcon, setIdIcon] = React.useState<string>();
 
-  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
+  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
 
   const otherFeatures = [...mainFeatures, ...optionalFeatures].filter((feature) => !features.some((item) => item.name === feature.name));
 
@@ -81,16 +81,14 @@ export const AddServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKey
     setFeatures((prevFeatures) => prevFeatures.map((feature) => (feature.id === idIcon ? { ...feature, icon: { url, key: key ?? "" } } : feature)));
   };
 
-  const handleFeatureNameUpdate = (featureId: string, name: string, finishEditing = false) => {
+  const handleFeatureNameUpdate = (featureId: string, name: string) => {
+    setFeatures((prevFeatures) => prevFeatures.map((feature) => (feature.id === featureId ? { ...feature, name } : feature)));
+  };
+
+  const handleFeatureEdit = (featureId: string, action: "toggle" | "finish") => {
     setFeatures((prevFeatures) =>
       prevFeatures.map((feature) =>
-        feature.id === featureId
-          ? {
-              ...feature,
-              name: name,
-              isEditing: finishEditing ? (name !== "" ? false : true) : !feature.isEditing,
-            }
-          : feature
+        feature.id === featureId ? (action === "toggle" ? { ...feature, isEditing: !feature.isEditing } : feature.name !== "" ? { ...feature, isEditing: false } : feature) : feature
       )
     );
   };
@@ -199,34 +197,33 @@ export const AddServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKey
 
   return (
     <>
-      <div className="p-8 space-y-8 border rounded-b bg-light border-dark/30">
-        <div className="flex items-center justify-between">
-          <h2 className="heading">Service & Features</h2>
-          <Button onClick={() => setModalFeature(true)} className="flex items-center justify-center gap-2 btn-primary">
-            <FaPlus /> Add New Category
-          </Button>
-        </div>
-
-        {features.map((feature) => (
-          <div key={feature.id} className="p-4 mt-4 border-b border-dark/30">
-            <FeatureHeader
-              feature={feature}
-              onEdit={handleFeatureNameUpdate}
-              onAddItem={addItem}
-              onReset={resetFeature}
-              onDelete={deleteFeature}
-              onIconChange={updateFeatureIcon}
-              setIdIcon={setIdIcon}
-            />
-
-            <div className="space-y-4">
-              {feature.items.map((item) => (
-                <FeatureItem key={item.id} feature={feature} item={item} currencies={currencies} onUpdateItem={updateItems} onResetItem={resetItem} onDeleteItem={deleteItem} />
-              ))}
-            </div>
-          </div>
-        ))}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="heading">Service & Features</h2>
+        <Button onClick={() => setModalFeature(true)} className="flex items-center justify-center gap-2 btn-primary">
+          <FaPlus /> Add New Category
+        </Button>
       </div>
+
+      {features.map((feature) => (
+        <div key={feature.id} className="px-4 py-8 border-b border-dark/30">
+          <FeatureHeader
+            feature={feature}
+            onEdit={handleFeatureNameUpdate}
+            onBlur={handleFeatureEdit}
+            onAddItem={addItem}
+            onReset={resetFeature}
+            onDelete={deleteFeature}
+            onIconChange={updateFeatureIcon}
+            setIdIcon={setIdIcon}
+          />
+
+          <div className="space-y-4">
+            {feature.items.map((item) => (
+              <FeatureItem key={item.id} feature={feature} item={item} currencies={currencies} onUpdateItem={updateItems} onResetItem={resetItem} onDeleteItem={deleteItem} />
+            ))}
+          </div>
+        </div>
+      ))}
 
       <CategoryModal isVisible={modalFeature} onClose={() => setModalFeature(false)} otherFeatures={otherFeatures} onAddOtherFeature={addOtherFeature} onAddNewCategory={addFeature} />
     </>

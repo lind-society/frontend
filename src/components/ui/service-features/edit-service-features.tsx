@@ -27,7 +27,9 @@ export const EditServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKe
   const { data: dataBeforeEdit } = useStore();
   const { setData, data: dataAfterEdit } = useEdit();
 
-  const data = dataAfterEdit.features ? dataAfterEdit : dataBeforeEdit;
+  const data = React.useMemo(() => {
+    return dataAfterEdit.features ? dataAfterEdit : dataBeforeEdit;
+  }, [dataAfterEdit, dataBeforeEdit]);
 
   const defaultFeature: Feature[] = Object.values(
     data.features?.reduce((acc, feature) => {
@@ -50,7 +52,7 @@ export const EditServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKe
   const [editMode, setEditMode] = React.useState<boolean>(false);
   const [idIcon, setIdIcon] = React.useState<string>();
 
-  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
+  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
 
   const otherFeatures = [...mainFeatures, ...optionalFeatures].filter((feature) => !features.some((item) => item.name === feature.name));
 
@@ -203,67 +205,87 @@ export const EditServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKe
 
   React.useEffect(() => {
     if (!onChange || !data.features) return;
+    const flattenFeatures = features.flatMap((feature) =>
+      feature.items.map((item) => ({
+        name: item.title,
+        icon: feature.icon,
+        type: feature.name,
+        free: item.free,
+        price: item.price,
+        currencyId: item.currency?.value || baseCurrency,
+      }))
+    );
+    const hasChanges =
+      data.features.length !== flattenFeatures.length ||
+      data.features.some((origItem, i) => {
+        const currentItem = flattenFeatures[i];
+        return (
+          origItem.name !== currentItem.name ||
+          origItem.icon !== currentItem.icon ||
+          origItem.type !== currentItem.type ||
+          origItem.free !== currentItem.free ||
+          origItem.price !== +currentItem.price ||
+          origItem.currencyId !== currentItem.currencyId
+        );
+      });
 
-    onChange(false);
+    onChange(hasChanges);
   }, [features]);
 
   return (
     <>
-      <div className="p-8 space-y-8 border rounded-b bg-light border-dark/30">
-        <div className="flex items-center justify-between">
-          <h2 className="heading">Service & Features</h2>
-          <div className="flex items-center gap-2">
-            {editMode && (
-              <Button onClick={() => setModalFeature(true)} className="flex items-center justify-center gap-2 btn-primary">
-                <FaPlus /> Add New Category
-              </Button>
-            )}
-            <Button className="btn-outline" onClick={() => setEditMode((prev) => !prev)}>
-              {editMode ? (
-                <div className="flex items-center gap-2">
-                  <FaEye size={18} />
-                  Show Mode
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <FaEdit size={18} />
-                  Edit Mode
-                </div>
-              )}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="heading">Service & Features</h2>
+        <div className="flex items-center gap-2">
+          {editMode && (
+            <Button onClick={() => setModalFeature(true)} className="flex items-center justify-center gap-2 btn-primary">
+              <FaPlus /> Add New Category
             </Button>
-          </div>
-        </div>
-        <div className="relative">
-          <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-5"}`}></div>
-
-          {features.map((feature) => (
-            <div key={feature.id} className="p-4 mt-4 border-b border-dark/30">
-              <FeatureHeader
-                feature={feature}
-                onEdit={handleFeatureNameUpdate}
-                onBlur={handleFeatureEdit}
-                onAddItem={addItem}
-                onReset={resetFeature}
-                onDelete={deleteFeature}
-                onIconChange={updateFeatureIcon}
-                setIdIcon={setIdIcon}
-              />
-
-              <div className="space-y-4">
-                {feature.items.map((item) => (
-                  <FeatureItem key={item.id} feature={feature} item={item} currencies={currencies} onUpdateItem={updateItems} onResetItem={resetItem} onDeleteItem={deleteItem} />
-                ))}
+          )}
+          <Button className="btn-outline" onClick={() => setEditMode((prev) => !prev)}>
+            {editMode ? (
+              <div className="flex items-center gap-2">
+                <FaEye size={18} />
+                Show Mode
               </div>
-            </div>
-          ))}
-          <div className={`justify-end gap-4 mt-6 ${editMode ? "flex" : "hidden"}`}>
-            <Button className="btn-primary" onClick={handleSubmitService}>
-              Save
-            </Button>
-          </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <FaEdit size={18} />
+                Edit Mode
+              </div>
+            )}
+          </Button>
         </div>
       </div>
+      <div className="relative">
+        <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-5"}`}></div>
 
+        {features.map((feature) => (
+          <div key={feature.id} className="px-4 py-8 border-b border-dark/30">
+            <FeatureHeader
+              feature={feature}
+              onEdit={handleFeatureNameUpdate}
+              onBlur={handleFeatureEdit}
+              onAddItem={addItem}
+              onReset={resetFeature}
+              onDelete={deleteFeature}
+              onIconChange={updateFeatureIcon}
+              setIdIcon={setIdIcon}
+            />
+
+            <div className="space-y-4">
+              {feature.items.map((item) => (
+                <FeatureItem key={item.id} feature={feature} item={item} currencies={currencies} onUpdateItem={updateItems} onResetItem={resetItem} onDeleteItem={deleteItem} />
+              ))}
+            </div>
+          </div>
+        ))}
+        <div className={`justify-end gap-4 mt-6 ${editMode ? "flex" : "hidden"}`}>
+          <Button className="btn-primary" onClick={handleSubmitService}>
+            Save
+          </Button>
+        </div>
+      </div>
       <CategoryModal isVisible={modalFeature} onClose={() => setModalFeature(false)} otherFeatures={otherFeatures} onAddOtherFeature={addOtherFeature} onAddNewCategory={addFeature} />
     </>
   );

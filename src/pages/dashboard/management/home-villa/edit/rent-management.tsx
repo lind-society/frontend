@@ -107,13 +107,13 @@ export const RentManagement = () => {
   };
 
   return (
-    <div className="p-8 space-y-4 border rounded-b bg-light border-dark/30">
-      <h2 className="heading">Rent Management</h2>
+    <>
+      <h2 className="mb-8 heading">Rent Management</h2>
       <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
-      <div className="pb-2 mb-4 overflow-x-auto scrollbar min-h-600">
+      <div className="pb-2 my-4 overflow-x-auto scrollbar min-h-600">
         <Table bookings={bookings} onEdit={handleEdit} onApprove={handleApprove} onCancel={handleCancel} isLoading={isPending} error={error} />
       </div>
       <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
-    </div>
+    </>
   );
 };

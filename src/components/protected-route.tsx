@@ -1,5 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
+
 import { authentication, useGetApiWithAuth } from "../hooks";
+
 import { Payload, User } from "../types";
 
 export const ProtectedRoute = () => {

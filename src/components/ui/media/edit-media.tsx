@@ -67,29 +67,6 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
     video360s: data.video360s || [],
   });
 
-  React.useEffect(() => {
-    if (!onChange) return;
-
-    const currentAdditionals = formState.additional.flatMap((section) =>
-      section.field
-        .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)
-        .map((field) => ({
-          name: field.name,
-          type: section.title.toLowerCase(),
-          description: field.description,
-          photos: field.photos,
-        }))
-    ) as AdditionalItem[];
-
-    const hasChanges =
-      !arraysEqual(formState.photos, data.photos!) ||
-      !arraysEqual(formState.videos, data.videos!) ||
-      !arraysEqual(formState.video360s, data.video360s!) ||
-      !additionalEqual(currentAdditionals, data.additionals);
-
-    onChange(hasChanges);
-  }, [formState]);
-
   const availableAdditionalTypes = React.useMemo(() => {
     return DEFAULT_SECTION_TITLES.filter((title) => !formState.additional.some((section) => section.title === title));
   }, [formState.additional]);
@@ -188,9 +165,8 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
     if (!window.confirm("Are you sure want to remove this image?")) return;
 
     const targetField = formState.additional[additionalIndex].field.find((item) => item.id === fieldId);
-    if (targetField) {
-      deleteFile({ key: targetField.photos[imgIndex] });
-    }
+
+    if (targetField) deleteFile({ key: targetField.photos[imgIndex] });
 
     updateAdditionalState(
       formState.additional.map((section, sIndex) =>
@@ -235,8 +211,31 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
     }, 200);
   };
 
+  React.useEffect(() => {
+    if (!onChange) return;
+
+    const currentAdditionals = formState.additional.flatMap((section) =>
+      section.field
+        .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)
+        .map((field) => ({
+          name: field.name,
+          type: section.title.toLowerCase(),
+          description: field.description,
+          photos: field.photos,
+        }))
+    ) as AdditionalItem[];
+
+    const hasChanges =
+      !arraysEqual(formState.photos, data.photos!) ||
+      !arraysEqual(formState.videos, data.videos!) ||
+      !arraysEqual(formState.video360s, data.video360s!) ||
+      !additionalEqual(currentAdditionals, data.additionals);
+
+    onChange(hasChanges);
+  }, [formState]);
+
   return (
-    <div className="relative p-8 border rounded-b bg-light border-dark/30">
+    <>
       <Button className="absolute right-8 btn-outline z-3000" onClick={() => setEditMode((prev) => !prev)}>
         {editMode ? (
           <div className="flex items-center gap-2">
@@ -303,6 +302,6 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
           ))}
         </div>
       </Modal>
-    </div>
+    </>
   );
 };

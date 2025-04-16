@@ -49,7 +49,7 @@ export const ServiceFeatures = () => {
   const [modalFeature, setModalFeature] = React.useState<boolean>(false);
   const [idIcon, setIdIcon] = React.useState<string>();
 
-  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
+  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
 
   const otherFeatures = [...mainFeatures, ...optionalFeatures].filter((feature) => !features.some((item) => item.name === feature.name));
 

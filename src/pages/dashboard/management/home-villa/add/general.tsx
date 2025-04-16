@@ -39,7 +39,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { setData, data } = useStore();
 
-  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
+  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
 
   const [formState, setFormState] = React.useState<FormState>({
@@ -170,7 +170,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
   }, [currencies, owners]);
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/30">
+    <>
       <h2 className="heading">General</h2>
       <form className="mt-6 space-y-8">
         <FormField label="Property name" required>
@@ -274,6 +274,6 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
           />
         </FormField>
       </form>
-    </div>
+    </>
   );
 };

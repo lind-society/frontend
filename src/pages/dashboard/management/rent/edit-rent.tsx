@@ -30,7 +30,7 @@ export const EditRentPage = () => {
   const [currency, setCurrency] = React.useState<OptionType | null>(null);
 
   const { data: respBooking } = useGetApi<Payload<Booking>>({ key: ["get-booking", id], url: `bookings/${id}` });
-  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: `currencies` });
+  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
   const { data: phoneCodes } = useGetApi({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
 
   const { mutate: editBooking } = useUpdateApi({ key: ["edit-booking"], url: "bookings", redirectPath: `/dashboard/management/rent/edit/${id}` });

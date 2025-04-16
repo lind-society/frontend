@@ -108,7 +108,7 @@ export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChang
   };
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/30">
+    <>
       <h2 className="heading">Location</h2>
       <div className="mt-6 space-y-6">
         <LocationSelector
@@ -172,6 +172,6 @@ export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChang
           ))}
         </div>
       </div>
-    </div>
+    </>
   );
 };

@@ -119,22 +119,18 @@ export const AddKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, o
 
   return (
     <>
-      <div className="p-8 space-y-8 border rounded-b bg-light border-dark/30">
-        <div className="flex items-center justify-between">
-          <h2 className="heading">Key Features</h2>
-          {availableFacilities?.length! > 0 && (
-            <Button onClick={() => setModalVisible(true)} className="flex items-center gap-2 btn-primary">
-              <FaPlus /> Add Key Features
-            </Button>
-          )}
-        </div>
-
-        {facilities.map((facility) => (
-          <FacilityItem key={facility.id} facility={facility} onUpdateField={updateFacilityField} onUpdateIcon={updateFacilityIcon} onReset={resetFacility} onDelete={deleteFacility} />
-        ))}
-
-        {/* Save button removed as per requirements */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="heading">Key Features</h2>
+        {availableFacilities?.length! > 0 && (
+          <Button onClick={() => setModalVisible(true)} className="flex items-center gap-2 btn-primary">
+            <FaPlus /> Add Key Features
+          </Button>
+        )}
       </div>
+
+      {facilities.map((facility) => (
+        <FacilityItem key={facility.id} facility={facility} onUpdateField={updateFacilityField} onUpdateIcon={updateFacilityIcon} onReset={resetFacility} onDelete={deleteFacility} />
+      ))}
 
       <AddFacilityModal isVisible={modalVisible} onClose={() => setModalVisible(false)} availableFacilities={availableFacilities || []} onAddFacility={addFacility} />
     </>
