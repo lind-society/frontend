@@ -59,48 +59,38 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
 
   const [formState, setFormState] = React.useState<FormStateType>(initialFormState);
 
-  const [isFormComplete, setIsFormComplete] = React.useState(false);
-
   const [modalAdditional, setModalAdditional] = React.useState<boolean>(false);
 
   const availableAdditionalTypes = React.useMemo(() => {
     return DEFAULT_SECTION_TITLES.filter((title) => !formState.additional.some((section) => section.title === title));
   }, [formState.additional]);
 
-  const saveData = () => {
-    const formattedData = {
-      additionals: formState.additional.flatMap((section) =>
-        section.field
-          .filter((field) => field.name !== "" || field.description !== "" || field.photos.length > 0)
-          .map((field) => ({
-            name: field.name || section.title,
-            type: section.title.toLowerCase(),
-            description: field.description || "No description",
-            photos: field.photos.length ? field.photos : [],
-          }))
-      ) as AdditionalItem[],
-      photos: formState.photos.filter((photo) => photo !== ""),
-      videos: formState.videos.filter((video) => video !== ""),
-      video360s: formState.video360s.filter((video360) => video360 !== ""),
-    };
-
-    setData(formattedData);
-  };
-
   React.useEffect(() => {
     if (!onChange) return;
 
     const isComplete = formState.additional.length > 0 && formState.photos.length > 0 && formState.videos.length > 0 && formState.video360s.length > 0;
 
-    onChange(isComplete);
-    setIsFormComplete(isComplete);
-  }, [formState]);
+    if (isComplete) {
+      const dataToSave = {
+        additionals: formState.additional.flatMap((section) =>
+          section.field
+            .filter((field) => field.name !== "" || field.description !== "" || field.photos.length > 0)
+            .map((field) => ({
+              name: field.name || section.title,
+              type: section.title.toLowerCase(),
+              description: field.description || "No description",
+              photos: field.photos.length ? field.photos : [],
+            }))
+        ) as AdditionalItem[],
+        photos: formState.photos.filter((photo) => photo !== ""),
+        videos: formState.videos.filter((video) => video !== ""),
+        video360s: formState.video360s.filter((video360) => video360 !== ""),
+      };
 
-  React.useEffect(() => {
-    if (isFormComplete) {
-      saveData();
+      setData(dataToSave);
+      onChange(false);
     }
-  }, [isFormComplete]);
+  }, [formState]);
 
   const updateFormState = (updates: Partial<FormStateType>) => {
     setFormState((prev) => {

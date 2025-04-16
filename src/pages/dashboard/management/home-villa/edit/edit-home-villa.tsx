@@ -4,7 +4,7 @@ import { useLocation, useParams } from "react-router-dom";
 
 import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
 
-import { EditKeyFeatures, EditLocation, EditMedia, Layout } from "../../../../../components/ui";
+import { EditKeyFeatures, EditLocation, EditMedia, EditServiceFeatures, Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
 import { FaDownload } from "react-icons/fa";
@@ -12,8 +12,6 @@ import { FaDownload } from "react-icons/fa";
 import { General } from "./general";
 import { VillaPolicies } from "./villa-policies";
 import { RentManagement } from "./rent-management";
-
-import { ServiceFeatures } from "./service-features";
 
 import { Payload, Villa } from "../../../../../types";
 
@@ -197,7 +195,15 @@ export const EditHomeVillaPage = () => {
                 }}
               />
             )}
-            {activeTab === "Service & Features" && <ServiceFeatures />}
+            {activeTab === "Service & Features" && (
+              <EditServiceFeatures
+                persistedDataKey="get-villa"
+                editDataKey="edit-villa"
+                onChange={(hasChanges: boolean) => {
+                  setHasUnsavedChanges(hasChanges);
+                }}
+              />
+            )}
             {activeTab === "Villa Policies" && (
               <VillaPolicies
                 onChange={(hasChanges: boolean) => {

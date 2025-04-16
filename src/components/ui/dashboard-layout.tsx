@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useGetApiWithAuth } from "../../hooks";
+import { useGetApiWithAuth, useMediaQuery } from "../../hooks";
 
 import { Toaster } from "react-hot-toast";
 
@@ -17,6 +17,8 @@ interface UserData {
 }
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
+  const isTabletMid = useMediaQuery("(max-width: 1024px)");
+
   const [openNav, setOpenNav] = React.useState<boolean>(true);
 
   const { data } = useGetApiWithAuth<Payload<UserData>>({ key: ["profile"], url: `admins/profile` });
@@ -31,6 +33,11 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       transition: { damping: 40, delay: 0.15 },
     },
   };
+
+  React.useEffect(() => {
+    if (isTabletMid) setOpenNav(false);
+    else setOpenNav(true);
+  }, [isTabletMid]);
 
   return (
     <div className="relative flex bg-light">

@@ -77,7 +77,7 @@ export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChang
         city: selectedCity?.label,
         placeNearby: formState.placeNearby,
       };
-      onChange(true);
+      onChange(false);
       setData(dataToSave);
     }
   }, [formState, selectedCity, selectedCountry, selectedProvince]);

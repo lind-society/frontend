@@ -129,7 +129,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     const isComplete = requiredFields.every((field) => !!field) && requiredObjects.every((obj) => !!obj) && isPriceValid && hasValidMinRentTimes;
 
     if (isComplete) {
-      const formattedData = {
+      const dataToSave = {
         name: formState.name,
         secondaryName: formState.secondaryName,
         highlight: formState.highlight,
@@ -153,7 +153,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       };
 
       onChange(false);
-      setData(formattedData);
+      setData(dataToSave);
     }
   }, [formState]);
 

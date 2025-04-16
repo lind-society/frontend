@@ -59,16 +59,14 @@ export const EditServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKe
     setFeatures((prevFeatures) => prevFeatures.map((feature) => (feature.id === idIcon ? { ...feature, icon: { url, key: key ?? "" } } : feature)));
   };
 
-  const handleFeatureNameUpdate = (featureId: string, name: string, finishEditing = false) => {
+  const handleFeatureNameUpdate = (featureId: string, name: string) => {
+    setFeatures((prevFeatures) => prevFeatures.map((feature) => (feature.id === featureId ? { ...feature, name } : feature)));
+  };
+
+  const handleFeatureEdit = (featureId: string, action: "toggle" | "finish") => {
     setFeatures((prevFeatures) =>
       prevFeatures.map((feature) =>
-        feature.id === featureId
-          ? {
-              ...feature,
-              name: name,
-              isEditing: finishEditing ? (name !== "" ? false : true) : !feature.isEditing,
-            }
-          : feature
+        feature.id === featureId ? (action === "toggle" ? { ...feature, isEditing: !feature.isEditing } : feature.name !== "" ? { ...feature, isEditing: false } : feature) : feature
       )
     );
   };
@@ -204,7 +202,7 @@ export const EditServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKe
   };
 
   React.useEffect(() => {
-    if (!onChange) return;
+    if (!onChange || !data.features) return;
 
     onChange(false);
   }, [features]);
@@ -243,6 +241,7 @@ export const EditServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKe
               <FeatureHeader
                 feature={feature}
                 onEdit={handleFeatureNameUpdate}
+                onBlur={handleFeatureEdit}
                 onAddItem={addItem}
                 onReset={resetFeature}
                 onDelete={deleteFeature}
@@ -257,7 +256,7 @@ export const EditServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKe
               </div>
             </div>
           ))}
-          <div className={`justify-end gap-4 ${editMode ? "flex" : "hidden"}`}>
+          <div className={`justify-end gap-4 mt-6 ${editMode ? "flex" : "hidden"}`}>
             <Button className="btn-primary" onClick={handleSubmitService}>
               Save
             </Button>

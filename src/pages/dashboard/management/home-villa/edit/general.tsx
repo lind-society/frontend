@@ -199,7 +199,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
     e.preventDefault();
-    const formattedData = {
+    const dataToSave = {
       name: formState.name,
       secondaryName: formState.secondaryName,
       highlight: formState.highlight,
@@ -222,7 +222,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       checkInHour: "12:00",
     };
 
-    setData(formattedData);
+    setData(dataToSave);
 
     ToastMessage({ message: "Success saving edit general...", color: "#22c55e" });
 
