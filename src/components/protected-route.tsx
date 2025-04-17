@@ -2,8 +2,6 @@ import { Navigate, Outlet } from "react-router-dom";
 
 import { authentication, useGetApiWithAuth } from "../hooks";
 
-import { Payload, User } from "../types";
-
 export const ProtectedRoute = () => {
   const isAuthenticated = authentication.isAuthenticated();
 
@@ -11,7 +9,7 @@ export const ProtectedRoute = () => {
 
   if (!isAuthenticated) return <Navigate to="/admin/login" />;
 
-  const { data, isLoading } = useGetApiWithAuth<Payload<User>>({ key: ["profile"], url: `admins/profile` });
+  const { isLoading, isError } = useGetApiWithAuth({ key: ["profile"], url: `admins/profile` });
 
   if (isLoading) {
     return (
@@ -21,13 +19,11 @@ export const ProtectedRoute = () => {
     );
   }
 
-  const identifierMatcher = data?.data.email === identifier || data?.data.name === identifier || data?.data.username === identifier;
-
-  if (identifierMatcher) {
-    return <Outlet />;
-  } else {
+  if (isError && identifier !== "") {
     localStorage.clear();
     sessionStorage.clear();
     return <Navigate to="/admin/login" />;
   }
+
+  return <Outlet />;
 };

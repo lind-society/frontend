@@ -31,7 +31,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
   const { data: dataBeforeEdit } = useStore();
   const { setData, data: dataAfterEdit } = useEdit();
 
-  const { uploadFile } = useUploads<Payload<FileData>>();
+  const { uploadFile, isLoading } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi({ url: "storages", key: [type] });
 
   const data = React.useMemo(() => {
@@ -278,6 +278,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
                 onFieldReset={(e, fieldId) => resetField(e, additionalIndex, fieldId)}
                 onRemoveImage={(fieldId, imgIndex) => removeImage(additionalIndex, fieldId, imgIndex)}
                 onUpdateImage={(e, fieldId) => handleFileInputChange(e, additionalIndex, fieldId)}
+                isLoading={isLoading}
               />
             ))}
           </div>

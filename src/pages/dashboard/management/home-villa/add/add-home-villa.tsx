@@ -1,15 +1,21 @@
 import * as React from "react";
+
 import { useLocation } from "react-router-dom";
+
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
+
 import { Layout, AddMedia, AddLocation, AddKeyFeatures, AddServiceFeatures } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 import { General } from "./general";
 import { VillaPolicies } from "./villa-policies";
+
 import { FaDownload } from "react-icons/fa";
+import { GrLinkNext } from "react-icons/gr";
+
 import { deleteKeysObject } from "../../../../../utils";
+
 import { Villa } from "../../../../../types";
 
-// Define a type for tab names to ensure type safety
 type TabName = "General" | "Media" | "Location" | "Key Features" | "Service & Features" | "Villa Policies";
 
 const tabs: TabName[] = ["General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies"];
@@ -25,7 +31,6 @@ export const AddHomeVillaPage = () => {
     return (storedTab as TabName) || "General";
   });
 
-  // Track validation state for each tab separately with proper typing
   const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>({
     General: true,
     Media: true,
@@ -36,12 +41,10 @@ export const AddHomeVillaPage = () => {
   });
 
   React.useEffect(() => {
-    // Set active tab in session storage when on the add villa page
     if (pathname === "/dashboard/management/home-villa/add") {
       sessionStorage.setItem("activeTab", activeTab);
     }
 
-    // Cleanup function that runs when component unmounts or dependencies change
     return () => {
       sessionStorage.removeItem("activeTab");
     };
@@ -75,8 +78,16 @@ export const AddHomeVillaPage = () => {
         return;
       }
       setActiveTab(tab);
-    } else {
-      alert("Please complete each section in order.");
+      return;
+    }
+
+    if (targetTabIndex >= currentTabIndex) {
+      if (tabValidationState[activeTab]) {
+        alert("Please complete each section in order.");
+        return;
+      }
+      setActiveTab(tab);
+      return;
     }
   };
 
@@ -129,8 +140,8 @@ export const AddHomeVillaPage = () => {
             />
             {!tabValidationState["General"] && (
               <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="btn-primary">
-                  Next
+                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                  Next <GrLinkNext />
                 </Button>
               </div>
             )}
@@ -145,6 +156,13 @@ export const AddHomeVillaPage = () => {
                 updateTabValidation("Media", hasChanges);
               }}
             />
+            {!tabValidationState["Media"] && (
+              <div className="flex justify-end mt-4">
+                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                  Next <GrLinkNext />
+                </Button>
+              </div>
+            )}
           </>
         )}
         {activeTab === "Location" && (
@@ -155,6 +173,13 @@ export const AddHomeVillaPage = () => {
                 updateTabValidation("Location", hasChanges);
               }}
             />
+            {!tabValidationState["Location"] && (
+              <div className="flex justify-end mt-4">
+                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                  Next <GrLinkNext />
+                </Button>
+              </div>
+            )}
           </>
         )}
         {activeTab === "Key Features" && (
@@ -165,6 +190,13 @@ export const AddHomeVillaPage = () => {
                 updateTabValidation("Key Features", hasChanges);
               }}
             />
+            {!tabValidationState["Key Features"] && (
+              <div className="flex justify-end mt-4">
+                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                  Next <GrLinkNext />
+                </Button>
+              </div>
+            )}
           </>
         )}
         {activeTab === "Service & Features" && (
@@ -175,6 +207,13 @@ export const AddHomeVillaPage = () => {
                 updateTabValidation("Service & Features", hasChanges);
               }}
             />
+            {!tabValidationState["Service & Features"] && (
+              <div className="flex justify-end mt-4">
+                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                  Next <GrLinkNext />
+                </Button>
+              </div>
+            )}
           </>
         )}
         {activeTab === "Villa Policies" && (

@@ -17,6 +17,7 @@ export const SectionField = ({
   onReset,
   onDelete,
   canDelete,
+  isLoading,
 }: {
   field: Field;
   sectionTitle: string;
@@ -28,6 +29,7 @@ export const SectionField = ({
   onAdd: (e: React.MouseEvent) => void;
   onDelete: (e: React.MouseEvent) => void;
   canDelete: boolean;
+  isLoading: boolean;
 }) => {
   return (
     <div className="space-y-2">
@@ -43,7 +45,7 @@ export const SectionField = ({
         <div className="relative">
           <input type="file" id={field.id} onChange={onUpdateImage} hidden accept="image/*" multiple />
           <label htmlFor={field.id} className="file-label">
-            <FaUpload /> Browse
+            <FaUpload /> {isLoading ? "Waiting..." : "Browse"}
           </label>
         </div>
         <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>

@@ -3,16 +3,11 @@ import { AdditionalItem, Facilities, Features, Icon, PlaceNearby } from "./globa
 import { Owner } from "./owner";
 import { Review } from "./review";
 
-interface AvailabilityPerPrice {
-  quota: number;
-  availability: string;
-}
-
 interface Policy {
   pivotId: string;
   id: string;
   name: string;
-  type: string;
+  typeId: string;
   description: string;
   icon: Icon;
   createdAt: string;
@@ -23,7 +18,11 @@ export interface Villa {
   id: string;
   name: string;
   secondaryName: string;
-  availability: string[];
+  availability: {
+    daily: boolean;
+    monthly: boolean;
+    yearly: boolean;
+  };
   priceDaily: number;
   priceMonthly: number;
   priceYearly: number;
@@ -36,7 +35,8 @@ export interface Villa {
   priceDailyAfterDiscount: number;
   priceMonthlyAfterDiscount: number;
   priceYearlyAfterDiscount: number;
-  availabilityPerPrice: AvailabilityPerPrice[];
+  availabilityQuotaPerMonth: number;
+  availabilityQuotaPerYear: number;
   highlight: string;
   address: string;
   country: string;

@@ -1,7 +1,7 @@
 // src/services/authService.ts
 import axios from "axios";
 import Cookies from "universal-cookie";
-import { keepPreviousData, QueryKey, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryKey, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { baseApiURL } from "../static";
 import { Payload } from "../types";
 
@@ -106,6 +106,5 @@ export const useGetApiWithAuth = <T>({ key, url, params }: { key: QueryKey; url:
     gcTime: 300000,
     staleTime: 60000,
     enabled: true,
-    placeholderData: keepPreviousData,
   });
 };

@@ -30,7 +30,7 @@ export const FacilityItem: React.FC<FacilityItemProps> = ({ facility, onUpdateFi
 
       <div className="w-full space-y-1 ms-2">
         <label className="block text-sm">Title *</label>
-        <input type="text" placeholder="Title" className="input-text" value={facility.name} onChange={(e) => onUpdateField(facility.id, "name", e.target.value)} />
+        <input type="text" placeholder="Title" className="input-text" value={facility.name} onChange={(e) => onUpdateField(facility.id, "name", e.target.value)} readOnly />
       </div>
 
       <div className="space-y-0.5 mx-8">

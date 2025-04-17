@@ -4,6 +4,8 @@ import { usePersistentData } from "../../../../../hooks";
 
 import { SectionPolicy } from "../../../../../components";
 
+import { baseCancellationTerms, baseHouseRules, basePaymentTerms } from "../../../../../static";
+
 import { Villa } from "../../../../../types";
 
 interface Policies {
@@ -23,25 +25,13 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
   const { setData, data } = useStore();
 
   const defaultHouseRules =
-    data.policies
-      ?.filter((policy) => policy.type === "house rules")
-      .map((policy) => ({
-        id: crypto.randomUUID(),
-        icon: policy.icon,
-        title: policy.name,
-        value: policy.description,
-      })) ||
-    houseRulesLists.map((title) => ({
-      id: crypto.randomUUID(),
-      icon: { key: "", url: "" },
-      title,
-      value: "",
-    }));
+    data.policies?.filter((policy) => policy.typeId === baseHouseRules).map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) ||
+    houseRulesLists.map((title) => ({ id: crypto.randomUUID(), icon: { key: "key", url: "url" }, title, value: "" }));
 
   const defaultPaymentTerms =
-    data.policies?.filter((policy) => policy.type === "payment terms").map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) || [];
+    data.policies?.filter((policy) => policy.typeId === basePaymentTerms).map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) || [];
   const defaultCancellationTerms =
-    data.policies?.filter((policy) => policy.type === "cancellation terms").map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) || [];
+    data.policies?.filter((policy) => policy.typeId === baseCancellationTerms).map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) || [];
 
   const [houseRules, setHouseRules] = React.useState<Policies[]>(defaultHouseRules);
   const [paymentTerms, setPaymentTerms] = React.useState<Policies[]>(defaultPaymentTerms);
@@ -73,19 +63,19 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
         policies: [
           ...houseRules.map((rule) => ({
             name: rule.title,
-            type: "house rules",
+            typeId: baseHouseRules,
             description: rule.value,
             icon: { key: "key", url: "url" },
           })),
           ...cancellationTerms.map((rule) => ({
             name: rule.title,
-            type: "cancellation terms",
+            typeId: baseCancellationTerms,
             description: rule.value,
             icon: { key: "key", url: "url" },
           })),
           ...paymentTerms.map((term) => ({
             name: term.title,
-            type: "payment terms",
+            typeId: basePaymentTerms,
             description: term.value,
             icon: { key: "key", url: "url" },
           })),

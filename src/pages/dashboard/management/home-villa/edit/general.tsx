@@ -16,14 +16,16 @@ interface FormState {
   name: string;
   secondaryName: string;
   highlight: string;
-  availability: Record<AvailabilityType, boolean>;
+  availability: {
+    daily: boolean;
+    monthly: boolean;
+    yearly: boolean;
+  };
   price: Record<AvailabilityType, string>;
   discount: Record<AvailabilityType, string>;
   currency: OptionType | null;
-  availabilityPerPrice: {
-    monthly: string;
-    yearly: string;
-  };
+  availabilityQuotaPerMonth: string;
+  availabilityQuotaPerYear: string;
   owner: OptionType | null;
 }
 
@@ -64,14 +66,17 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     dataAfterEdit.secondaryName ||
     dataAfterEdit.currencyId ||
     dataAfterEdit.ownerId ||
-    dataAfterEdit.availability ||
+    dataAfterEdit.availability?.daily ||
+    dataAfterEdit.availability?.monthly ||
+    dataAfterEdit.availability?.yearly ||
     dataAfterEdit.priceDaily ||
     dataAfterEdit.priceMonthly ||
     dataAfterEdit.priceYearly ||
     dataAfterEdit.discountDaily ||
     dataAfterEdit.discountMonthly ||
     dataAfterEdit.discountYearly ||
-    dataAfterEdit.availabilityPerPrice;
+    dataAfterEdit.availabilityQuotaPerMonth ||
+    dataAfterEdit.availabilityQuotaPerYear;
 
   const data = React.useMemo(() => {
     return dataCondition ? dataAfterEdit : dataBeforeEdit;
@@ -84,25 +89,23 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     secondaryName: data.secondaryName || "",
     highlight: data.highlight || "",
     availability: {
-      daily: data.availability?.includes("daily") || true,
-      monthly: data.availability?.includes("monthly") || false,
-      yearly: data.availability?.includes("yearly") || false,
+      daily: data.availability?.daily || true,
+      monthly: data.availability?.monthly || false,
+      yearly: data.availability?.yearly || false,
     },
     price: {
-      daily: String(data.priceDaily) || "",
-      monthly: String(data.priceMonthly) || "",
-      yearly: String(data.priceYearly) || "",
+      daily: String(data.priceDaily || ""),
+      monthly: String(data.priceMonthly || ""),
+      yearly: String(data.priceYearly || ""),
     },
     discount: {
-      daily: String(data.discountDaily) || "",
-      monthly: String(data.discountMonthly) || "",
-      yearly: String(data.discountYearly) || "",
+      daily: String(data.discountDaily || ""),
+      monthly: String(data.discountMonthly || ""),
+      yearly: String(data.discountYearly || ""),
     },
     currency: null,
-    availabilityPerPrice: {
-      monthly: String(data.availabilityPerPrice?.find((item) => item.availability === "monthly")?.quota) || "",
-      yearly: String(data.availabilityPerPrice?.find((item) => item.availability === "yearly")?.quota) || "",
-    },
+    availabilityQuotaPerMonth: String(data.availabilityQuotaPerMonth || ""),
+    availabilityQuotaPerYear: String(data.availabilityQuotaPerYear || ""),
     owner: null,
   });
 
@@ -113,19 +116,6 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     const findCurrency = currencies?.data.data.find((c) => c.id === data.currencyId);
     const findOwner = owners?.data.data.find((o) => o.id === data.ownerId);
 
-    const monthlyExists = data.availabilityPerPrice?.some((item) => String(item.quota) === formState.availabilityPerPrice.monthly);
-    const yearlyExists = data.availabilityPerPrice?.some((item) => String(item.quota) === formState.availabilityPerPrice.yearly);
-
-    const availabilityPerPriceEqual = monthlyExists && yearlyExists;
-
-    const availabilityFromData: Record<AvailabilityType, boolean> = {
-      daily: data.availability?.includes("daily") || true,
-      monthly: data.availability?.includes("monthly") || false,
-      yearly: data.availability?.includes("yearly") || false,
-    };
-
-    const availabilityEqual = JSON.stringify(formState.availability) === JSON.stringify(availabilityFromData);
-
     const hasChanges =
       !arraysEqual(formState.name, data.name || "") ||
       !arraysEqual(formState.secondaryName, data.secondaryName || "") ||
@@ -135,10 +125,15 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       !arraysEqual(formState.discount.daily, String(data.discountDaily || "")) ||
       !arraysEqual(formState.discount.monthly, String(data.discountMonthly || "")) ||
       !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||
-      !arraysEqual(formState.currency?.value || "", String(findCurrency?.id)) ||
-      !arraysEqual(formState.owner?.value || "", String(findOwner?.id)) ||
-      !availabilityEqual ||
-      !availabilityPerPriceEqual;
+      !arraysEqual(formState.currency?.value || "", String(findCurrency?.id || "")) ||
+      !arraysEqual(formState.owner?.value || "", String(findOwner?.id || "")) ||
+      !arraysEqual(formState.owner?.value || "", String(findOwner?.id || "")) ||
+      !arraysEqual(formState.availabilityQuotaPerMonth, String(data.availabilityQuotaPerMonth || "")) ||
+      !arraysEqual(formState.availabilityQuotaPerYear, String(data.availabilityQuotaPerYear || "")) ||
+      !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||
+      !(formState.availability.daily === data.availability?.daily) ||
+      !(formState.availability.monthly === data.availability?.monthly) ||
+      !(formState.availability.yearly === data.availability?.yearly);
 
     onChange(hasChanges);
   }, [formState]);
@@ -157,40 +152,39 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     }
   }, [currencies, owners]);
 
-  const updateFormState = (field: string, value: any) => {
+  const updateFormState = (field: keyof Villa, value: string | OptionType | null) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
-  const updateNestedState = <T extends keyof FormState>(parent: T, key: string, value: any) => {
-    setFormState((prev) => {
-      const parentObj = prev[parent];
-      const updatedParentObj = typeof parentObj === "object" && parentObj !== null ? { ...(parentObj as object), [key]: value } : { [key]: value };
-
-      return { ...prev, [parent]: updatedParentObj };
-    });
+  const updateNestedField = (category: "price" | "availability" | "discount", field: AvailabilityType, value: string | boolean) => {
+    setFormState((prev) => ({
+      ...prev,
+      [category]: {
+        ...prev[category],
+        [field]: value,
+      },
+    }));
   };
 
   const handleAvailabilityChange = (type: AvailabilityType) => {
-    const isOnlyEnabledType = Object.entries(formState.availability)
-      .filter(([key]) => key !== type)
-      .every(([_, isEnabled]) => !isEnabled);
+    const { availability } = formState;
+    const isCurrentEnabled = availability[type];
 
-    if (isOnlyEnabledType && formState.availability[type]) {
-      alert("At least one availability type must be selected");
-      return;
-    }
+    const otherEnabled = Object.entries(availability).some(([key, value]) => key !== type && value);
 
-    updateNestedState("availability", type, !formState.availability[type]);
+    if (!otherEnabled && isCurrentEnabled) return;
+
+    updateNestedField("availability", type, !formState.availability[type]);
   };
 
   const handlePriceChange = (type: AvailabilityType, value: string) => {
     if (+value > 999999999999999 || +value < 0) return;
-    updateNestedState("price", type, value);
+    updateNestedField("price", type, value);
   };
 
   const handleDiscountChange = (type: AvailabilityType, value: string) => {
     if (+value > 100 || +value < 0) return;
-    updateNestedState("discount", type, value);
+    updateNestedField("discount", type, value);
   };
 
   const calculateDiscountedPrice = (type: AvailabilityType) => {
@@ -207,13 +201,9 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       highlight: formState.highlight,
       currencyId: formState.currency?.value || "",
       ownerId: formState.owner?.value || "",
-      availabilityPerPrice: [
-        { quota: formState.availability.monthly ? +formState.availabilityPerPrice.monthly : 0, availability: "monthly" },
-        { quota: formState.availability.yearly ? +formState.availabilityPerPrice.yearly : 0, availability: "yearly" },
-      ],
-      availability: Object.entries(formState.availability)
-        .filter(([_, isEnabled]) => isEnabled)
-        .map(([type]) => type) as string[],
+      availabilityQuotaPerMonth: formState.availability.monthly ? +formState.availabilityQuotaPerMonth : 0,
+      availabilityQuotaPerYear: formState.availability.yearly ? +formState.availabilityQuotaPerYear : 0,
+      availability: formState.availability,
       priceDaily: formState.availability.daily ? +formState.price.daily : 0,
       priceMonthly: formState.availability.monthly ? +formState.price.monthly : 0,
       priceYearly: formState.availability.yearly ? +formState.price.yearly : 0,
@@ -323,7 +313,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
 
         {formState.availability["monthly"] && (
           <FormField label="Minimum rent time (Monthly)" required>
-            <select onChange={(e) => updateNestedState("availabilityPerPrice", "monthly", e.target.value)} value={formState.availabilityPerPrice.monthly} className="w-full input-select">
+            <select onChange={(e) => updateFormState("availabilityQuotaPerMonth", e.target.value)} value={formState.availabilityQuotaPerMonth} className="w-full input-select">
               {[...Array(12)].map((_, index) => (
                 <option key={index} value={index + 1}>
                   {index + 1}
@@ -335,7 +325,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
 
         {formState.availability["yearly"] && (
           <FormField label="Minimum rent time (Yearly)" required>
-            <select onChange={(e) => updateNestedState("availabilityPerPrice", "yearly", e.target.value)} value={formState.availabilityPerPrice.yearly} className="w-full input-select">
+            <select onChange={(e) => updateFormState("availabilityQuotaPerYear", e.target.value)} value={formState.availabilityQuotaPerYear} className="w-full input-select">
               {[...Array(10)].map((_, index) => (
                 <option key={index} value={index + 1}>
                   {index + 1}

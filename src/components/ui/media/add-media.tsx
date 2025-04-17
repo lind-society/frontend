@@ -28,7 +28,7 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
   const useStore = usePersistentData<MediaPersistedType>(persistedDataKey);
   const { setData, data } = useStore();
 
-  const { uploadFile } = useUploads<Payload<FileData>>();
+  const { uploadFile, isLoading } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi({ url: "storages", key: ["photoAdditional"] });
 
   const defaultAdditional: Section[] = React.useMemo(() => {
@@ -43,6 +43,7 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
           name: additional.name,
           description: additional.description,
           photos: additional.photos,
+
           photosURLView: [],
         });
         return acc;
@@ -238,6 +239,7 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
                 onFieldReset={(e, fieldId) => resetField(e, additionalIndex, fieldId)}
                 onRemoveImage={(fieldId, imgIndex) => removeImage(additionalIndex, fieldId, imgIndex)}
                 onUpdateImage={(e, fieldId) => updateImage(e, additionalIndex, fieldId)}
+                isLoading={isLoading}
               />
             ))}
           </div>

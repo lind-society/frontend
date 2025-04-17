@@ -3,7 +3,6 @@ import { Field, Section } from "./types";
 
 export const DEFAULT_SECTION_TITLES = ["Bedrooms", "Outdoor Areas", "Indoor Areas", "More Pictures"];
 
-// Helper functions to create empty field
 export const createEmptyField = (): Field => ({
   id: crypto.randomUUID(),
   name: "",
@@ -12,7 +11,6 @@ export const createEmptyField = (): Field => ({
   photosURLView: [],
 });
 
-// Helper functions to initials section
 export const createInitialSections = (titles: string[]): Section[] => {
   return titles.map((title) => ({
     title,
@@ -20,7 +18,6 @@ export const createInitialSections = (titles: string[]): Section[] => {
   }));
 };
 
-// Helper function to compare arrays
 export const arraysEqual = (a: string[], b: string[]) => {
   if (a === b) return true;
   if (a === null || b === null) return false;
@@ -32,7 +29,6 @@ export const arraysEqual = (a: string[], b: string[]) => {
   return true;
 };
 
-// Helper to compare additional sections (simplified comparison)
 export const additionalEqual = (a: AdditionalItem[] = [], b: AdditionalItem[] = []) => {
   if (a.length !== b.length) return false;
 

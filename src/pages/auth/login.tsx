@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 import { Navigate } from "react-router-dom";
 
-import { authentication } from "../../hooks";
+import { authentication, useGetApiWithAuth } from "../../hooks";
 
 import { Background } from "../../components";
 
@@ -47,9 +47,9 @@ export const LoginPage = () => {
     }
   };
 
-  const identifier = authentication.getUser();
+  const { isSuccess } = useGetApiWithAuth({ key: ["profile"], url: `admins/profile` });
 
-  if (identifier) {
+  if (isSuccess) {
     return <Navigate to="/dashboard/main" />;
   }
 

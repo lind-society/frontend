@@ -224,7 +224,7 @@ export const EditServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKe
           origItem.icon !== currentItem.icon ||
           origItem.type !== currentItem.type ||
           origItem.free !== currentItem.free ||
-          origItem.price !== +currentItem.price ||
+          +origItem.price !== +currentItem.price ||
           origItem.currencyId !== currentItem.currencyId
         );
       });

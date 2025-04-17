@@ -12,6 +12,7 @@ export const AdditionalSection = ({
   onFieldReset,
   onRemoveImage,
   onUpdateImage,
+  isLoading,
 }: {
   section: Section;
   onFieldAdd: (e: React.MouseEvent) => void;
@@ -20,6 +21,7 @@ export const AdditionalSection = ({
   onFieldReset: (e: React.MouseEvent, fieldId: string) => void;
   onRemoveImage: (fieldId: string, imgIndex: number) => void;
   onUpdateImage: (e: React.ChangeEvent<HTMLInputElement>, fieldId: string) => void;
+  isLoading: boolean;
 }) => {
   return (
     <div className="space-y-2">
@@ -38,6 +40,7 @@ export const AdditionalSection = ({
               onReset={(e) => onFieldReset(e, field.id)}
               onDelete={(e) => onFieldDelete(e, field.id)}
               canDelete={section.field.length > 1}
+              isLoading={isLoading}
             />
           </React.Fragment>
         ))}
