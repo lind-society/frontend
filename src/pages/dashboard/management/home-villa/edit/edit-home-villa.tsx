@@ -21,7 +21,6 @@ const tabs = ["Rent Management", "General", "Media", "Location", "Key Features",
 
 export const EditHomeVillaPage = () => {
   const { pathname } = useLocation();
-  // const navigate = useNavigate();
   const { id } = useParams();
 
   const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ url: "villas", key: ["editing-villa"], redirectPath: `/dashboard/management/home-villa/edit/${id}` });
@@ -45,23 +44,24 @@ export const EditHomeVillaPage = () => {
       sessionStorage.setItem("activeTab", activeTab);
     }
 
-    // Cleanup function that runs when component unmounts or dependencies change
     return () => {
       sessionStorage.removeItem("activeTab");
     };
-    // return () => {
-    //   const isLeavingAddPage = pathname === `/dashboard/management/home-villa/edit/${id}` && window.location.pathname !== `/dashboard/management/home-villa/edit/${id}`;
-    //   if (isLeavingAddPage) {
-    //     const confirmLeave = window.confirm("Are you sure you want to move the page before publish your villas?");
-    //     if (confirmLeave) {
-    //       sessionStorage.clear();
-    //       localStorage.clear();
-    //     } else {
-    //       navigate(`/dashboard/management/home-villa/edit/${id}`);
-    //     }
-    //   }
-    // };
   }, [pathname, activeTab]);
+
+  React.useEffect(() => {
+    if (responseVilla) {
+      const { data: responseData } = responseVilla;
+
+      setData({
+        ...responseData,
+        facilities: responseData.facilities.map((facility) => ({
+          id: facility.id,
+          description: facility.description,
+        })) as Villa["facilities"],
+      });
+    }
+  }, [responseVilla]);
 
   const handleNavigateAway = (tab: string) => {
     if (hasUnsavedChanges) {
@@ -72,49 +72,6 @@ export const EditHomeVillaPage = () => {
     }
     setActiveTab(tab);
   };
-
-  React.useEffect(() => {
-    if (responseVilla) {
-      setData({
-        id: responseVilla.data.id,
-        name: responseVilla.data.name,
-        secondaryName: responseVilla.data.secondaryName,
-        availability: responseVilla.data.availability,
-        priceDaily: responseVilla.data.priceDaily,
-        priceMonthly: responseVilla.data.priceMonthly,
-        priceYearly: responseVilla.data.priceYearly,
-        discountDailyType: responseVilla.data.discountDailyType,
-        discountMonthlyType: responseVilla.data.discountMonthlyType,
-        discountYearlyType: responseVilla.data.discountYearlyType,
-        discountDaily: responseVilla.data.discountDaily,
-        discountMonthly: responseVilla.data.discountMonthly,
-        discountYearly: responseVilla.data.discountYearly,
-        availabilityQuotaPerMonth: responseVilla.data.availabilityQuotaPerMonth,
-        availabilityQuotaPerYear: responseVilla.data.availabilityQuotaPerYear,
-        highlight: responseVilla.data.highlight,
-        address: responseVilla.data.address,
-        country: responseVilla.data.country,
-        state: responseVilla.data.state,
-        city: responseVilla.data.city,
-        postalCode: responseVilla.data.postalCode,
-        mapLink: responseVilla.data.mapLink,
-        placeNearby: responseVilla.data.placeNearby,
-        checkInHour: responseVilla.data.checkInHour,
-        checkOutHour: responseVilla.data.checkOutHour,
-        photos: responseVilla.data.photos,
-        videos: responseVilla.data.videos,
-        video360s: responseVilla.data.video360s,
-        ownerId: responseVilla.data.ownerId,
-        currencyId: responseVilla.data.currencyId,
-        currency: responseVilla.data.currency,
-        facilities: responseVilla.data.facilities.map((facility) => ({ id: facility.id, description: facility.description })) as Villa["facilities"],
-        features: responseVilla.data.features,
-        policies: responseVilla.data.policies,
-        reviews: responseVilla.data.reviews,
-        additionals: responseVilla.data.additionals,
-      });
-    }
-  }, [responseVilla]);
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();

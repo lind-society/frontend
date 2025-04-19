@@ -11,19 +11,14 @@ import { IoCloseOutline } from "react-icons/io5";
 import { FileData, Payload, UploadPhotoProps } from "../types";
 
 export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFileUrl }: UploadPhotoProps) => {
-  const [loading, setLoading] = React.useState<boolean>(false);
-
-  const { uploadFile } = useUploads<Payload<FileData>>();
+  const { uploadFile, isLoading } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi({ url: "storages", key: [type] });
 
   const handleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoading(true);
     const files = e.target.files ? Array.from(e.target.files) : [];
     const { response } = await uploadFile(files!, folder, type);
 
     const uploadedUrls = response?.data.successFiles.map((file) => file.url) || [];
-
-    setLoading(false);
 
     setFileUrl([...fileUrl, ...uploadedUrls]);
   };
@@ -37,18 +32,18 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
   };
 
   return (
-    <div className={`space-y-4 ${type === "photos" && "!mt-1"}`}>
+    <div className={`space-y-4 ${type === "photos" && "!mt-2"}`}>
       <div className="space-y-4">
         <h2 className="heading">{title}</h2>
         <div className="flex items-center">
           <p className="whitespace-nowrap min-w-60">{description}</p>
           <div className="relative">
-            <input type="file" id={type} onChange={handleFilesChange} hidden accept="video/*,image/*" multiple disabled={loading} />
+            <input type="file" id={type} onChange={handleFilesChange} hidden accept="video/*,image/*" multiple disabled={isLoading} />
             <label htmlFor={type} className="file-label">
-              <FaUpload /> {loading ? "Waiting..." : "Browse"}
+              <FaUpload /> {isLoading ? "Waiting..." : "Browse"}
             </label>
           </div>
-          <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
+          <span className="pl-2 text-sm text-primary whitespace-nowrap">{type === "photos" ? "Max. 2mb" : "Max. 20mb"}</span>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2 2xl:grid-cols-4">

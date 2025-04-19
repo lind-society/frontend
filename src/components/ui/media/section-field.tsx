@@ -6,19 +6,7 @@ import { IoCloseOutline } from "react-icons/io5";
 
 import { Field } from "./types";
 
-export const SectionField = ({
-  field,
-  sectionTitle,
-  onNameChange,
-  onDescriptionChange,
-  onUpdateImage,
-  onRemoveImage,
-  onAdd,
-  onReset,
-  onDelete,
-  canDelete,
-  isLoading,
-}: {
+interface SectionFieldProps {
   field: Field;
   sectionTitle: string;
   onNameChange: (value: string) => void;
@@ -30,7 +18,9 @@ export const SectionField = ({
   onDelete: (e: React.MouseEvent) => void;
   canDelete: boolean;
   isLoading: boolean;
-}) => {
+}
+
+export const SectionField = ({ field, sectionTitle, onNameChange, onDescriptionChange, onUpdateImage, onRemoveImage, onAdd, onReset, onDelete, canDelete, isLoading }: SectionFieldProps) => {
   return (
     <div className="space-y-2">
       <div className="flex items-center">
@@ -43,12 +33,12 @@ export const SectionField = ({
       <div className="flex items-center pt-1">
         <label className="whitespace-nowrap min-w-60">Photo</label>
         <div className="relative">
-          <input type="file" id={field.id} onChange={onUpdateImage} hidden accept="image/*" multiple />
+          <input type="file" id={field.id} onChange={onUpdateImage} hidden accept="image/*" multiple disabled={isLoading} />
           <label htmlFor={field.id} className="file-label">
             <FaUpload /> {isLoading ? "Waiting..." : "Browse"}
           </label>
         </div>
-        <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
+        <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 2mb</span>
       </div>
 
       <div className="grid grid-cols-4 gap-2.5 pt-2">

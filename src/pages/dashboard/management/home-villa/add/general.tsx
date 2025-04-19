@@ -152,8 +152,10 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       const findCurrency = currencies.data.data.find((c) => c.id === data.currencyId);
       const findOwner = owners.data.data.find((o) => o.id === data.ownerId);
 
-      if (findCurrency && findOwner) {
+      if (findCurrency) {
         updateFormState("currency", { label: findCurrency.code, value: findCurrency.id });
+      }
+      if (findOwner) {
         updateFormState("owner", { label: findOwner.name, value: findOwner.id });
       }
     }

@@ -9,7 +9,39 @@ import { Button, NumberInput, ToastMessage } from "../../../../../components";
 import { Currency, Data, OptionType, Owner, Payload, Property } from "../../../../../types";
 import { FaEdit, FaEye } from "react-icons/fa";
 
-export const General = () => {
+interface FormState {
+  name: string;
+  secondaryName: string;
+  highlight: string;
+  price: string;
+  discount: string;
+  ownershipType: string;
+  soldStatus: boolean;
+  currency: OptionType | null;
+  owner: OptionType | null;
+}
+
+const FormField = ({ label, children, required = false }: { label: string; children: React.ReactNode; required?: boolean }) => (
+  <div className="flex items-center">
+    <label className="block whitespace-nowrap min-w-60">
+      {label} {required && "*"}
+    </label>
+    {children}
+  </div>
+);
+
+const arraysEqual = (a: string, b: string) => {
+  if (a === b) return true;
+  if (a === null || b === null) return false;
+  if (a.length !== b.length) return false;
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+};
+
+export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<Property>("get-property");
   const useEdit = usePersistentData<Property>("edit-property");
@@ -19,59 +51,105 @@ export const General = () => {
 
   const dataCondition =
     dataAfterEdit.name || dataAfterEdit.highlight || dataAfterEdit.secondaryName || dataAfterEdit.currencyId || dataAfterEdit.price || dataAfterEdit.soldStatus || dataAfterEdit.ownershipType;
-  const data = dataCondition ? dataAfterEdit : dataBeforeEdit;
+
+  const data = React.useMemo(() => {
+    return dataCondition ? dataAfterEdit : dataBeforeEdit;
+  }, [dataAfterEdit, dataBeforeEdit]);
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
-
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
 
   const [editMode, setEditMode] = React.useState<boolean>(false);
 
-  const [name, setName] = React.useState<string>(data.name || "");
-  const [secondaryName, setSecondaryName] = React.useState<string>(data.secondaryName || "");
-  const [highlight, setHighlight] = React.useState<string>(data.highlight || "");
-  const [price, setPrice] = React.useState<string>(String(data.price) || "");
-  const [discount, setDiscount] = React.useState<string>(String(data.discount) || "");
-  const [ownershipType, setOwnershipType] = React.useState<string>(data.ownershipType || "leasehold");
-  const [soldStatus, setSoldStatus] = React.useState<boolean>(data.soldStatus || false);
-  const [currency, setCurrency] = React.useState<OptionType | null>(null);
-  const [owner, setOwner] = React.useState<OptionType | null>(null);
+  const [formState, setFormState] = React.useState<FormState>({
+    name: data.name || "",
+    secondaryName: data.secondaryName || "",
+    highlight: data.highlight || "",
+    price: String(data.discount || ""),
+    discount: String(data.discount || ""),
+    soldStatus: data.soldStatus || false,
+    ownershipType: data.ownershipType || "Leasehold",
+    currency: null,
+    owner: null,
+  });
+
+  const updateFormState = (field: keyof Property, value: string | boolean | OptionType | null) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePriceChange = (value: string) => {
+    if (+value > 999999999999999 || +value < 0) return;
+    updateFormState("price", value);
+  };
+
+  const handleDiscountChange = (value: string) => {
+    if (+value > 100 || +value < 0) return;
+    updateFormState("discount", value);
+  };
+
+  const calculateDiscountedPrice = () => {
+    const basePrice = +formState.price || 0;
+    const discountPercent = +formState.discount || 0;
+    return basePrice - basePrice * (discountPercent / 100);
+  };
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
     e.preventDefault();
     // Submit general data here
     const formattedData = {
-      name,
-      secondaryName,
-      highlight,
-      currencyId: currency?.value || "",
-      ownerId: owner?.value || "",
-      ownershipType,
-      price: +price || 0,
-      discount: +discount || 0,
-      soldStatus,
+      name: formState.name,
+      secondaryName: formState.secondaryName,
+      highlight: formState.highlight,
+      soldStatus: formState.soldStatus,
+      ownershipType: formState.ownershipType,
+      price: +formState.price,
+      discount: +formState.discount,
+      currencyId: formState.currency?.value || "",
+      ownerId: formState.owner?.value || "",
     };
     setData(formattedData);
-    ToastMessage({ message: "Success saving general", color: "#22c55e" });
+    ToastMessage({ message: "Success saving edit general...", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();
-    }, 500);
+    }, 200);
   };
+
+  // Check if form is complete
+  React.useEffect(() => {
+    if (!onChange) return;
+
+    const findCurrency = currencies?.data.data.find((c) => c.id === data.currencyId);
+    const findOwner = owners?.data.data.find((o) => o.id === data.ownerId);
+
+    const hasChanges =
+      !arraysEqual(formState.name, data.name || "") ||
+      !arraysEqual(formState.secondaryName, data.secondaryName || "") ||
+      !arraysEqual(formState.price, String(data.price || "")) ||
+      !arraysEqual(formState.discount, String(data.discount || "")) ||
+      !arraysEqual(formState.ownershipType, String(data.ownershipType || "")) ||
+      !arraysEqual(formState.currency?.value || "", String(findCurrency?.id || "")) ||
+      !arraysEqual(formState.owner?.value || "", String(findOwner?.id || "")) ||
+      formState.soldStatus !== data.soldStatus;
+
+    onChange(hasChanges);
+  }, [formState]);
 
   React.useEffect(() => {
     if (currencies && owners) {
       const findCurrency = currencies.data.data.find((c) => c.id === data.currencyId);
       const findOwner = owners.data.data.find((o) => o.id === data.ownerId);
 
-      if (findCurrency && findOwner) {
-        setCurrency({ label: findCurrency.code, value: findCurrency.id });
-        setOwner({ label: findOwner.name, value: findOwner.id });
+      if (findCurrency) {
+        updateFormState("currency", { label: findCurrency.code, value: findCurrency.id });
+      }
+      if (findOwner) {
+        updateFormState("owner", { label: findOwner.name, value: findOwner.id });
       }
     }
   }, [currencies, owners]);
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/30">
+    <>
       <div className="flex items-center justify-between">
         <h2 className="heading">General</h2>
         <Button className="btn-outline" onClick={() => setEditMode((prev) => !prev)}>
@@ -90,105 +168,77 @@ export const General = () => {
       </div>
       <form className="relative mt-4 space-y-8" onSubmit={handleSubmitGeneral}>
         <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-5"}`}></div>
-        <div className="flex items-center">
-          <label className="block whitespace-nowrap min-w-60">Property name *</label>
-          <input type="text" className="input-text" placeholder="Urna Santal Property" value={name} onChange={(e) => setName(e.target.value)} required />
-        </div>
-        <div className="flex items-center">
-          <label className="block whitespace-nowrap min-w-60">Secondary property name *</label>
-          <input type="text" className="input-text" placeholder="Urna Cangau" value={secondaryName} onChange={(e) => setSecondaryName(e.target.value)} required />
-        </div>
+        <FormField label="Property name" required>
+          <input type="text" className="input-text" placeholder="Urna Santal Villa" value={formState.name} onChange={(e) => updateFormState("name", e.target.value)} required />
+        </FormField>
 
-        <div className="flex items-center">
-          <label className="block whitespace-nowrap min-w-60">Owner *</label>
+        <FormField label="Secondary property name" required>
+          <input type="text" className="input-text" placeholder="Urna Cangau" value={formState.secondaryName} onChange={(e) => updateFormState("secondaryName", e.target.value)} required />
+        </FormField>
+
+        <FormField label="Owner" required>
           <Select
             className="w-full text-sm"
             options={owners?.data.data.map((owner) => ({ value: owner.id, label: owner.name }))}
-            value={owner}
-            onChange={(option) => setOwner(option)}
+            value={formState.owner}
+            onChange={(option) => updateFormState("owner", option)}
             placeholder="Select Owner"
             required
           />
-        </div>
+        </FormField>
 
-        <div className="flex items-center">
-          <label className="block whitespace-nowrap min-w-60">Currency *</label>
+        <FormField label="Currency" required>
           <Select
             className="w-full text-sm"
             options={currencies?.data.data.map((currency) => ({ value: currency.id, label: currency.code }))}
-            value={currency}
-            onChange={(option) => setCurrency(option)}
+            value={formState.currency}
+            onChange={(option) => updateFormState("currency", option)}
             placeholder="Select Currency"
             required
           />
-        </div>
+        </FormField>
 
-        <div className="flex items-center">
-          <label className="block whitespace-nowrap min-w-60">Price *</label>
+        <FormField label="Price" required>
           <div className="flex items-center w-full gap-4">
-            <NumberInput
-              className="input-text"
-              value={price}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (+value < 0) return;
-                setPrice(value);
-              }}
-              placeholder={currency?.label ? `Enter currency in ${currency?.label}` : "Select currency first"}
-              disabled={!currency}
-              required
-            />
+            <NumberInput className="input-text" value={formState.price} onChange={(e) => handlePriceChange(e.target.value)} placeholder={`Enter price in ${formState.currency?.label}`} required />
 
             <label className="block whitespace-nowrap">Discount</label>
 
-            <NumberInput
-              className="input-text"
-              disabled={!currency}
-              value={discount}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (+value > 100 || +value < 0) return;
-                setDiscount(value);
-              }}
-              placeholder="e.g. 0%"
-            />
+            <NumberInput className="input-text" value={formState.discount} onChange={(e) => handleDiscountChange(e.target.value)} placeholder="e.g. 0%" />
 
             <label className="block whitespace-nowrap">Discounted Price</label>
 
-            <input type="number" className="input-text" value={+price - +price * ((+discount || 0) / 100) || 0} readOnly />
+            <input type="number" className="input-text" value={calculateDiscountedPrice()} readOnly />
           </div>
-        </div>
+        </FormField>
 
-        <div className="flex items-center gap-4">
-          <label className="block whitespace-nowrap min-w-60">Ownership *</label>
-          {(["freehold", "leasehold"] as const).map((ownership, index) => (
-            <div key={index} className="flex items-center gap-2">
+        <FormField label="Ownership" required>
+          {(["Freehold", "Leasehold"] as const).map((ownership, index) => (
+            <div key={index} className="flex items-center gap-2 ms-4">
               <span>{ownership}</span>
-              <input type="checkbox" className="accent-primary" checked={ownershipType.includes(ownership)} onChange={() => setOwnershipType(ownership)} />
+              <input type="checkbox" className="accent-primary" checked={formState.ownershipType.includes(ownership)} onChange={() => updateFormState("ownershipType", ownership)} />
             </div>
           ))}
-        </div>
+        </FormField>
 
-        <div className="flex items-center gap-4">
-          <label className="block whitespace-nowrap min-w-60">Sold Status *</label>
-          {(["Yes", "No"] as const).map((ownership, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <span>{ownership}</span>
-              <input type="checkbox" className="accent-primary" checked={soldStatus === (ownership === "Yes")} onChange={() => setSoldStatus(ownership === "Yes")} />
+        <FormField label="Sold Status" required>
+          {(["Yes", "No"] as const).map((status, index) => (
+            <div key={index} className="flex items-center gap-2 ms-4">
+              <span>{status}</span>
+              <input type="checkbox" className="accent-primary" checked={formState.soldStatus === (status === "Yes")} onChange={() => updateFormState("soldStatus", status === "Yes")} />
             </div>
           ))}
-        </div>
+        </FormField>
 
-        <div className="flex items-center">
-          <label className="block whitespace-nowrap min-w-60">Highlights *</label>
+        <FormField label="Highlights" required>
           <textarea
             className="h-40 input-text"
-            value={highlight}
-            onChange={(e) => setHighlight(e.target.value)}
-            placeholder="The beautiful Uma Santai Property is set in the background of the Kerobokan paddy fields swaying in the tropical wind."
+            value={formState.highlight}
+            onChange={(e) => updateFormState("highlight", e.target.value)}
+            placeholder="The beautiful Uma Santai Villa is set in the background of the Kerobokan paddy fields swaying in the tropical wind."
             required
           />
-        </div>
+        </FormField>
 
         <div className={`justify-end gap-4 ${editMode ? "flex" : "hidden"}`}>
           <Button className="btn-primary" type="submit">
@@ -196,6 +246,6 @@ export const General = () => {
           </Button>
         </div>
       </form>
-    </div>
+    </>
   );
 };

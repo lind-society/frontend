@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import {
   AddBuyPage,
   AddHomeVillaPage,
+  AddPackagePage,
   BuyPage,
   EditBuyPage,
   EditHomeVillaPage,
@@ -50,9 +51,7 @@ const App = () => {
           <Route path="/dashboard/management/rent" element={<RentPage />} />
           <Route path="/dashboard/management/rent/edit/:id" element={<EditRentPage />} />
           <Route path="/dashboard/management/property" element={<PropertyPage />} />
-          {/* 
-          <Route path="/dashboard/management/property/package/add" element={<AddPackagePage />} /> 
-          */}
+          <Route path="/dashboard/management/property/package/add" element={<AddPackagePage />} />
           <Route path="dashboard/customer-reviews" element={<ReviewPage />} />
         </Route>
 

@@ -1,29 +1,26 @@
 import * as React from "react";
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
-import { Layout } from "../../../../../components/ui";
+import { General } from "./general";
+import { AddKeyFeatures, AddLocation, AddMedia, AddServiceFeatures, Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
 import { FaDownload } from "react-icons/fa";
-
-import { General } from "./general";
-import { Media } from "./media";
-import { Location } from "./location";
-import { ServiceFeatures } from "./service-features";
-import { KeyFeatures } from "./key-features";
+import { GrLinkNext } from "react-icons/gr";
 
 import { deleteKeysObject } from "../../../../../utils";
 
 import { Property } from "../../../../../types";
 
-const tabs = ["General", "Media", "Location", "Key Features", "Service & Features"];
+type TabName = "General" | "Media" | "Location" | "Key Features" | "Service & Features";
+
+const tabs: TabName[] = ["General", "Media", "Location", "Key Features", "Service & Features"];
 
 export const AddBuyPage = () => {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
 
   const { mutate: addProperty, isPending } = useCreateApi<Partial<Property>>({ url: "properties", key: ["add-property"], redirectPath: "/dashboard/management/buy" });
 
@@ -31,35 +28,66 @@ export const AddBuyPage = () => {
 
   const { data } = useStore();
 
-  const [activeTab, setActiveTab] = React.useState<string>(() => {
-    return sessionStorage.getItem("activeTab") || "General";
+  const [activeTab, setActiveTab] = React.useState<TabName>(() => {
+    const storedTab = sessionStorage.getItem("activeTab");
+    return (storedTab as TabName) || "General";
+  });
+
+  const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>({
+    General: true,
+    Media: true,
+    Location: true,
+    "Key Features": true,
+    "Service & Features": true,
   });
 
   React.useEffect(() => {
-    // Set active tab in session storage when on the add villa page
+    // Set active tab in session storage when on the add property page
     if (pathname === "/dashboard/management/buy/add") {
       sessionStorage.setItem("activeTab", activeTab);
     }
 
-    // Cleanup function that runs when component unmounts or dependencies change
     return () => {
-      const isLeavingAddPage = pathname === "/dashboard/management/buy/add" && window.location.pathname !== "/dashboard/management/buy/add";
-      if (isLeavingAddPage) {
-        const confirmLeave = window.confirm("Are you sure you want to move the page before publish your property?");
-        if (confirmLeave) {
-          sessionStorage.clear();
-          localStorage.clear();
-        } else {
-          navigate("/dashboard/management/buy/add");
-        }
-      }
+      sessionStorage.removeItem("activeTab");
     };
-  }, [activeTab, pathname, navigate]);
+  }, [activeTab, pathname]);
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
     const processData = deleteKeysObject(data, ["currency"]);
     addProperty(processData);
+  };
+
+  const updateTabValidation = (tab: TabName, hasUnsavedChanges: boolean) => {
+    setTabValidationState((prev) => ({ ...prev, [tab]: hasUnsavedChanges }));
+  };
+
+  const handleNavigateAway = (tab: TabName) => {
+    const currentTabIndex = tabs.indexOf(activeTab);
+    const targetTabIndex = tabs.indexOf(tab);
+
+    if (targetTabIndex < currentTabIndex) {
+      setActiveTab(tab);
+      return;
+    }
+
+    if (targetTabIndex === currentTabIndex) return;
+
+    const allPreviousTabsValid = tabs.slice(0, targetTabIndex).every((tabName) => tabValidationState[tabName] === false);
+
+    if (!allPreviousTabsValid) {
+      alert("Please complete each previous section before continuing.");
+      return;
+    }
+
+    setActiveTab(tab);
+  };
+
+  const goToNextTab = () => {
+    const currentIndex = tabs.indexOf(activeTab);
+    if (currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1]);
+    }
   };
 
   return (
@@ -83,17 +111,94 @@ export const AddBuyPage = () => {
 
       <div className="flex">
         {tabs.map((tab) => (
-          <button key={tab} className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`} onClick={() => setActiveTab(tab)}>
+          <button
+            key={tab}
+            className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
+            onClick={() => handleNavigateAway(tab)}
+          >
             {tab}
           </button>
         ))}
       </div>
 
-      {activeTab === "General" && <General />}
-      {activeTab === "Media" && <Media />}
-      {activeTab === "Location" && <Location />}
-      {activeTab === "Key Features" && <KeyFeatures />}
-      {activeTab === "Service & Features" && <ServiceFeatures />}
+      <div className="p-8 border rounded-b bg-light border-dark/30">
+        {activeTab === "General" && (
+          <>
+            <General
+              onChange={(hasChanges: boolean) => {
+                updateTabValidation("General", hasChanges);
+              }}
+            />
+            {!tabValidationState["General"] && (
+              <div className="flex justify-end mt-4">
+                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                  Next <GrLinkNext />
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+        {activeTab === "Media" && (
+          <>
+            <AddMedia
+              persistedDataKey="add-property"
+              type="property"
+              onChange={(hasChanges: boolean) => {
+                updateTabValidation("Media", hasChanges);
+              }}
+            />
+            {!tabValidationState["Media"] && (
+              <div className="flex justify-end mt-4">
+                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                  Next <GrLinkNext />
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+        {activeTab === "Location" && (
+          <>
+            <AddLocation
+              persistedDataKey="add-property"
+              onChange={(hasChanges: boolean) => {
+                updateTabValidation("Location", hasChanges);
+              }}
+            />
+            {!tabValidationState["Location"] && (
+              <div className="flex justify-end mt-4">
+                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                  Next <GrLinkNext />
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+        {activeTab === "Key Features" && (
+          <>
+            <AddKeyFeatures
+              persistedDataKey="add-property"
+              onChange={(hasChanges: boolean) => {
+                updateTabValidation("Key Features", hasChanges);
+              }}
+            />
+            {!tabValidationState["Key Features"] && (
+              <div className="flex justify-end mt-4">
+                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                  Next <GrLinkNext />
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+        {activeTab === "Service & Features" && (
+          <AddServiceFeatures
+            persistedDataKey="add-property"
+            onChange={(hasChanges: boolean) => {
+              updateTabValidation("Service & Features", hasChanges);
+            }}
+          />
+        )}
+      </div>
     </Layout>
   );
 };

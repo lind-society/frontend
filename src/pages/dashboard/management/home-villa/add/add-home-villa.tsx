@@ -57,41 +57,30 @@ export const AddHomeVillaPage = () => {
   };
 
   const updateTabValidation = (tab: TabName, hasUnsavedChanges: boolean) => {
-    setTabValidationState((prev) => ({
-      ...prev,
-      [tab]: hasUnsavedChanges,
-    }));
+    setTabValidationState((prev) => ({ ...prev, [tab]: hasUnsavedChanges }));
   };
 
   const handleNavigateAway = (tab: TabName) => {
     const currentTabIndex = tabs.indexOf(activeTab);
     const targetTabIndex = tabs.indexOf(tab);
 
-    if (targetTabIndex <= currentTabIndex) {
+    if (targetTabIndex < currentTabIndex) {
       setActiveTab(tab);
       return;
     }
 
-    if (targetTabIndex === currentTabIndex + 1) {
-      if (tabValidationState[activeTab]) {
-        alert("Please complete each section in order.");
-        return;
-      }
-      setActiveTab(tab);
+    if (targetTabIndex === currentTabIndex) return;
+
+    const allPreviousTabsValid = tabs.slice(0, targetTabIndex).every((tabName) => tabValidationState[tabName] === false);
+
+    if (!allPreviousTabsValid) {
+      alert("Please complete each previous section before continuing.");
       return;
     }
 
-    if (targetTabIndex >= currentTabIndex) {
-      if (tabValidationState[activeTab]) {
-        alert("Please complete each section in order.");
-        return;
-      }
-      setActiveTab(tab);
-      return;
-    }
+    setActiveTab(tab);
   };
 
-  // Function to navigate to the next tab
   const goToNextTab = () => {
     const currentIndex = tabs.indexOf(activeTab);
     if (currentIndex < tabs.length - 1) {

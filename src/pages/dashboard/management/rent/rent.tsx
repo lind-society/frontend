@@ -81,6 +81,7 @@ export const RentPage = () => {
     data: respBookings,
     isPending,
     error,
+    refetch,
   } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings", searchQuery, currentPage], url: "bookings", params: { search: searchQuery, page: currentPage } });
 
   const { mutate: editRent } = useUpdateApi({ key: ["edit-booking"], url: "bookings" });
@@ -100,11 +101,17 @@ export const RentPage = () => {
   const handleApprove = (bookingId: string) => {
     if (!window.confirm("Are you sure you want to approve?")) return;
     editRent({ id: bookingId, updatedItem: { status: "done" } });
+    setTimeout(() => {
+      refetch();
+    }, 1000);
   };
 
   const handleCancel = (bookingId: string) => {
     if (!window.confirm("Are you sure you want to cancel?")) return;
     editRent({ id: bookingId, updatedItem: { status: "canceled" } });
+    setTimeout(() => {
+      refetch();
+    }, 1000);
   };
 
   return (

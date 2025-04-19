@@ -4,16 +4,7 @@ import { SectionField } from "./section-field";
 
 import { Section } from "./types";
 
-export const AdditionalSection = ({
-  section,
-  onFieldAdd,
-  onFieldUpdate,
-  onFieldDelete,
-  onFieldReset,
-  onRemoveImage,
-  onUpdateImage,
-  isLoading,
-}: {
+interface AdditionalSectionProps {
   section: Section;
   onFieldAdd: (e: React.MouseEvent) => void;
   onFieldUpdate: (fieldId: string, fieldName: "name" | "description", value: string) => void;
@@ -22,7 +13,9 @@ export const AdditionalSection = ({
   onRemoveImage: (fieldId: string, imgIndex: number) => void;
   onUpdateImage: (e: React.ChangeEvent<HTMLInputElement>, fieldId: string) => void;
   isLoading: boolean;
-}) => {
+}
+
+export const AdditionalSection = ({ section, onFieldAdd, onFieldUpdate, onFieldDelete, onFieldReset, onRemoveImage, onUpdateImage, isLoading }: AdditionalSectionProps) => {
   return (
     <div className="space-y-2">
       <h2 className="text-lg font-bold">{section.title}</h2>

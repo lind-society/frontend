@@ -127,7 +127,6 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||
       !arraysEqual(formState.currency?.value || "", String(findCurrency?.id || "")) ||
       !arraysEqual(formState.owner?.value || "", String(findOwner?.id || "")) ||
-      !arraysEqual(formState.owner?.value || "", String(findOwner?.id || "")) ||
       !arraysEqual(formState.availabilityQuotaPerMonth, String(data.availabilityQuotaPerMonth || "")) ||
       !arraysEqual(formState.availabilityQuotaPerYear, String(data.availabilityQuotaPerYear || "")) ||
       !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||

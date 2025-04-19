@@ -51,7 +51,7 @@ const data = Array.from({ length: 35 }, (_, i) => ({
   message: "I am interested in this package. Please provide more details.",
 }));
 
-export const Management = () => {
+export const ManagementTab = () => {
   const limit = 10;
   const [datas, setDatas] = React.useState<typeof data>([]);
 

@@ -92,7 +92,7 @@ export const EditKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, 
 
   React.useEffect(() => {
     if (!onChange || !data.facilities) return;
-    const hasChanges = facilities.some((facility, index) => facility.description !== data.facilities?.[index]?.description);
+    const hasChanges = facilities.every((newFacility) => data.facilities?.some((oldFacility) => newFacility.description === oldFacility.description));
     onChange(!hasChanges);
   }, [facilities]);
 

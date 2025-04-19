@@ -1,19 +1,14 @@
 import * as React from "react";
 
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
 
-import { Layout } from "../../../../../components/ui";
+import { General } from "./general";
+import { EditKeyFeatures, EditLocation, EditMedia, EditServiceFeatures, Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
 import { FaDownload } from "react-icons/fa";
-
-import { General } from "./general";
-import { Media } from "./media";
-import { Location } from "./location";
-import { ServiceFeatures } from "./service-features";
-import { KeyFeatures } from "./key-features";
 
 import { deleteKeysObject } from "../../../../../utils";
 
@@ -23,7 +18,6 @@ const tabs = ["General", "Media", "Location", "Key Features", "Service & Feature
 
 export const EditBuyPage = () => {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   const { id } = useParams();
 
   const { mutate: editProperty, isPending } = useUpdateApi<Partial<Property>>({ url: "properties", key: ["editing-property"], redirectPath: "/dashboard/management/buy" });
@@ -37,62 +31,43 @@ export const EditBuyPage = () => {
   const { data } = useEdit();
 
   const [activeTab, setActiveTab] = React.useState<string>(() => {
-    return sessionStorage.getItem("activeTab") || "Rent Management";
+    return sessionStorage.getItem("activeTab") || "General";
   });
+
+  const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (pathname === `/dashboard/management/buy/edit/${id}`) {
       sessionStorage.setItem("activeTab", activeTab);
     }
 
-    // Cleanup function that runs when component unmounts or dependencies change
     return () => {
-      const isLeavingAddPage = pathname === `/dashboard/management/buy/edit/${id}` && window.location.pathname !== `/dashboard/management/buy/edit/${id}`;
-      if (isLeavingAddPage) {
-        const confirmLeave = window.confirm("Are you sure you want to move the page before publish your properties?");
-        if (confirmLeave) {
-          sessionStorage.clear();
-          localStorage.clear();
-        } else {
-          navigate(`/dashboard/management/buy/edit/${id}`);
-        }
-      }
+      sessionStorage.removeItem("activeTab");
     };
   }, [pathname, activeTab]);
 
   React.useEffect(() => {
     if (responseProperty) {
+      const { data: responseData } = responseProperty;
       setData({
-        id: responseProperty.data.id,
-        name: responseProperty.data.name,
-        secondaryName: responseProperty.data.secondaryName,
-        price: responseProperty.data.price,
-        discountType: responseProperty.data.discountType,
-        discount: responseProperty.data.discount,
-        priceAfterDiscount: responseProperty.data.priceAfterDiscount,
-        ownershipType: responseProperty.data.ownershipType,
-        highlight: responseProperty.data.highlight,
-        address: responseProperty.data.address,
-        country: responseProperty.data.country,
-        state: responseProperty.data.state,
-        city: responseProperty.data.city,
-        postalCode: responseProperty.data.postalCode,
-        mapLink: responseProperty.data.mapLink,
-        placeNearby: responseProperty.data.placeNearby,
-        soldStatus: responseProperty.data.soldStatus,
-        photos: responseProperty.data.photos,
-        videos: responseProperty.data.videos,
-        video360s: responseProperty.data.video360s,
-        ownerId: responseProperty.data.ownerId,
-        owner: responseProperty.data.owner,
-        currencyId: responseProperty.data.currencyId,
-        currency: responseProperty.data.currency,
-        facilities: responseProperty.data.facilities.map((facility) => ({ id: facility.id, description: facility.description })) as Property["facilities"],
-        features: responseProperty.data.features,
-        additionals: responseProperty.data.additionals,
+        ...responseData,
+        facilities: responseData.facilities.map((facility) => ({
+          id: facility.id,
+          description: facility.description,
+        })) as Property["facilities"],
       });
     }
   }, [responseProperty]);
+
+  const handleNavigateAway = (tab: string) => {
+    if (hasUnsavedChanges) {
+      const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
+      if (!confirmLeave) {
+        return;
+      }
+    }
+    setActiveTab(tab);
+  };
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -121,25 +96,64 @@ export const EditBuyPage = () => {
 
       <div className="flex">
         {tabs.map((tab) => (
-          <button key={tab} className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`} onClick={() => setActiveTab(tab)}>
+          <button
+            key={tab}
+            className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
+            onClick={() => handleNavigateAway(tab)}
+          >
             {tab}
           </button>
         ))}
       </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center min-h-200">
-          <div className="loader size-8 after:size-8"></div>
-        </div>
-      ) : (
-        <div className="bg-light">
-          {activeTab === "General" && <General />}
-          {activeTab === "Media" && <Media />}
-          {activeTab === "Location" && <Location />}
-          {activeTab === "Key Features" && <KeyFeatures />}
-          {activeTab === "Service & Features" && <ServiceFeatures />}
-        </div>
-      )}
+      <div className="relative p-8 border rounded-b bg-light border-dark/30">
+        {isLoading ? (
+          <div className="flex items-center justify-center min-h-200">
+            <div className="loader size-8 after:size-8"></div>
+          </div>
+        ) : (
+          <>
+            {activeTab === "General" && <General />}
+            {activeTab === "Media" && (
+              <EditMedia
+                persistedDataKey="get-property"
+                editDataKey="edit-property"
+                type="property"
+                onChange={(hasChanges: boolean) => {
+                  setHasUnsavedChanges(hasChanges);
+                }}
+              />
+            )}
+            {activeTab === "Location" && (
+              <EditLocation
+                persistedDataKey="get-property"
+                editDataKey="edit-property"
+                onChange={(hasChanges: boolean) => {
+                  setHasUnsavedChanges(hasChanges);
+                }}
+              />
+            )}
+            {activeTab === "Key Features" && (
+              <EditKeyFeatures
+                persistedDataKey="get-property"
+                editDataKey="edit-property"
+                onChange={(hasChanges: boolean) => {
+                  setHasUnsavedChanges(hasChanges);
+                }}
+              />
+            )}
+            {activeTab === "Service & Features" && (
+              <EditServiceFeatures
+                persistedDataKey="get-property"
+                editDataKey="edit-property"
+                onChange={(hasChanges: boolean) => {
+                  setHasUnsavedChanges(hasChanges);
+                }}
+              />
+            )}
+          </>
+        )}
+      </div>
     </Layout>
   );
 };
