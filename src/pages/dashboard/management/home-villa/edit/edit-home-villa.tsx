@@ -38,6 +38,15 @@ export const EditHomeVillaPage = () => {
   });
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState<boolean>(false);
+  const [isWaiting, setIsWaiting] = React.useState<boolean>(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsWaiting(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   React.useEffect(() => {
     if (pathname === `/dashboard/management/home-villa/edit/${id}`) {
@@ -81,7 +90,6 @@ export const EditHomeVillaPage = () => {
 
   return (
     <Layout>
-      {/* Header */}
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="text-2xl font-bold">{responseVilla?.data.name}</h1>
 
@@ -110,11 +118,11 @@ export const EditHomeVillaPage = () => {
         ))}
       </div>
 
-      <div className="relative p-8 border rounded-b bg-light border-dark/30">
+      <div className="relative p-8 border rounded-b bg-light border-dark/30 min-h-600">
         {activeTab === "Rent Management" && <RentManagement />}
-        {isLoading ? (
-          <div className="flex items-center justify-center min-h-200">
-            <div className="loader size-16 after:size-16"></div>
+        {isLoading || isWaiting ? (
+          <div className="flex items-center justify-center min-h-400">
+            <div className="loader size-10 after:size-10"></div>
           </div>
         ) : (
           <>

@@ -222,8 +222,16 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
         <FormField label="Ownership" required>
           {(["Freehold", "Leasehold"] as const).map((ownership, index) => (
             <div key={index} className="flex items-center gap-2 ms-4">
-              <span>{ownership}</span>
-              <input type="checkbox" className="accent-primary" checked={formState.ownershipType.includes(ownership)} onChange={() => updateFormState("ownershipType", ownership)} />
+              <label className="cursor-pointer" htmlFor={ownership}>
+                {ownership}
+              </label>
+              <input
+                type="checkbox"
+                id={ownership}
+                className="cursor-pointer accent-primary"
+                checked={formState.ownershipType.includes(ownership)}
+                onChange={() => updateFormState("ownershipType", ownership)}
+              />
             </div>
           ))}
         </FormField>
@@ -231,8 +239,16 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
         <FormField label="Sold Status" required>
           {(["Yes", "No"] as const).map((status, index) => (
             <div key={index} className="flex items-center gap-2 ms-4">
-              <span>{status}</span>
-              <input type="checkbox" className="accent-primary" checked={formState.soldStatus === (status === "Yes")} onChange={() => updateFormState("soldStatus", status === "Yes")} />
+              <label className="cursor-pointer" htmlFor={status}>
+                {status}
+              </label>
+              <input
+                type="checkbox"
+                id={status}
+                className="cursor-pointer accent-primary"
+                checked={formState.soldStatus === (status === "Yes")}
+                onChange={() => updateFormState("soldStatus", status === "Yes")}
+              />
             </div>
           ))}
         </FormField>

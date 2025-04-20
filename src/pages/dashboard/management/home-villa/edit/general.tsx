@@ -8,6 +8,8 @@ import { Button, NumberInput, ToastMessage } from "../../../../../components";
 
 import { FaEdit, FaEye } from "react-icons/fa";
 
+import { capitalize } from "../../../../../utils";
+
 import { Currency, Data, OptionType, Owner, Payload, Villa } from "../../../../../types";
 
 type AvailabilityType = "daily" | "monthly" | "yearly";
@@ -255,8 +257,10 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
           <div className="flex items-center gap-4">
             {(["daily", "monthly", "yearly"] as const).map((type) => (
               <div key={type} className="flex items-center gap-2">
-                <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
-                <input type="checkbox" className="accent-primary" checked={formState.availability[type]} onChange={() => handleAvailabilityChange(type)} />
+                <label className="cursor-pointer" htmlFor={type}>
+                  {capitalize(type)}
+                </label>
+                <input type="checkbox" className="cursor-pointer accent-primary" checked={formState.availability[type]} onChange={() => handleAvailabilityChange(type)} />
               </div>
             ))}
           </div>
