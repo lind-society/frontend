@@ -50,7 +50,14 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
   const { setData, data: dataAfterEdit } = useEdit();
 
   const dataCondition =
-    dataAfterEdit.name || dataAfterEdit.highlight || dataAfterEdit.secondaryName || dataAfterEdit.currencyId || dataAfterEdit.price || dataAfterEdit.soldStatus || dataAfterEdit.ownershipType;
+    dataAfterEdit.name ||
+    dataAfterEdit.highlight ||
+    dataAfterEdit.secondaryName ||
+    dataAfterEdit.currencyId ||
+    dataAfterEdit.ownerId ||
+    dataAfterEdit.price ||
+    dataAfterEdit.soldStatus ||
+    dataAfterEdit.ownershipType;
 
   const data = React.useMemo(() => {
     return dataCondition ? dataAfterEdit : dataBeforeEdit;
@@ -65,7 +72,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     name: data.name || "",
     secondaryName: data.secondaryName || "",
     highlight: data.highlight || "",
-    price: String(data.discount || ""),
+    price: String(data.price || ""),
     discount: String(data.discount || ""),
     soldStatus: data.soldStatus || false,
     ownershipType: data.ownershipType || "Leasehold",

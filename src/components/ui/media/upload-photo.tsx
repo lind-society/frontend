@@ -1,14 +1,23 @@
 import * as React from "react";
 
-import { useCreateApi, useUploads } from "../hooks";
+import { useCreateApi, useUploads } from "../../../hooks";
 
-import { Img } from "./image";
-import { Images360 } from "./images360";
+import { Img } from "../../image";
+import { Images360 } from "../../images360";
 
 import { FaUpload } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 
-import { FileData, Payload, UploadPhotoProps } from "../types";
+import { FileData, Payload } from "../../../types";
+
+interface UploadPhotoProps {
+  folder: string;
+  type: "photos" | "videos" | "video360s";
+  title: string;
+  description: string;
+  fileUrl: string[];
+  setFileUrl: (urls: string[]) => void;
+}
 
 export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFileUrl }: UploadPhotoProps) => {
   const { uploadFile, isLoading } = useUploads<Payload<FileData>>();

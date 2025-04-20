@@ -1,4 +1,7 @@
-import { StatusBadgeProps } from "../types";
+interface StatusBadgeProps {
+  status: string;
+  colors?: Record<string, string>;
+}
 
 const STATUS_COLORS: Record<string, string> = {
   requested: "bg-blue-300 text-blue-700",

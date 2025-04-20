@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 
 import Select from "react-select";
 
-import { baseApiURL } from "../static";
+import { baseApiURL } from "../../../static";
 
-import { LocationSelectorProps } from "../types";
+import { LocationSelectorProps } from "../../../types";
 
 const GC_TIME = 3 * 60 * 60 * 1000;
 const STALE_TIME = 2 * 60 * 60 * 1000;

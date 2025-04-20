@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Button } from "./button";
+import { Button } from "../button";
 import { FaPlus } from "react-icons/fa";
-import { Modal } from "./modal";
+import { Modal } from "../modal";
 
 interface Policies {
   id: string;

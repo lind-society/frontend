@@ -1,5 +1,4 @@
-import { Img } from "../../image";
-import { Button } from "../../button";
+import { Img, Button } from "../../../components";
 
 import { FaPlus, FaUpload } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";

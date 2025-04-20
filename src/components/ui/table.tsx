@@ -1,4 +1,24 @@
-import { DataTableProps, TableHeaderProps } from "../types";
+interface TableHeaderProps<T> {
+  columns: {
+    key: keyof T | string;
+    header: React.ReactNode;
+    className?: string;
+  }[];
+}
+
+interface DataTableProps<T> {
+  data: T[];
+  columns: {
+    key: keyof T | string;
+    header: React.ReactNode;
+    render?: (item: T) => React.ReactNode;
+    className?: string;
+  }[];
+  keyExtractor: (item: T) => string | number;
+  isLoading?: boolean;
+  error?: unknown;
+  emptyMessage?: string;
+}
 
 const TableHeader = <T,>({ columns }: TableHeaderProps<T>) => {
   return (

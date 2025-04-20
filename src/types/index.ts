@@ -8,12 +8,8 @@ export * from "./motion";
 export * from "./image";
 export * from "./toast-message";
 export * from "./background";
-export * from "./upload-photo";
 export * from "./option";
 export * from "./location-selector";
-export * from "./table";
-export * from "./search-box";
-export * from "./status-badge";
 
 export * from "./api/payload";
 export * from "./api/villa";

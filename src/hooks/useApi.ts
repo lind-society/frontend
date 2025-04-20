@@ -73,7 +73,7 @@ export const useCreateApi = <T>({ key, url, redirectPath }: { url: string; key: 
             const errorMessages = responseData.data.map((err: { field: string; message: string[] }) => `${err.field}: ${err.message.join(", ")}`).join("\n");
             throw new Error(errorMessages);
           }
-          throw new Error(responseData?.message || "Failed to add data");
+          throw new Error(responseData?.message || "Failed to adding data");
         }
         throw new Error("An unexpected error occurred");
       }
@@ -112,7 +112,7 @@ export const useUpdateApi = <T>({ key, url, redirectPath }: { url: string; key: 
             const errorMessages = responseData.data.map((err: { field: string; message: string[] }) => `${err.field}: ${err.message.join(", ")}`).join("\n");
             throw new Error(errorMessages);
           }
-          throw new Error(responseData?.message || "Failed to add data");
+          throw new Error(responseData?.message || "Failed to updating data");
         }
         throw new Error("An unexpected error occurred");
       }
@@ -149,7 +149,7 @@ export const useDeleteApi = ({ key, url, redirectPath }: { url: string; key: Que
             const errorMessages = responseData.data.map((err: { field: string; message: string[] }) => `${err.field}: ${err.message.join(", ")}`).join("\n");
             throw new Error(errorMessages);
           }
-          throw new Error(responseData?.message || "Failed to add data");
+          throw new Error(responseData?.message || "Failed to deleting data");
         }
         throw new Error("An unexpected error occurred");
       }

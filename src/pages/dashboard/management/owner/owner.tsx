@@ -1,7 +1,7 @@
 import { useGetApiWithAuth, useSearchPagination } from "../../../../hooks";
 
-import { Layout } from "../../../../components/ui";
-import { DataTable, Pagination, SearchBox, StatusBadge } from "../../../../components";
+import { DataTable, Layout, SearchBox, StatusBadge } from "../../../../components/ui";
+import { Pagination } from "../../../../components";
 import { AddOwnerPage } from "./add-owner";
 import { EditOwnerPage } from "./edit-owner";
 import { DeleteOwnerPage } from "./delete-owner";

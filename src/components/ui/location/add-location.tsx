@@ -4,8 +4,9 @@ import { useGetApi, usePersistentData } from "../../../hooks";
 
 import { FormField } from "./form-field";
 import { PlaceNearbyItem } from "./place-nearby-item";
+import { LocationSelector } from "./location-selector";
 
-import { GoogleMaps, LocationSelector, NumberInput, Button } from "../../../components";
+import { GoogleMaps, NumberInput, Button } from "../../../components";
 
 import { FaPlus } from "react-icons/fa";
 
@@ -139,10 +140,10 @@ export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChang
           />
         </FormField>
 
-        <div className="flex items-center">
-          <label className="block opacity-0 whitespace-nowrap min-w-60">Map Link</label>
+        <FormField label="Map Link">
+          {error && <span className="text-red-600">please input a correct map link</span>}
           {!isLoading && !!formState.mapLink && !error && <GoogleMaps lat={respCoordinates?.latitude || 0} lng={respCoordinates?.longitude || 0} />}
-        </div>
+        </FormField>
 
         <div className="space-y-2">
           <h2 className="mt-8 heading">Nearest Place</h2>

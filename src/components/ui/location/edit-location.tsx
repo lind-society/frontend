@@ -4,8 +4,9 @@ import { useGetApi, usePersistentData } from "../../../hooks";
 
 import { FormField } from "./form-field";
 import { PlaceNearbyItem } from "./place-nearby-item";
+import { LocationSelector } from "./location-selector";
 
-import { Button, GoogleMaps, ToastMessage, LocationSelector, NumberInput } from "../../../components";
+import { Button, GoogleMaps, ToastMessage, NumberInput } from "../../../components";
 
 import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
 
@@ -193,7 +194,10 @@ export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDa
           />
         </FormField>
 
-        <FormField label="Map Link">{!isLoading && !!formState.mapLink && !error && <GoogleMaps lat={respCoordinates?.latitude || 0} lng={respCoordinates?.longitude || 0} />}</FormField>
+        <FormField label="Map Link">
+          {error && <span className="text-red-600">please input a correct map link</span>}
+          {!isLoading && !!formState.mapLink && !error && <GoogleMaps lat={respCoordinates?.latitude || 0} lng={respCoordinates?.longitude || 0} />}
+        </FormField>
 
         <div className="space-y-2">
           <h2 className="mt-8 heading">Nearest Place</h2>

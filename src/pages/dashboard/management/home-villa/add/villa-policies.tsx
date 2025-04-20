@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { usePersistentData } from "../../../../../hooks";
 
-import { SectionPolicy } from "../../../../../components";
+import { SectionPolicy } from "../../../../../components/ui";
 
 import { baseCancellationTerms, baseHouseRules, basePaymentTerms } from "../../../../../static";
 

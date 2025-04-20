@@ -2,11 +2,12 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useGetApi, useSearchPagination, useUpdateApi } from "../../../../../hooks";
 
-import { DataTable, Pagination, SearchBox, StatusBadge } from "../../../../../components";
+import { Pagination } from "../../../../../components";
 
 import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
 
 import { Booking, Data, Payload } from "../../../../../types";
+import { DataTable, SearchBox, StatusBadge } from "../../../../../components/ui";
 
 interface BookingsTableProps {
   bookings: Booking[];

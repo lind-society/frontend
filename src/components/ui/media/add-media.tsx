@@ -4,7 +4,8 @@ import "@photo-sphere-viewer/markers-plugin/index.css";
 
 import { useCreateApi, usePersistentData, useUploads } from "../../../hooks";
 
-import { Button, Modal, UploadPhoto } from "../..";
+import { UploadPhoto } from "./upload-photo";
+import { Button, Modal } from "../../../components";
 
 import { AdditionalSection } from "./additional-section";
 

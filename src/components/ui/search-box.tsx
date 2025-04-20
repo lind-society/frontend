@@ -1,5 +1,11 @@
 import { IoMdSearch } from "react-icons/io";
-import { SearchBoxProps } from "../types";
+
+interface SearchBoxProps {
+  value: string;
+  onChange: (value: string) => void;
+  onSearch: () => void;
+  placeholder?: string;
+}
 
 export const SearchBox = ({ value, onChange, onSearch, placeholder = "Search..." }: SearchBoxProps) => {
   return (
@@ -14,7 +20,7 @@ export const SearchBox = ({ value, onChange, onSearch, placeholder = "Search..."
         }}
         className="input-text !rounded-e-none"
       />
-      <button type="button" onClick={onSearch} className="flex items-center justify-center h-10 text-light bg-primary w-14">
+      <button type="button" onClick={onSearch} className="flex items-center justify-center h-10 text-light bg-primary w-14 rounded-e">
         <IoMdSearch size={25} />
       </button>
     </div>

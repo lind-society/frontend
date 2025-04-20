@@ -1,7 +1,8 @@
 import * as React from "react";
 import { usePersistentData } from "../../../../../hooks";
 
-import { Button, SectionPolicy, ToastMessage } from "../../../../../components";
+import { SectionPolicy } from "../../../../../components/ui";
+import { Button, ToastMessage } from "../../../../../components";
 
 import { FaEdit, FaEye } from "react-icons/fa";
 

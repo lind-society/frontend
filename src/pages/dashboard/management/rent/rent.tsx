@@ -2,8 +2,8 @@ import { useNavigate } from "react-router-dom";
 
 import { useGetApi, useSearchPagination, useUpdateApi } from "../../../../hooks";
 
-import { Layout } from "../../../../components/ui";
-import { DataTable, Pagination, SearchBox, StatusBadge } from "../../../../components";
+import { DataTable, Layout, SearchBox, StatusBadge } from "../../../../components/ui";
+import { Pagination } from "../../../../components";
 
 import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
 import { FaCalendar } from "react-icons/fa";

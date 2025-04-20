@@ -1,4 +1,9 @@
 export * from "./dashboard-layout";
+export * from "./section-policy";
+export * from "./search-box";
+export * from "./status-badge";
+export * from "./table";
+export * from "./card";
 
 export * from "./media/add-media";
 export * from "./media/edit-media";
