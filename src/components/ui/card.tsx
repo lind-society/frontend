@@ -4,14 +4,14 @@ import { Link } from "react-router-dom";
 import { Img } from "../image";
 import { GrClose } from "react-icons/gr";
 
-interface CardContentProps<T> {
+interface CardContentProps {
   isLoading: boolean;
   type: string;
   datas: any[];
-  openDeleteModal: (data: T) => void;
+  openDeleteModal: (data: any) => void;
 }
 
-export const CardContent = <T extends unknown>({ isLoading, datas, type, openDeleteModal }: CardContentProps<T>) => {
+export const CardContent = ({ isLoading, datas, type, openDeleteModal }: CardContentProps) => {
   if (isLoading) {
     return (
       <div className="flex justify-center min-h-400">
@@ -34,9 +34,9 @@ export const CardContent = <T extends unknown>({ isLoading, datas, type, openDel
   const defaultImage = "/temp.png";
 
   return (
-    <div className="flex flex-wrap gap-6">
+    <div className="flex flex-wrap gap-4 xl:gap-10 2xl:gap-4">
       {datas.map((data) => (
-        <div key={data.id} className="w-full card-shadow max-w-80">
+        <div key={data.id} className="w-full card-shadow max-w-72">
           <div className="relative w-full">
             <button onClick={() => openDeleteModal(data)} className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1">
               <GrClose />

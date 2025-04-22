@@ -59,7 +59,7 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
     const isHouseRulesComplete = filledHouseRules.length === 3;
 
     if (isHouseRulesComplete) {
-      const formattedData = {
+      const dataToSave = {
         policies: [
           ...houseRules.map((rule) => ({
             name: rule.title,
@@ -81,8 +81,12 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
           })),
         ] as Villa["policies"],
       };
+      setData(dataToSave);
       onChange(false);
-      setData(formattedData);
+    } else {
+      const dataToDelete = { policies: [] };
+      setData(dataToDelete);
+      onChange(true);
     }
   }, [houseRules, cancellationTerms, paymentTerms]);
 

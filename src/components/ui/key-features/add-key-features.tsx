@@ -70,10 +70,10 @@ export const AddKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, o
 
   React.useEffect(() => {
     if (!onChange) return;
-    const hasDescription = facilities.some((facility) => facility.includeDescription && facility.description.trim() !== "");
+    const isComplete = facilities.some((facility) => facility.includeDescription && facility.description.trim() !== "");
 
-    if (hasDescription) {
-      const formattedData = {
+    if (isComplete) {
+      const dataToSave = {
         facilities: facilities
           .filter((feature) => feature.includeDescription && feature.description !== "")
           .map((feature) => ({
@@ -82,7 +82,7 @@ export const AddKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, o
           })) as Facilities[],
       };
 
-      setData(formattedData);
+      setData(dataToSave);
       onChange(false);
     }
   }, [facilities, shouldSave]);

@@ -92,7 +92,12 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
   const handleSubmitPolicies = async (e: React.MouseEvent) => {
     e.preventDefault();
 
-    const formattedData = {
+    const filledHouseRules = houseRules.filter((rule) => rule.value.trim() !== "");
+    const isHouseRulesComplete = filledHouseRules.length === 3;
+
+    if (!isHouseRulesComplete) return;
+
+    const dataToSave = {
       policies: [
         ...houseRules.map((rule) => ({
           name: rule.title,
@@ -114,7 +119,8 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
         })),
       ] as Villa["policies"],
     };
-    setData(formattedData);
+
+    setData(dataToSave);
     ToastMessage({ message: "Success saving edit villa policies...", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();

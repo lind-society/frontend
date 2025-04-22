@@ -196,6 +196,16 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
     e.preventDefault();
+    const { name, secondaryName, highlight, currency, owner, discount, price } = formState;
+
+    const requiredFields = [name, secondaryName, highlight, currency, owner];
+
+    const hasAnyOnePriceAndDiscount = Object.values(price).some((p) => !!p) && Object.values(discount).some((d) => !!d);
+
+    const isComplete = requiredFields.every((field) => !!field) && hasAnyOnePriceAndDiscount;
+
+    if (!isComplete) return;
+
     const dataToSave = {
       name: formState.name,
       secondaryName: formState.secondaryName,
@@ -211,14 +221,10 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       discountDaily: formState.availability.daily ? +formState.discount.daily : 0,
       discountMonthly: formState.availability.monthly ? +formState.discount.monthly : 0,
       discountYearly: formState.availability.yearly ? +formState.discount.yearly : 0,
-      checkOutHour: "01:00",
-      checkInHour: "12:00",
     };
 
     setData(dataToSave);
-
     ToastMessage({ message: "Success saving edit general...", color: "#22c55e" });
-
     setTimeout(() => {
       window.location.reload();
     }, 200);
@@ -245,11 +251,11 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       <form className="relative mt-6 space-y-8" onSubmit={handleSubmitGeneral}>
         <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-2000"}`}></div>
 
-        <FormField label="Property name" required>
+        <FormField label="Name" required>
           <input type="text" className="input-text" placeholder="Urna Santal Villa" value={formState.name} onChange={(e) => updateFormState("name", e.target.value)} required />
         </FormField>
 
-        <FormField label="Secondary property name" required>
+        <FormField label="Secondary name" required>
           <input type="text" className="input-text" placeholder="Urna Cangau" value={formState.secondaryName} onChange={(e) => updateFormState("secondaryName", e.target.value)} required />
         </FormField>
 

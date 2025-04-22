@@ -15,12 +15,6 @@ export interface Icon {
   url: string;
 }
 
-export interface User {
-  username: string;
-  email: string;
-  name: string;
-}
-
 export interface AdditionalItem {
   pivotId: string;
   id: string;

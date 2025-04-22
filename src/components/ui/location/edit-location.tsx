@@ -91,11 +91,7 @@ export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDa
     const updatedPlaces = [...formState.placeNearby, { name: formState.placeName, distance: +formState.placeDistance }];
 
     updateFormState("placeNearby", updatedPlaces);
-    setFormState((prev) => ({
-      ...prev,
-      placeName: "",
-      placeDistance: "",
-    }));
+    setFormState((prev) => ({ ...prev, placeName: "", placeDistance: "" }));
   };
 
   const removePlaceNearby = (id: number) => {
@@ -108,7 +104,20 @@ export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDa
   const handleSubmitLocation = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const formattedData = {
+    const requiredFields: Array<keyof LocationFormState> = ["address", "postalCode", "mapLink", "country", "state", "city", "placeNearby"];
+    const isComplete = requiredFields.every((field) => {
+      if (field === "country" || field === "state" || field === "city") {
+        return formState[field] !== null;
+      }
+      if (field === "placeNearby") {
+        return formState[field].length > 0;
+      }
+      return formState[field] !== "";
+    });
+
+    if (!isComplete) return;
+
+    const dataToSave = {
       address: formState.address,
       postalCode: formState.postalCode,
       mapLink: formState.mapLink,
@@ -118,10 +127,8 @@ export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDa
       placeNearby: formState.placeNearby,
     };
 
-    setData(formattedData);
-
+    setData(dataToSave);
     ToastMessage({ message: "Success saving edit location...", color: "#22c55e" });
-
     setTimeout(() => {
       window.location.reload();
     }, 200);

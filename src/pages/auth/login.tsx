@@ -5,7 +5,7 @@ import { Navigate } from "react-router-dom";
 
 import { authentication, useGetApiWithAuth } from "../../hooks";
 
-import { Background } from "../../components";
+import { Background, Img } from "../../components";
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
@@ -57,7 +57,7 @@ export const LoginPage = () => {
     <Background src="/images/modern-villa-background.webp" alt="login background" className="flex items-center justify-center min-h-screen">
       <div className="relative w-full max-w-md p-8 rounded-lg shadow-lg bg-light">
         <div className="flex flex-col items-center mb-8">
-          <img src="/logo.png" alt="LIND Society" className="h-12 mb-4" />
+          <Img src="/logo.png" alt="LIND Society" className="h-12 mb-4" />
           <h1 className="text-sm text-primary">Welcome to LIND Society</h1>
           <h2 className="text-xl font-medium text-center text-primary">
             Manage Your Villa & Property

@@ -21,7 +21,7 @@ interface ServiceFeatures {
 export const AddServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKey, onChange }) => {
   // Store data to session storage
   const useStore = usePersistentData<FeaturesPersistedType>(persistedDataKey);
-  const { data, setData } = useStore();
+  const { data, setData, clearData } = useStore();
 
   const defaultFeature: Feature[] = Object.values(
     data.features?.reduce((acc, feature) => {
@@ -53,7 +53,7 @@ export const AddServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKey
     const hasValidFeature = features.some((feature) => feature.items.some((item) => item.title.trim() !== "" && item.currency !== null && item.price.trim() !== ""));
 
     if (hasValidFeature) {
-      const formattedData = {
+      const dataToSave = {
         features: features.flatMap((feature) =>
           feature.items
             .filter((item) => item.title !== "")
@@ -71,8 +71,12 @@ export const AddServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKey
         ) as Features[],
       };
 
-      setData(formattedData);
+      setData(dataToSave);
       onChange(false);
+    } else {
+      const dataToDelete = { features: [] };
+      clearData(dataToDelete);
+      onChange(true);
     }
   }, [features]);
 

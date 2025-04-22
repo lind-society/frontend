@@ -50,6 +50,7 @@ export interface Villa {
   photos: string[];
   videos: string[];
   video360s: string[];
+  floorPlans: string[];
   ownerId: string;
   owner: Owner;
   currencyId: string;

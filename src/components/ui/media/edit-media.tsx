@@ -45,13 +45,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
     const groupedAdditionals = data.additionals.reduce((acc, additional) => {
       const key = additional.type;
       if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
-      acc[key].field.push({
-        id: crypto.randomUUID(),
-        name: additional.name,
-        description: additional.description,
-        photos: additional.photos,
-        photosURLView: [],
-      });
+      acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos });
       return acc;
     }, {} as Record<string, Section>);
 
@@ -66,6 +60,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
     photos: data.photos || [],
     videos: data.videos || [],
     video360s: data.video360s || [],
+    floorPlans: data.floorPlans || [],
   });
 
   const availableAdditionalTypes = React.useMemo(() => {
@@ -112,7 +107,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
         index === additionalIndex
           ? {
               ...section,
-              field: section.field.map((field) => (field.id === fieldId ? { ...field, name: "", description: "", photos: [], photosURLView: [] } : field)),
+              field: section.field.map((field) => (field.id === fieldId ? { ...field, name: "", description: "", photos: [] } : field)),
             }
           : section
       )
@@ -132,13 +127,11 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
     );
   };
 
-  const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>, additionalIndex: number, fieldId: string) => {
+  const updateImage = async (e: React.ChangeEvent<HTMLInputElement>, additionalIndex: number, fieldId: string) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
     if (files.length === 0) return;
 
     const { response } = await uploadFile(files, type, "photos");
-
-    const viewFiles = files.map((file) => URL.createObjectURL(file));
 
     if (response) {
       updateAdditionalState(
@@ -146,15 +139,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
           sIndex === additionalIndex
             ? {
                 ...section,
-                field: section.field.map((field) =>
-                  field.id === fieldId
-                    ? {
-                        ...field,
-                        photos: [...field.photos, ...response.data.successFiles.map((file) => file.url)],
-                        photosURLView: [...field.photosURLView, ...viewFiles],
-                      }
-                    : field
-                ),
+                field: section.field.map((field) => (field.id === fieldId ? { ...field, photos: [...field.photos, ...response.data.successFiles.map((file) => file.url)] } : field)),
               }
             : section
         )
@@ -174,15 +159,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
         sIndex === additionalIndex
           ? {
               ...section,
-              field: section.field.map((field) =>
-                field.id === fieldId
-                  ? {
-                      ...field,
-                      photos: field.photos.filter((_, index) => index !== imgIndex),
-                      photosURLView: field.photosURLView.filter((_, index) => index !== imgIndex),
-                    }
-                  : field
-              ),
+              field: section.field.map((field) => (field.id === fieldId ? { ...field, photos: field.photos.filter((_, index) => index !== imgIndex) } : field)),
             }
           : section
       )
@@ -192,7 +169,13 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
   const handleSubmitMedia = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const formattedData = {
+    const hasAnyAdditional = formState.additional.some((a) => a.field.some((b) => b.name !== "" && b.description !== "" && b.photos.length > 0));
+
+    const isComplete = hasAnyAdditional && formState.photos.length > 0 && formState.videos.length > 0;
+
+    if (!isComplete) return;
+
+    const dataToDelete = {
       additionals: formState.additional.flatMap((section) =>
         section.field
           .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)
@@ -201,12 +184,11 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
       photos: formState.photos,
       videos: formState.videos,
       video360s: formState.video360s,
+      floorPlans: formState.floorPlans,
     };
 
-    setData(formattedData);
-
+    setData(dataToDelete);
     ToastMessage({ message: "Success saving edit media...", color: "#22c55e" });
-
     setTimeout(() => {
       window.location.reload();
     }, 200);
@@ -230,6 +212,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
       !arraysEqual(formState.photos, data.photos!) ||
       !arraysEqual(formState.videos, data.videos!) ||
       !arraysEqual(formState.video360s, data.video360s!) ||
+      !arraysEqual(formState.floorPlans, data.floorPlans!) ||
       !additionalEqual(currentAdditionals, data.additionals);
 
     onChange(hasChanges);
@@ -259,6 +242,8 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
 
         <UploadPhoto folder={type} type="video360s" title="360 Tour" description="360 Tour *" fileUrl={formState.video360s} setFileUrl={(video360s) => updateFormState({ video360s })} />
 
+        <UploadPhoto folder={type} type="floor-plan" title="Floor Plan" description="Floor Plan" fileUrl={formState.floorPlans} setFileUrl={(floorPlans) => updateFormState({ floorPlans })} />
+
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="heading">Additional</h2>
@@ -278,7 +263,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
                 onFieldDelete={(e, fieldId) => deleteField(e, additionalIndex, fieldId)}
                 onFieldReset={(e, fieldId) => resetField(e, additionalIndex, fieldId)}
                 onRemoveImage={(fieldId, imgIndex) => removeImage(additionalIndex, fieldId, imgIndex)}
-                onUpdateImage={(e, fieldId) => handleFileInputChange(e, additionalIndex, fieldId)}
+                onUpdateImage={(e, fieldId) => updateImage(e, additionalIndex, fieldId)}
                 isLoading={isLoading}
               />
             ))}

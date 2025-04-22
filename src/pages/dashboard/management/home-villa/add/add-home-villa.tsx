@@ -9,7 +9,7 @@ import { Button } from "../../../../../components";
 import { General } from "./general";
 import { VillaPolicies } from "./villa-policies";
 
-import { FaDownload } from "react-icons/fa";
+import { FaUpload } from "react-icons/fa";
 import { GrLinkNext } from "react-icons/gr";
 
 import { deleteKeysObject } from "../../../../../utils";
@@ -94,15 +94,22 @@ export const AddHomeVillaPage = () => {
         <h1 className="text-2xl font-bold">Add New Home & Villa</h1>
 
         <div className="flex items-center gap-4">
-          <Button onClick={handlePublish} className="btn-primary">
-            {isPending ? (
-              <div className="loader size-4 after:size-4"></div>
-            ) : (
-              <div className="flex items-center gap-2 ">
-                <FaDownload /> Publish
-              </div>
+          {!tabValidationState["General"] &&
+            !tabValidationState["Key Features"] &&
+            !tabValidationState["Location"] &&
+            !tabValidationState["Media"] &&
+            !tabValidationState["Service & Features"] &&
+            !tabValidationState["Villa Policies"] && (
+              <Button onClick={handlePublish} className="btn-primary">
+                {isPending ? (
+                  <div className="loader size-4 after:size-4"></div>
+                ) : (
+                  <div className="flex items-center gap-2 ">
+                    <FaUpload /> Publish
+                  </div>
+                )}
+              </Button>
             )}
-          </Button>
         </div>
       </header>
 

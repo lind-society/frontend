@@ -31,9 +31,9 @@ interface FormState {
 
 const FormField = ({ label, children, required = false }: { label: string; children: React.ReactNode; required?: boolean }) => (
   <div className="flex items-center">
-    <label className="block whitespace-nowrap min-w-60">
+    <span className="block whitespace-nowrap min-w-60">
       {label} {required && "*"}
-    </label>
+    </span>
     {children}
   </div>
 );
@@ -41,7 +41,7 @@ const FormField = ({ label, children, required = false }: { label: string; child
 export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
-  const { setData, data } = useStore();
+  const { setData, data, clearData } = useStore();
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
@@ -116,9 +116,9 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
   React.useEffect(() => {
     if (!onChange) return;
 
-    const { name, secondaryName, highlight, currency, owner, discount, price, availability } = formState;
+    const { name, secondaryName, highlight, currency, owner, discount, price } = formState;
 
-    const requiredFields = [name, secondaryName, highlight, currency, owner, availability];
+    const requiredFields = [name, secondaryName, highlight, currency, owner];
 
     const hasAnyOnePriceAndDiscount = Object.values(price).some((p) => !!p) && Object.values(discount).some((d) => !!d);
 
@@ -140,12 +140,29 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
         discountDaily: formState.availability.daily ? +formState.discount.daily : 0,
         discountMonthly: formState.availability.monthly ? +formState.discount.monthly : 0,
         discountYearly: formState.availability.yearly ? +formState.discount.yearly : 0,
-        checkOutHour: "01:00",
-        checkInHour: "12:00",
       };
 
-      onChange(false);
       setData(dataToSave);
+      onChange(false);
+    } else {
+      const deleteData = {
+        name: "",
+        secondaryName: "",
+        highlight: "",
+        currencyId: undefined,
+        ownerId: undefined,
+        availabilityQuotaPerMonth: 0,
+        availabilityQuotaPerYear: 0,
+        priceDaily: 0,
+        priceMonthly: 0,
+        priceYearly: 0,
+        discountDaily: 0,
+        discountMonthly: 0,
+        discountYearly: 0,
+      };
+
+      clearData(deleteData);
+      onChange(true);
     }
   }, [formState]);
 
@@ -166,12 +183,12 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
   return (
     <>
       <h2 className="heading">General</h2>
-      <form className="mt-6 space-y-8">
-        <FormField label="Property name" required>
+      <div className="mt-6 space-y-8">
+        <FormField label="Name" required>
           <input type="text" className="input-text" placeholder="Urna Santal Villa" value={formState.name} onChange={(e) => updateFormState("name", e.target.value)} required />
         </FormField>
 
-        <FormField label="Secondary property name" required>
+        <FormField label="Secondary name" required>
           <input type="text" className="input-text" placeholder="Urna Cangau" value={formState.secondaryName} onChange={(e) => updateFormState("secondaryName", e.target.value)} required />
         </FormField>
 
@@ -179,9 +196,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
           <div className="flex items-center gap-4">
             {(["daily", "monthly", "yearly"] as const).map((type) => (
               <div key={type} className="flex items-center gap-2">
-                <label className="cursor-pointer" htmlFor={type}>
-                  {capitalize(type)}
-                </label>
+                <span className="block cursor-pointer">{capitalize(type)}</span>
                 <input type="checkbox" className="cursor-pointer accent-primary" checked={formState.availability[type]} onChange={() => handleAvailabilityChange(type)} />
               </div>
             ))}
@@ -224,12 +239,10 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
                     required
                   />
 
-                  <label className="block whitespace-nowrap">Discount</label>
-
+                  <span className="block whitespace-nowrap">Discount</span>
                   <NumberInput className="input-text" value={formState.discount[type]} onChange={(e) => handleDiscountChange(type, e.target.value)} placeholder="e.g. 0%" />
 
-                  <label className="block whitespace-nowrap">Discounted Price</label>
-
+                  <span className="block whitespace-nowrap">Discounted Price</span>
                   <input type="number" className="input-text" value={calculateDiscountedPrice(type)} readOnly />
                 </div>
               </FormField>
@@ -269,7 +282,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
             required
           />
         </FormField>
-      </form>
+      </div>
     </>
   );
 };

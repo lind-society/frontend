@@ -164,21 +164,14 @@ export const EditServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKe
 
   const updateItems = (featureId: string, itemId: string, key: keyof ItemFeature, value: string | boolean | OptionType | null) => {
     setFeatures((prevFeatures) =>
-      prevFeatures.map((feature) =>
-        feature.id === featureId
-          ? {
-              ...feature,
-              items: feature.items.map((item) => (item.id === itemId ? { ...item, [key]: value } : item)),
-            }
-          : feature
-      )
+      prevFeatures.map((feature) => (feature.id === featureId ? { ...feature, items: feature.items.map((item) => (item.id === itemId ? { ...item, [key]: value } : item)) } : feature))
     );
   };
 
   const handleSubmitService = (e: React.MouseEvent) => {
     e.preventDefault();
-    // Submit service and features data here
-    const formattedData = {
+
+    const dataToSave = {
       features: features.flatMap((feature) =>
         feature.items
           .filter((item) => item.title !== "")
@@ -196,7 +189,7 @@ export const EditServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKe
       ) as Features[],
     };
 
-    setData(formattedData);
+    setData(dataToSave);
     ToastMessage({ message: "Success saving edit service features...", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();

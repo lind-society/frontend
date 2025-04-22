@@ -12,7 +12,7 @@ import { FileData, Payload } from "../../../types";
 
 interface UploadPhotoProps {
   folder: string;
-  type: "photos" | "videos" | "video360s";
+  type: "photos" | "videos" | "video360s" | "floor-plan";
   title: string;
   description: string;
   fileUrl: string[];
@@ -26,17 +26,13 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
   const handleFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
     const { response } = await uploadFile(files!, folder, type);
-
     const uploadedUrls = response?.data.successFiles.map((file) => file.url) || [];
-
     setFileUrl([...fileUrl, ...uploadedUrls]);
   };
 
   const handleRemoveFiles = (index: number) => {
     if (!window.confirm("Are you sure want to remove this image?")) return;
-
     deleteFile({ key: fileUrl[index] });
-
     setFileUrl(fileUrl.filter((_, i) => i !== index));
   };
 
@@ -55,7 +51,7 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
           <span className="pl-2 text-sm text-primary whitespace-nowrap">{type === "photos" ? "Max. 2mb" : "Max. 20mb"}</span>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-2 2xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4">
         {type === "photos" && (
           <>
             {fileUrl.map((image, index) => (
@@ -88,6 +84,20 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
                   <IoCloseOutline className="text-light" />
                 </button>
                 <Images360 src={video} />
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 2xl:grid-cols-3">
+        {type === "floor-plan" && (
+          <>
+            {fileUrl.map((image, index) => (
+              <div key={index} className="relative">
+                <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full -top-2 -right-2 z-1 bg-secondary">
+                  <IoCloseOutline className="text-light" />
+                </button>
+                <Img src={image || "/temp-business.webp"} alt={`Selected image ${index + 1}`} className="w-full rounded aspect-square" />
               </div>
             ))}
           </>

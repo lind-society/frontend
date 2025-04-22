@@ -73,8 +73,8 @@ export const EditKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, 
 
   const handleSubmitService = (e: React.MouseEvent) => {
     e.preventDefault();
-    // Submit key features data here
-    const formattedData = {
+
+    const dataToSave = {
       facilities: facilities
         .filter((feature) => feature.description !== "")
         .map((feature) => ({
@@ -83,7 +83,7 @@ export const EditKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, 
         })) as Facilities[],
     };
 
-    setData(formattedData);
+    setData(dataToSave);
     ToastMessage({ message: "Success saving edit key features...", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();

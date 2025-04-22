@@ -6,13 +6,13 @@ import { baseApiURL } from "../static";
 import { useState } from "react";
 
 interface UseFileUpload<T> {
-  uploadFile: (files: File | File[], folder: string, type: "photos" | "videos" | "video360s") => Promise<{ response: T | null }>;
+  uploadFile: (files: File | File[], folder: string, type: "photos" | "videos" | "video360s" | "floor-plan") => Promise<{ response: T | null }>;
   isLoading: boolean;
 }
 
 export const useUploads = <T>(): UseFileUpload<T> => {
   const [loading, setLoading] = useState<boolean>(false);
-  const uploadFile = async (files: File | File[], folder: string, type: "photos" | "videos" | "video360s"): Promise<{ response: T | null }> => {
+  const uploadFile = async (files: File | File[], folder: string, type: "photos" | "videos" | "video360s" | "floor-plan"): Promise<{ response: T | null }> => {
     setLoading(true);
     const formData = new FormData();
     if (Array.isArray(files)) {

@@ -21,7 +21,7 @@ interface LocationProps {
 export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<LocationPersistedType>(persistedDataKey);
-  const { setData, data } = useStore();
+  const { setData, data, clearData } = useStore();
 
   const [formState, setFormState] = React.useState<LocationFormState>({
     placeNearby: data.placeNearby || [],
@@ -78,8 +78,22 @@ export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChang
         city: selectedCity?.label,
         placeNearby: formState.placeNearby,
       };
-      onChange(false);
+
       setData(dataToSave);
+      onChange(false);
+    } else {
+      const dataToDelete = {
+        address: "",
+        postalCode: "",
+        mapLink: "",
+        country: "",
+        state: "",
+        city: "",
+        placeNearby: [],
+      };
+
+      clearData(dataToDelete);
+      onChange(true);
     }
   }, [formState, selectedCity, selectedCountry, selectedProvince]);
 
@@ -91,12 +105,7 @@ export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChang
       distance: Number(formState.placeDistance),
     };
 
-    setFormState((prev) => ({
-      ...prev,
-      placeNearby: [...prev.placeNearby, place],
-      placeName: "",
-      placeDistance: "",
-    }));
+    setFormState((prev) => ({ ...prev, placeNearby: [...prev.placeNearby, place], placeName: "", placeDistance: "" }));
   };
 
   const removePlaceNearby = (id: number) => {

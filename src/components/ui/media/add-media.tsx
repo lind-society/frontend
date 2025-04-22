@@ -27,7 +27,7 @@ interface MediaProps {
 export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<MediaPersistedType>(persistedDataKey);
-  const { setData, data } = useStore();
+  const { setData, data, clearData } = useStore();
 
   const { uploadFile, isLoading } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi({ url: "storages", key: ["photoAdditional"] });
@@ -39,14 +39,7 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
       data.additionals.reduce((acc, additional) => {
         const key = additional.type;
         if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
-        acc[key].field.push({
-          id: crypto.randomUUID(),
-          name: additional.name,
-          description: additional.description,
-          photos: additional.photos,
-
-          photosURLView: [],
-        });
+        acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos });
         return acc;
       }, {} as Record<string, Section>)
     );
@@ -57,6 +50,7 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
     photos: data.photos?.length ? data.photos : [],
     videos: data.videos?.length ? data.videos : [],
     video360s: data.video360s?.length ? data.video360s : [],
+    floorPlans: data.floorPlans?.length ? data.floorPlans : [],
   };
 
   const [formState, setFormState] = React.useState<FormStateType>(initialFormState);
@@ -70,27 +64,29 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
   React.useEffect(() => {
     if (!onChange) return;
 
-    const isComplete = formState.additional.length > 0 && formState.photos.length > 0 && formState.videos.length > 0 && formState.video360s.length > 0;
+    const hasAnyAdditional = formState.additional.some((a) => a.field.some((b) => b.name !== "" && b.description !== "" && b.photos.length > 0));
+
+    const isComplete = hasAnyAdditional && formState.photos.length > 0 && formState.videos.length > 0;
 
     if (isComplete) {
       const dataToSave = {
         additionals: formState.additional.flatMap((section) =>
           section.field
-            .filter((field) => field.name !== "" || field.description !== "" || field.photos.length > 0)
-            .map((field) => ({
-              name: field.name || section.title,
-              type: section.title.toLowerCase(),
-              description: field.description || "No description",
-              photos: field.photos.length ? field.photos : [],
-            }))
+            .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)
+            .map((field) => ({ name: field.name, type: section.title.toLowerCase(), description: field.description, photos: field.photos }))
         ) as AdditionalItem[],
         photos: formState.photos.filter((photo) => photo !== ""),
         videos: formState.videos.filter((video) => video !== ""),
         video360s: formState.video360s.filter((video360) => video360 !== ""),
+        floorPlans: formState.floorPlans.filter((floorPlan) => floorPlan !== ""),
       };
 
       setData(dataToSave);
       onChange(false);
+    } else {
+      const dataToDelete = { additionals: [], photos: [], videos: [], video360s: [], floorPlans: [] };
+      clearData(dataToDelete);
+      onChange(true);
     }
   }, [formState]);
 
@@ -105,7 +101,6 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
     updateFormState({ additional: updatedAdditional });
   };
 
-  // Actions
   const addAdditional = (title: string) => {
     updateAdditionalState([{ title, field: [createEmptyField()] }, ...formState.additional]);
 
@@ -137,7 +132,7 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
         index === additionalIndex
           ? {
               ...section,
-              field: section.field.map((field) => (field.id === fieldId ? { ...field, name: "", description: "", photos: [], photosURLView: [] } : field)),
+              field: section.field.map((field) => (field.id === fieldId ? { ...field, name: "", description: "", photos: [] } : field)),
             }
           : section
       )
@@ -158,23 +153,13 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
 
     const { response } = await uploadFile(files, type, "photos");
 
-    const viewFiles = files.map((file) => URL.createObjectURL(file));
-
     if (response) {
       updateAdditionalState(
         formState.additional.map((section, sIndex) =>
           sIndex === additionalIndex
             ? {
                 ...section,
-                field: section.field.map((field) =>
-                  field.id === fieldId
-                    ? {
-                        ...field,
-                        photos: [...field.photos, ...response.data.successFiles.map((file) => file.url)],
-                        photosURLView: [...field.photosURLView, ...viewFiles],
-                      }
-                    : field
-                ),
+                field: section.field.map((field) => (field.id === fieldId ? { ...field, photos: [...field.photos, ...response.data.successFiles.map((file) => file.url)] } : field)),
               }
             : section
         )
@@ -195,15 +180,7 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
         sIndex === additionalIndex
           ? {
               ...section,
-              field: section.field.map((field) =>
-                field.id === fieldId
-                  ? {
-                      ...field,
-                      photos: field.photos.filter((_, index) => index !== imgIndex),
-                      photosURLView: field.photosURLView.filter((_, index) => index !== imgIndex),
-                    }
-                  : field
-              ),
+              field: section.field.map((field) => (field.id === fieldId ? { ...field, photos: field.photos.filter((_, index) => index !== imgIndex) } : field)),
             }
           : section
       )
@@ -217,7 +194,9 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
 
         <UploadPhoto folder={type} type="videos" title="Video" description="Catalog Video *" fileUrl={formState.videos} setFileUrl={(videos) => updateFormState({ videos })} />
 
-        <UploadPhoto folder={type} type="video360s" title="360 Tour" description="360 Tour *" fileUrl={formState.video360s} setFileUrl={(video360s) => updateFormState({ video360s })} />
+        <UploadPhoto folder={type} type="video360s" title="360 Tour" description="360 Tour" fileUrl={formState.video360s} setFileUrl={(video360s) => updateFormState({ video360s })} />
+
+        <UploadPhoto folder={type} type="floor-plan" title="Floor Plan" description="Floor Plan" fileUrl={formState.floorPlans} setFileUrl={(floorPlans) => updateFormState({ floorPlans })} />
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">

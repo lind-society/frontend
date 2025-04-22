@@ -7,7 +7,7 @@ import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks
 import { EditKeyFeatures, EditLocation, EditMedia, EditServiceFeatures, Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
-import { FaDownload } from "react-icons/fa";
+import { FaUpload } from "react-icons/fa";
 
 import { General } from "./general";
 import { VillaPolicies } from "./villa-policies";
@@ -98,8 +98,8 @@ export const EditHomeVillaPage = () => {
             {isPending ? (
               <div className="loader size-4 after:size-4"></div>
             ) : (
-              <div className="flex items-center gap-2 ">
-                <FaDownload /> Publish
+              <div className="flex items-center gap-2">
+                <FaUpload /> Publish
               </div>
             )}
           </Button>

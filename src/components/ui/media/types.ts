@@ -1,12 +1,10 @@
 import { AdditionalItem } from "../../../types";
 
-// Types
 export interface Field {
   id: string;
   name: string;
   description: string;
   photos: string[];
-  photosURLView: string[];
 }
 
 export interface Section {
@@ -18,6 +16,7 @@ export interface MediaType {
   photos: string[];
   videos: string[];
   video360s: string[];
+  floorPlans: string[];
 }
 
 export interface FormStateType extends MediaType {

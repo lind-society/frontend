@@ -6,7 +6,7 @@ import { ImageProps } from "../types";
 
 export const Img = ({ src, alt, className = "", loading = "eager", sizes, srcSet }: ImageProps) => {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   return (
     <div ref={ref} className={`relative overflow-hidden ${className}`}>
