@@ -27,7 +27,7 @@ interface MediaProps {
 export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<MediaPersistedType>(persistedDataKey);
-  const { setData, data, clearData } = useStore();
+  const { setData, data } = useStore();
 
   const { uploadFile, isLoading } = useUploads<Payload<FileData>>();
   const { mutate: deleteFile } = useCreateApi({ url: "storages", key: ["photoAdditional"] });
@@ -84,8 +84,6 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
       setData(dataToSave);
       onChange(false);
     } else {
-      const dataToDelete = { additionals: [], photos: [], videos: [], video360s: [], floorPlans: [] };
-      clearData(dataToDelete);
       onChange(true);
     }
   }, [formState]);

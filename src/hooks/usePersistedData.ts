@@ -20,7 +20,7 @@ const createStorageProvider = (type: "localStorage" | "sessionStorage"): Persist
 interface DataStoreState<T> {
   data: Partial<T>;
   setData: (newData: Partial<T>) => void;
-  clearData: (deleteData: Partial<T>) => void;
+  clearData: () => void;
 }
 
 export function usePersistentData<T>(storeName: string, storageType: "localStorage" | "sessionStorage" = "sessionStorage") {
@@ -32,10 +32,7 @@ export function usePersistentData<T>(storeName: string, storageType: "localStora
           set((state) => ({
             data: { ...state.data, ...newData },
           })),
-        clearData: (deleteData) =>
-          set((state) => ({
-            data: { ...state.data, ...deleteData },
-          })),
+        clearData: () => set({}),
       }),
       {
         name: storeName,

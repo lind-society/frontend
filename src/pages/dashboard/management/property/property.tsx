@@ -1,25 +1,25 @@
-// import * as React from "react";
+import * as React from "react";
 
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+import { PackageTab } from "./package";
 
 import { Layout } from "../../../../components/ui";
-// import { Button } from "../../../../components";
+import { Button } from "../../../../components";
 
-// import { IoFilterSharp } from "react-icons/io5";
-// import { Management } from "./management";
-// import { Package } from "./package";
-// import { FaPlus } from "react-icons/fa";
+import { IoFilterSharp } from "react-icons/io5";
+import { FaPlus } from "react-icons/fa";
 
-// const tabs = ["Management", "Package"];
+const tabs = ["Package"];
 
 export const PropertyPage = () => {
-  // const [activeTab, setActiveTab] = React.useState<string>("Management");
-  // const navigate = useNavigate();
+  const [activeTab, setActiveTab] = React.useState<string>("Package");
+  const navigate = useNavigate();
 
   return (
     <Layout>
       {/* Header */}
-      {/* <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
+      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="text-2xl font-bold">Property Management</h1>
 
         {activeTab === "Management" ? (
@@ -40,12 +40,12 @@ export const PropertyPage = () => {
           </button>
         ))}
       </div>
-
-      {activeTab === "Management" && <Management />}
-      {activeTab === "Package" && <Package />} */}
-      <div className="flex items-center justify-center min-h-400">
+      {/* 
+      {activeTab === "Management" && <ManagementTab />} */}
+      {activeTab === "Package" && <PackageTab />}
+      {/* <div className="flex items-center justify-center min-h-400">
         <h2 className="text-4xl font-semibold text-dark/50">Coming soon</h2>
-      </div>
+      </div> */}
     </Layout>
   );
 };

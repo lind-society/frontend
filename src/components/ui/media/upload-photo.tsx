@@ -48,7 +48,7 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
               <FaUpload /> {isLoading ? "Waiting..." : "Browse"}
             </label>
           </div>
-          <span className="pl-2 text-sm text-primary whitespace-nowrap">{type === "photos" ? "Max. 2mb" : "Max. 20mb"}</span>
+          <span className="pl-2 text-sm text-primary whitespace-nowrap">{type === "photos" ? "Max. 2mb" : type === "floor-plan" ? "Max. 5mb" : type === "video360s" ? "Max. 15mb" : "Max. 20mb"}</span>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4">

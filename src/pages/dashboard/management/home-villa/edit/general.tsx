@@ -12,7 +12,7 @@ import { capitalize } from "../../../../../utils";
 
 import { Currency, Data, OptionType, Owner, Payload, Villa } from "../../../../../types";
 
-type AvailabilityType = "daily" | "monthly" | "yearly";
+type AvailabilityType = "monthly" | "yearly";
 
 interface FormState {
   name: string;
@@ -23,7 +23,12 @@ interface FormState {
     monthly: boolean;
     yearly: boolean;
   };
+  dailyBasePrice: string;
+  lowSeasonPriceRate: string;
+  highSeasonPriceRate: string;
+  peakSeasonPriceRate: string;
   price: Record<AvailabilityType, string>;
+  isDiscount: Record<AvailabilityType, boolean>;
   discount: Record<AvailabilityType, string>;
   currency: OptionType | null;
   availabilityQuotaPerMonth: string;
@@ -33,9 +38,9 @@ interface FormState {
 
 const FormField = ({ label, children, required = false }: { label: string; children: React.ReactNode; required?: boolean }) => (
   <div className="flex items-center">
-    <label className="block whitespace-nowrap min-w-60">
+    <span className="block whitespace-nowrap min-w-60">
       {label} {required && "*"}
-    </label>
+    </span>
     {children}
   </div>
 );
@@ -71,10 +76,8 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     dataAfterEdit.availability?.daily ||
     dataAfterEdit.availability?.monthly ||
     dataAfterEdit.availability?.yearly ||
-    dataAfterEdit.priceDaily ||
     dataAfterEdit.priceMonthly ||
     dataAfterEdit.priceYearly ||
-    dataAfterEdit.discountDaily ||
     dataAfterEdit.discountMonthly ||
     dataAfterEdit.discountYearly ||
     dataAfterEdit.availabilityQuotaPerMonth ||
@@ -95,13 +98,19 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       monthly: data.availability?.monthly || false,
       yearly: data.availability?.yearly || false,
     },
+    dailyBasePrice: String(data.dailyBasePrice || ""),
+    lowSeasonPriceRate: String(data.lowSeasonPriceRate || ""),
+    highSeasonPriceRate: String(data.highSeasonPriceRate || ""),
+    peakSeasonPriceRate: String(data.peakSeasonPriceRate || ""),
     price: {
-      daily: String(data.priceDaily || ""),
       monthly: String(data.priceMonthly || ""),
       yearly: String(data.priceYearly || ""),
     },
+    isDiscount: {
+      monthly: false,
+      yearly: false,
+    },
     discount: {
-      daily: String(data.discountDaily || ""),
       monthly: String(data.discountMonthly || ""),
       yearly: String(data.discountYearly || ""),
     },
@@ -121,10 +130,8 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     const hasChanges =
       !arraysEqual(formState.name, data.name || "") ||
       !arraysEqual(formState.secondaryName, data.secondaryName || "") ||
-      !arraysEqual(formState.price.daily, String(data.priceDaily || "")) ||
       !arraysEqual(formState.price.monthly, String(data.priceMonthly || "")) ||
       !arraysEqual(formState.price.yearly, String(data.priceYearly || "")) ||
-      !arraysEqual(formState.discount.daily, String(data.discountDaily || "")) ||
       !arraysEqual(formState.discount.monthly, String(data.discountMonthly || "")) ||
       !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||
       !arraysEqual(formState.currency?.value || "", String(findCurrency?.id || "")) ||
@@ -153,11 +160,11 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     }
   }, [currencies, owners]);
 
-  const updateFormState = (field: keyof Villa, value: string | OptionType | null) => {
+  const updateFormState = (field: keyof FormState, value: string | boolean | OptionType | null) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
-  const updateNestedField = (category: "price" | "availability" | "discount", field: AvailabilityType, value: string | boolean) => {
+  const updateNestedField = (category: "price" | "availability" | "discount" | "isDiscount", field: "daily" | "monthly" | "yearly", value: string | boolean) => {
     setFormState((prev) => ({
       ...prev,
       [category]: {
@@ -167,7 +174,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     }));
   };
 
-  const handleAvailabilityChange = (type: AvailabilityType) => {
+  const handleAvailabilityChange = (type: "daily" | "monthly" | "yearly") => {
     const { availability } = formState;
     const isCurrentEnabled = availability[type];
 
@@ -188,39 +195,68 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
     updateNestedField("discount", type, value);
   };
 
-  const calculateDiscountedPrice = (type: AvailabilityType) => {
-    const basePrice = +formState.price[type] || 0;
-    const discountPercent = +formState.discount[type] || 0;
-    return basePrice - basePrice * (discountPercent / 100);
+  const handlePriceRateChange = (type: "lowSeasonPriceRate" | "highSeasonPriceRate" | "peakSeasonPriceRate", value: string) => {
+    if (+value > 100 || +value < 0) return;
+    updateFormState(type, value);
+  };
+
+  const calculateDiscountedPrice = (price: string, discount: string) => {
+    return (+price - +price * (+discount / 100)).toFixed(2);
   };
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
     e.preventDefault();
-    const { name, secondaryName, highlight, currency, owner, discount, price } = formState;
+    const {
+      name,
+      secondaryName,
+      highlight,
+      currency,
+      owner,
+      discount,
+      price,
+      dailyBasePrice,
+      lowSeasonPriceRate,
+      highSeasonPriceRate,
+      peakSeasonPriceRate,
+      availabilityQuotaPerMonth,
+      availabilityQuotaPerYear,
+      isDiscount,
+      availability,
+    } = formState;
 
     const requiredFields = [name, secondaryName, highlight, currency, owner];
 
-    const hasAnyOnePriceAndDiscount = Object.values(price).some((p) => !!p) && Object.values(discount).some((d) => !!d);
+    const daily = [dailyBasePrice, lowSeasonPriceRate, highSeasonPriceRate, peakSeasonPriceRate].every((field) => !!field);
+
+    const monthly = [price.monthly, discount.monthly, availabilityQuotaPerMonth, isDiscount.monthly].every((field) => !!field);
+
+    const yearly = [price.yearly, discount.yearly, availabilityQuotaPerYear, isDiscount.yearly].every((field) => !!field);
+
+    const hasAnyOnePriceAndDiscount = daily || monthly || yearly;
 
     const isComplete = requiredFields.every((field) => !!field) && hasAnyOnePriceAndDiscount;
 
     if (!isComplete) return;
 
     const dataToSave = {
-      name: formState.name,
-      secondaryName: formState.secondaryName,
-      highlight: formState.highlight,
-      currencyId: formState.currency?.value || "",
-      ownerId: formState.owner?.value || "",
-      availabilityQuotaPerMonth: formState.availability.monthly ? +formState.availabilityQuotaPerMonth : 0,
-      availabilityQuotaPerYear: formState.availability.yearly ? +formState.availabilityQuotaPerYear : 0,
-      availability: formState.availability,
-      priceDaily: formState.availability.daily ? +formState.price.daily : 0,
-      priceMonthly: formState.availability.monthly ? +formState.price.monthly : 0,
-      priceYearly: formState.availability.yearly ? +formState.price.yearly : 0,
-      discountDaily: formState.availability.daily ? +formState.discount.daily : 0,
-      discountMonthly: formState.availability.monthly ? +formState.discount.monthly : 0,
-      discountYearly: formState.availability.yearly ? +formState.discount.yearly : 0,
+      name,
+      secondaryName,
+      highlight,
+      currencyId: currency?.value || "",
+      ownerId: owner?.value || "",
+      availability: availability,
+      dailyBasePrice: availability.daily ? +dailyBasePrice : 0,
+      lowSeasonPriceRate: availability.daily ? +lowSeasonPriceRate : 0,
+      highSeasonPriceRate: availability.daily ? +highSeasonPriceRate : 0,
+      peakSeasonPriceRate: availability.daily ? +peakSeasonPriceRate : 0,
+      availabilityQuotaPerMonth: availability.monthly ? +availabilityQuotaPerMonth : 0,
+      availabilityQuotaPerYear: availability.yearly ? +availabilityQuotaPerYear : 0,
+      priceMonthly: availability.monthly ? +price.monthly : 0,
+      priceYearly: availability.yearly ? +price.yearly : 0,
+      discountMonthly: availability.monthly ? +discount.monthly : 0,
+      discountYearly: availability.yearly ? +discount.yearly : 0,
+      checkInHour: "00:00",
+      checkOutHour: "00:00",
     };
 
     setData(dataToSave);
@@ -263,9 +299,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
           <div className="flex items-center gap-4">
             {(["daily", "monthly", "yearly"] as const).map((type) => (
               <div key={type} className="flex items-center gap-2">
-                <label className="cursor-pointer" htmlFor={type}>
-                  {capitalize(type)}
-                </label>
+                <span className="block cursor-pointer">{capitalize(type)}</span>
                 <input type="checkbox" className="cursor-pointer accent-primary" checked={formState.availability[type]} onChange={() => handleAvailabilityChange(type)} />
               </div>
             ))}
@@ -294,55 +328,139 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
           />
         </FormField>
 
-        <div className="space-y-4">
-          {(["daily", "monthly", "yearly"] as const)
+        {formState.availability["daily"] && (
+          <div className="space-y-6">
+            <FormField label="Daily Base Price" required>
+              <NumberInput
+                className="input-text placeholder:text-dark"
+                value={formState.dailyBasePrice}
+                onChange={(e) => updateFormState("dailyBasePrice", e.target.value)}
+                placeholder={`0`}
+                required
+              />
+              <p className="ml-2">{formState.currency?.label !== null || formState.currency?.label !== undefined ? formState.currency?.label : ""}</p>
+            </FormField>
+            <div className="grid grid-cols-3 gap-16 px-8">
+              <div className="space-y-2.5 text-center">
+                <p className="leading-5">
+                  Low Season Price Rate* <br /> (Daily Base Price)
+                </p>
+                <div className="flex items-center">
+                  <NumberInput
+                    value={formState.lowSeasonPriceRate}
+                    onChange={(e) => handlePriceRateChange("lowSeasonPriceRate", e.target.value)}
+                    className="input-text placeholder:text-dark"
+                    placeholder="0"
+                  />
+                  <span className="ml-2">%</span>
+                </div>
+                <p className="text-sm">Final Price : {calculateDiscountedPrice(formState.dailyBasePrice, formState.lowSeasonPriceRate)}</p>
+              </div>
+              <div className="space-y-2.5 text-center">
+                <p className="leading-5">
+                  High Season Price Rate* <br /> (Daily Base Price)
+                </p>
+                <div className="flex items-center">
+                  <NumberInput
+                    value={formState.highSeasonPriceRate}
+                    onChange={(e) => handlePriceRateChange("highSeasonPriceRate", e.target.value)}
+                    className="input-text placeholder:text-dark"
+                    placeholder="0"
+                  />
+                  <span className="ml-2">%</span>
+                </div>
+                <p className="text-sm">Final Price :{calculateDiscountedPrice(formState.dailyBasePrice, formState.highSeasonPriceRate)}</p>
+              </div>
+              <div className="space-y-2.5 text-center">
+                <p className="leading-5">
+                  Peak Season Price Rate* <br /> (Daily Base Price)
+                </p>
+                <div className="flex items-center">
+                  <NumberInput
+                    value={formState.peakSeasonPriceRate}
+                    onChange={(e) => handlePriceRateChange("peakSeasonPriceRate", e.target.value)}
+                    className="input-text placeholder:text-dark"
+                    placeholder="0"
+                  />
+                  <span className="ml-2">%</span>
+                </div>
+                <p className="text-sm">Final Price : {calculateDiscountedPrice(formState.dailyBasePrice, formState.peakSeasonPriceRate)}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-8">
+          {(["monthly", "yearly"] as const)
             .filter((type) => formState.availability[type] === true)
             .map((type) => (
-              <FormField key={type} label={`Price (${type})`} required>
-                <div className="flex items-center w-full gap-4">
-                  <NumberInput
-                    className="input-text"
-                    value={formState.price[type]}
-                    onChange={(e) => handlePriceChange(type, e.target.value)}
-                    placeholder={`Enter price in ${formState.currency?.label}`}
-                    required
-                  />
+              <div key={type} className="space-y-4">
+                <FormField label={`Price ${type}`} required>
+                  <div className="flex items-center w-full gap-4">
+                    <div className="flex items-center w-full gap-2 max-w-80">
+                      <NumberInput
+                        className="input-text max-w-72 placeholder:text-dark"
+                        value={formState.price[type]}
+                        onChange={(e) => handlePriceChange(type, e.target.value)}
+                        placeholder={`0`}
+                        required
+                      />
+                      <p>{formState.currency?.label !== null || formState.currency?.label !== undefined ? formState.currency?.label : ""}</p>
+                    </div>
 
-                  <label className="block whitespace-nowrap">Discount</label>
+                    <div className="flex items-center justify-center w-full gap-8">
+                      <p>Discount*</p>
+                      <div className="flex gap-4">
+                        {(["Yes", "No"] as const).map((status, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <label className="cursor-pointer" htmlFor={status}>
+                              {status}
+                            </label>
+                            <input
+                              type="checkbox"
+                              id={status}
+                              className="cursor-pointer accent-primary"
+                              checked={formState.isDiscount[type] === (status === "Yes")}
+                              onChange={() => updateNestedField("isDiscount", type, status === "Yes")}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
-                  <NumberInput className="input-text" value={formState.discount[type]} onChange={(e) => handleDiscountChange(type, e.target.value)} placeholder="e.g. 0%" />
-
-                  <label className="block whitespace-nowrap">Discounted Price</label>
-
-                  <input type="number" className="input-text" value={calculateDiscountedPrice(type)} readOnly />
+                    <div className="flex items-center w-full gap-2 max-w-60">
+                      <p>Discount</p>
+                      <NumberInput
+                        className="input-text max-w-32 placeholder:text-dark"
+                        value={formState.discount[type]}
+                        onChange={(e) => handleDiscountChange(type, e.target.value)}
+                        placeholder="0"
+                        disabled={formState.isDiscount[type]}
+                      />
+                      <p>%</p>
+                    </div>
+                  </div>
+                </FormField>
+                <div className="flex justify-end">
+                  <p className="w-full text-sm italic whitespace-nowrap max-w-40">Final Price : {calculateDiscountedPrice(formState.price[type], formState.discount[type])}</p>
                 </div>
-              </FormField>
+
+                <FormField label={`Minimum stay (${type})`} required>
+                  <select
+                    onChange={(e) => updateFormState(type === "monthly" ? "availabilityQuotaPerMonth" : "availabilityQuotaPerYear", e.target.value)}
+                    value={type === "monthly" ? formState.availabilityQuotaPerMonth : formState.availabilityQuotaPerYear}
+                    className="w-full input-select"
+                  >
+                    {[...Array(type === "monthly" ? 12 : 10)].map((_, index) => (
+                      <option key={index} value={index + 1}>
+                        {index + 1}
+                      </option>
+                    ))}
+                  </select>
+                </FormField>
+              </div>
             ))}
         </div>
-
-        {formState.availability["monthly"] && (
-          <FormField label="Minimum rent time (Monthly)" required>
-            <select onChange={(e) => updateFormState("availabilityQuotaPerMonth", e.target.value)} value={formState.availabilityQuotaPerMonth} className="w-full input-select">
-              {[...Array(12)].map((_, index) => (
-                <option key={index} value={index + 1}>
-                  {index + 1}
-                </option>
-              ))}
-            </select>
-          </FormField>
-        )}
-
-        {formState.availability["yearly"] && (
-          <FormField label="Minimum rent time (Yearly)" required>
-            <select onChange={(e) => updateFormState("availabilityQuotaPerYear", e.target.value)} value={formState.availabilityQuotaPerYear} className="w-full input-select">
-              {[...Array(10)].map((_, index) => (
-                <option key={index} value={index + 1}>
-                  {index + 1}
-                </option>
-              ))}
-            </select>
-          </FormField>
-        )}
 
         <FormField label="Highlights" required>
           <textarea

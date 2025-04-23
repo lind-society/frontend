@@ -23,7 +23,7 @@ export const CardContent = ({ isLoading, datas, type, openDeleteModal }: CardCon
   if (datas.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-400">
-        <span className="text-4xl font-bold text-dark/50">Buy management not found</span>
+        <span className="text-4xl font-bold text-dark/50">{type === "home-villa" ? "Home & Villa management not found" : "Buy management not found"}</span>
       </div>
     );
   }

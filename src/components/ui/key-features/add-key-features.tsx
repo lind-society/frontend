@@ -84,6 +84,8 @@ export const AddKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, o
 
       setData(dataToSave);
       onChange(false);
+    } else {
+      onChange(true);
     }
   }, [facilities, shouldSave]);
 

@@ -32,7 +32,7 @@ const FormField = ({ label, children, required = false }: { label: string; child
 export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<Partial<Property>>("add-property");
-  const { setData, data, clearData } = useStore();
+  const { setData, data } = useStore();
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
@@ -97,17 +97,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
       onChange(false);
       setData(dataToSave);
     } else {
-      const deleteToSave = {
-        name: "",
-        secondaryName: "",
-        highlight: "",
-        price: 0,
-        discount: 0,
-        currencyId: undefined,
-        ownerId: undefined,
-      };
       onChange(true);
-      clearData(deleteToSave);
     }
   }, [formState]);
 

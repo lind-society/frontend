@@ -84,8 +84,6 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
       setData(dataToSave);
       onChange(false);
     } else {
-      const dataToDelete = { policies: [] };
-      setData(dataToDelete);
       onChange(true);
     }
   }, [houseRules, cancellationTerms, paymentTerms]);
