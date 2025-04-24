@@ -1,9 +1,11 @@
-// src/services/authService.ts
 import axios from "axios";
+
 import Cookies from "universal-cookie";
-import { QueryKey, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { baseApiURL } from "../static";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { Payload } from "../types";
+import { API } from "../utils/api";
 
 interface AuthResponse {
   accessToken: string;
@@ -12,6 +14,8 @@ interface AuthResponse {
 
 const TOKEN_KEY = "lind_auth_token";
 const USER_KEY = "lind_user";
+const baseApiURL = "https://lind-society.duckdns.org/api/v1";
+
 const cookies = new Cookies();
 
 export const authentication = {
@@ -33,7 +37,7 @@ export const authentication = {
 
   logout: async () => {
     try {
-      await axios.post(`${baseApiURL}/auth/logout`, {}, { headers: { Authorization: `Bearer ${authentication.getToken()}` } });
+      await API.post(`${baseApiURL}/auth/logout`);
     } catch (error: any) {
       throw new Error(error.response?.data?.message || error.response?.data?.data.message || "Logout failed");
     }
@@ -56,23 +60,6 @@ export const authentication = {
     const userJson = cookies.get(USER_KEY);
     return userJson ? userJson : null;
   },
-
-  // Helper function to make authenticated API requests
-  getApiWithAuth: async <T>(url: string, params?: Record<string, any>) => {
-    return await axios
-      .get<T>(`${baseApiURL}/${url}`, {
-        headers: {
-          Authorization: `Bearer ${authentication.getToken()}`,
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-        },
-        params,
-      })
-      .then((response) => {
-        return response.data;
-      });
-  },
 };
 
 // React Query Hooks
@@ -93,18 +80,5 @@ export const useLogout = () => {
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["authUser"] });
     },
-  });
-};
-
-export const useGetApiWithAuth = <T>({ key, url, params }: { key: QueryKey; url: string; params?: Record<string, any> }) => {
-  return useQuery<T | undefined>({
-    queryKey: key,
-    queryFn: async () => {
-      const responseProfile = await authentication.getApiWithAuth<T>(url, params);
-      return responseProfile;
-    },
-    gcTime: 300000,
-    staleTime: 60000,
-    enabled: true,
   });
 };

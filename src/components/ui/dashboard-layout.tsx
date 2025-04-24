@@ -9,19 +9,14 @@ import { TopBar } from "./topbar";
 
 import { motion, Variants } from "framer-motion";
 
-import { Payload } from "../../types";
-
-interface UserData {
-  username: string;
-  email: string;
-}
+import { Payload, User } from "../../types";
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const isTabletMid = useMediaQuery("(max-width: 1024px)");
 
   const [openNav, setOpenNav] = React.useState<boolean>(true);
 
-  const { data } = useGetApiWithAuth<Payload<UserData>>({ key: ["profile"], url: `admins/profile` });
+  const { data } = useGetApiWithAuth<Payload<User>>({ key: ["profile"], url: `admins/profile` });
 
   const containerVariants: Variants = {
     open: {

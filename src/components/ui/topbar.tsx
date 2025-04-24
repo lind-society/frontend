@@ -6,12 +6,9 @@ import { Button, Img } from "../../components";
 
 import { IoIosArrowDown, IoMdMenu, IoMdSearch } from "react-icons/io";
 
-interface UserTypes {
-  username: string;
-  email: string;
-}
+import { User } from "../../types";
 
-export const TopBar = ({ setOpenNav, data }: { setOpenNav: React.Dispatch<React.SetStateAction<boolean>>; data: UserTypes | undefined }) => {
+export const TopBar = ({ setOpenNav, data }: { setOpenNav: React.Dispatch<React.SetStateAction<boolean>>; data: User | undefined }) => {
   const [ref, dropdown, toggleDropdown] = useToggleState(false);
 
   const [loading, setLoading] = React.useState<boolean>(false);

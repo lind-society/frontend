@@ -31,7 +31,7 @@ export const CardContent = ({ isLoading, datas, type, openDeleteModal }: CardCon
   const bedrooms = 0;
   const bathrooms = 0;
   const occupancy = 0;
-  const defaultImage = "/temp.png";
+  const defaultImage = "/images/modern-villa-background.webp";
 
   return (
     <div className="flex flex-wrap gap-4 xl:gap-10 2xl:gap-4">

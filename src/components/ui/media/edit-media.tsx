@@ -242,7 +242,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
 
         <UploadPhoto folder={type} type="video360s" title="360 Tour" description="360 Tour *" fileUrl={formState.video360s} setFileUrl={(video360s) => updateFormState({ video360s })} />
 
-        <UploadPhoto folder={type} type="floor-plan" title="Floor Plan" description="Floor Plan" fileUrl={formState.floorPlans} setFileUrl={(floorPlans) => updateFormState({ floorPlans })} />
+        <UploadPhoto folder={type} type="floor-plans" title="Floor Plan" description="Floor Plan" fileUrl={formState.floorPlans} setFileUrl={(floorPlans) => updateFormState({ floorPlans })} />
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">

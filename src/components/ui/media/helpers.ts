@@ -8,7 +8,6 @@ export const createEmptyField = (): Field => ({
   name: "",
   description: "",
   photos: [],
-  photosURLView: [],
 });
 
 export const createInitialSections = (titles: string[]): Section[] => {

@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useState } from "react";
 
 import { Navigate } from "react-router-dom";
@@ -9,13 +8,10 @@ import { Background, Img } from "../../components";
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-interface LoginFormData {
-  identifier: string;
-  password: string;
-}
+import { LoginCredentials } from "../../types";
 
 export const LoginPage = () => {
-  const [formData, setFormData] = useState<LoginFormData>({
+  const [formData, setFormData] = useState<LoginCredentials>({
     identifier: "",
     password: "",
   });

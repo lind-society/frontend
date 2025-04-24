@@ -2,25 +2,11 @@ import axios from "axios";
 
 import { useQuery, useMutation, useQueryClient, QueryKey } from "@tanstack/react-query";
 
-import Cookies from "universal-cookie";
-
 import toast from "react-hot-toast";
 
 import { baseApiURL } from "../static";
 import { Payload } from "../types";
-
-const cookies = new Cookies();
-
-const getHeaders = () => {
-  return {
-    headers: {
-      Authorization: `Bearer ${cookies.get("lind_auth_token")}`,
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-    },
-  };
-};
+import { API } from "../utils/api";
 
 interface FetchOptions<T> {
   key: QueryKey;
@@ -36,7 +22,7 @@ const GC_TIME = 3 * 60 * 60 * 1000;
 const STALE_TIME = 2 * 60 * 60 * 1000;
 
 // Fetch all items
-export const useGetApi = <T = any>({ key, url, params, gcTime = GC_TIME, staleTime = STALE_TIME, enabled = true, select }: FetchOptions<T>) => {
+export const useGetApi = <T>({ key, url, params, gcTime = GC_TIME, staleTime = STALE_TIME, enabled = true, select }: FetchOptions<T>) => {
   return useQuery<T, Error>({
     queryKey: key,
     queryFn: async () => {
@@ -50,13 +36,26 @@ export const useGetApi = <T = any>({ key, url, params, gcTime = GC_TIME, staleTi
   });
 };
 
+export const useGetApiWithAuth = <T>({ key, url, params }: { key: QueryKey; url: string; params?: Record<string, any> }) => {
+  return useQuery<T | undefined>({
+    queryKey: key,
+    queryFn: async () => {
+      const { data } = await API.get<T>(url, { params });
+      return data;
+    },
+    gcTime: 300000,
+    staleTime: 60000,
+    enabled: true,
+  });
+};
+
 // Create a new item
 export const useCreateApi = <T>({ key, url, redirectPath }: { url: string; key: QueryKey; redirectPath?: string }) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newItem: T) => {
       try {
-        const { data } = await axios.post<Payload<string>>(`${baseApiURL}/${url}`, newItem, getHeaders());
+        const { data } = await API.post<Payload<string>>(`${baseApiURL}/${url}`, newItem);
         toast.success(data.message || "Success adding data");
         if (redirectPath) {
           setTimeout(() => {
@@ -70,8 +69,7 @@ export const useCreateApi = <T>({ key, url, redirectPath }: { url: string; key: 
         if (axios.isAxiosError(error)) {
           const responseData = error.response?.data;
           if (responseData?.data) {
-            const errorMessages = responseData.data.map((err: { field: string; message: string[] }) => `${err.field}: ${err.message.join(", ")}`).join("\n");
-            throw new Error(errorMessages);
+            throw new Error(responseData.data[0]);
           }
           throw new Error(responseData?.message || "Failed to adding data");
         }
@@ -95,7 +93,7 @@ export const useUpdateApi = <T>({ key, url, redirectPath }: { url: string; key: 
   return useMutation({
     mutationFn: async ({ id, updatedItem }: { id: string; updatedItem: T }) => {
       try {
-        const { data } = await axios.patch<Payload<string>>(`${baseApiURL}/${url}/${id}`, updatedItem, getHeaders());
+        const { data } = await API.patch<Payload<string>>(`${baseApiURL}/${url}/${id}`, updatedItem);
         toast.success(data.message || "Success updating data");
         if (redirectPath) {
           setTimeout(() => {
@@ -109,8 +107,7 @@ export const useUpdateApi = <T>({ key, url, redirectPath }: { url: string; key: 
         if (axios.isAxiosError(error)) {
           const responseData = error.response?.data;
           if (responseData?.data) {
-            const errorMessages = responseData.data.map((err: { field: string; message: string[] }) => `${err.field}: ${err.message.join(", ")}`).join("\n");
-            throw new Error(errorMessages);
+            throw new Error(responseData.data[0]);
           }
           throw new Error(responseData?.message || "Failed to updating data");
         }
@@ -133,7 +130,7 @@ export const useDeleteApi = ({ key, url, redirectPath }: { url: string; key: Que
   return useMutation({
     mutationFn: async (id: string) => {
       try {
-        const { data } = await axios.delete<Payload<string>>(`${baseApiURL}/${url}/${id}`, getHeaders());
+        const { data } = await API.delete<Payload<string>>(`${baseApiURL}/${url}/${id}`);
         toast.success(data.message || "Success deleting data");
         if (redirectPath) {
           setTimeout(() => {
@@ -146,8 +143,7 @@ export const useDeleteApi = ({ key, url, redirectPath }: { url: string; key: Que
         if (axios.isAxiosError(error)) {
           const responseData = error.response?.data;
           if (responseData?.data) {
-            const errorMessages = responseData.data.map((err: { field: string; message: string[] }) => `${err.field}: ${err.message.join(", ")}`).join("\n");
-            throw new Error(errorMessages);
+            throw new Error(responseData.data[0]);
           }
           throw new Error(responseData?.message || "Failed to deleting data");
         }
