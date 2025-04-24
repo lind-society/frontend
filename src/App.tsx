@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import {
   AddBuyPage,
@@ -37,6 +37,9 @@ const App = () => {
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
+        <Route path="/" element={<Navigate to="/admin/login" replace />} />
+        <Route path="/login" element={<Navigate to="/admin/login" replace />} />
+
         <Route index path="/admin/login" element={<LoginPage />} />
 
         <Route element={<ProtectedRoute />}>
