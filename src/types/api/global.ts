@@ -5,6 +5,12 @@ export interface Coordinate {
   longitude: number;
 }
 
+export interface PhoneCodes {
+  name: string;
+  dial_code: string;
+  code: string;
+}
+
 export interface PlaceNearby {
   name: string;
   distance: number;

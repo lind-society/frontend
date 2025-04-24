@@ -8,7 +8,7 @@ import { FaEdit } from "react-icons/fa";
 
 import { deleteKeysObject } from "../../../../utils";
 
-import { Owner } from "../../../../types";
+import { Owner, PhoneCodes } from "../../../../types";
 
 export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
   const [editModal, setEditModal] = React.useState<boolean>(false);
@@ -16,7 +16,7 @@ export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
 
   const { mutate: editOwner, isPending } = useUpdateApi({ key: ["edit-owner"], url: "owners", redirectPath: "/dashboard/management/owner" });
 
-  const { data: phoneCodes } = useGetApi({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
+  const { data: phoneCodes } = useGetApi<PhoneCodes[]>({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
 
   const handleChange = (key: keyof Owner, value: string) => {
     setOwner((prev) => ({ ...prev, [key]: value }));

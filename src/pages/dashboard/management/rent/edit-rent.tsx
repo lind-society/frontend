@@ -11,7 +11,7 @@ import { Button, NumberInput } from "../../../../components";
 
 import { statusBookings } from "../../../../static";
 
-import { Booking, Currency, Data, OptionType, Payload } from "../../../../types";
+import { Booking, Currency, Data, OptionType, Payload, PhoneCodes } from "../../../../types";
 
 export const EditRentPage = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export const EditRentPage = () => {
 
   const { data: respBooking } = useGetApi<Payload<Booking>>({ key: ["get-booking", id], url: `bookings/${id}` });
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
-  const { data: phoneCodes } = useGetApi({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
+  const { data: phoneCodes } = useGetApi<PhoneCodes[]>({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
 
   const { mutate: editBooking } = useUpdateApi({ key: ["edit-booking"], url: "bookings", redirectPath: `/dashboard/management/rent/edit/${id}` });
 
@@ -63,7 +63,7 @@ export const EditRentPage = () => {
       setName(customer.name);
       setEmail(customer.email);
       setPhoneNumber(customer.phoneNumber);
-      setPhoneCountryCode({ value: findPhoneCode.dial_code, label: `${findPhoneCode.name} (${findPhoneCode.dial_code})` });
+      setPhoneCountryCode({ value: findPhoneCode?.dial_code || "", label: `${findPhoneCode?.name} (${findPhoneCode?.dial_code})` });
 
       setTotalAmount(String(respBooking.data.totalAmount));
       setTotalGuest(String(respBooking.data.totalGuest));

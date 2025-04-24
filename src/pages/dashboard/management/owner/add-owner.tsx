@@ -8,7 +8,7 @@ import { FaPlus } from "react-icons/fa";
 
 import { deleteKeysObject } from "../../../../utils";
 
-import { Owner } from "../../../../types";
+import { Owner, PhoneCodes } from "../../../../types";
 
 const initValue = { name: "", type: "", companyName: "", email: "", phoneNumber: "", address: "", website: "", status: "" };
 
@@ -18,7 +18,7 @@ export const AddOwnerPage = () => {
 
   const { mutate: addOwner, isPending } = useCreateApi({ key: ["add-owner"], url: "owners", redirectPath: "/dashboard/management/owner" });
 
-  const { data: phoneCodes } = useGetApi({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
+  const { data: phoneCodes } = useGetApi<PhoneCodes[]>({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
 
   const handleChange = (key: keyof Owner, value: string) => {
     setOwner((prev) => ({ ...prev, [key]: value }));
