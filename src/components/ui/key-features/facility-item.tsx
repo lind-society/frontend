@@ -60,7 +60,7 @@ export const FacilityItem: React.FC<FacilityItemProps> = ({ facility, onUpdateFi
       </div>
 
       <div className="w-full space-y-1">
-        <label className="block text-sm">Description *</label>
+        <label className="block text-sm">Description</label>
         <input
           type="text"
           placeholder="Description"

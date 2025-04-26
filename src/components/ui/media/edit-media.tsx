@@ -25,7 +25,7 @@ interface MediaProps {
   onChange?: (hasChanges: boolean) => void;
 }
 
-export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey, onChange, type }) => {
+export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataKey, onChange, type }) => {
   // store data to session storage
   const useStore = usePersistentData<MediaPersistedType>(persistedDataKey);
   const useEdit = usePersistentData<MediaPersistedType>(editDataKey);
@@ -33,7 +33,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
   const { setData, data: dataAfterEdit } = useEdit();
 
   const { uploadFile, isLoading } = useUploads<Payload<FileData>>();
-  const { mutate: deleteFile } = useCreateApi({ url: "storages", key: [type] });
+  const { mutate: deleteFile } = useCreateApi({ key: [type], url: "/storages" });
 
   const data = React.useMemo(() => {
     return dataAfterEdit.photos || dataAfterEdit.video360s || dataAfterEdit.videos || dataAfterEdit.additionals ? dataAfterEdit : dataBeforeEdit;
@@ -171,7 +171,7 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
 
     const hasAnyAdditional = formState.additional.some((a) => a.field.some((b) => b.name !== "" && b.description !== "" && b.photos.length > 0));
 
-    const isComplete = hasAnyAdditional && formState.photos.length > 0 && formState.videos.length > 0;
+    const isComplete = hasAnyAdditional && formState.photos.length > 0;
 
     if (!isComplete) return;
 
@@ -238,11 +238,11 @@ export const EditMedia: React.FC<MediaProps> = ({ persistedDataKey, editDataKey,
 
         <UploadPhoto folder={type} type="photos" title="Photo" description="Catalog Photo *" fileUrl={formState.photos} setFileUrl={(photos) => updateFormState({ photos })} />
 
-        <UploadPhoto folder={type} type="videos" title="Video" description="Catalog Video *" fileUrl={formState.videos} setFileUrl={(videos) => updateFormState({ videos })} />
+        <UploadPhoto folder={type} type="videos" title="Video" description="Catalog Video" fileUrl={formState.videos} setFileUrl={(videos) => updateFormState({ videos })} />
 
         <UploadPhoto folder={type} type="video360s" title="360 Tour" description="360 Tour *" fileUrl={formState.video360s} setFileUrl={(video360s) => updateFormState({ video360s })} />
 
-        <UploadPhoto folder={type} type="floor-plans" title="Floor Plan" description="Floor Plan" fileUrl={formState.floorPlans} setFileUrl={(floorPlans) => updateFormState({ floorPlans })} />
+        <UploadPhoto folder={type} type="floor-plans" title="Floor Plans" description="Floor Plans" fileUrl={formState.floorPlans} setFileUrl={(floorPlans) => updateFormState({ floorPlans })} />
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">

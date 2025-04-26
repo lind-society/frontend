@@ -4,25 +4,24 @@ import { useQuery } from "@tanstack/react-query";
 
 import Select from "react-select";
 
-import { baseApiURL } from "../../../static";
-
 import { LocationSelectorProps } from "../../../types";
+import { API_URL } from "../../../utils/api";
 
 const GC_TIME = 3 * 60 * 60 * 1000;
 const STALE_TIME = 2 * 60 * 60 * 1000;
 
 const fetchCountries = async () => {
-  const { data } = await axios.get(`${baseApiURL}/regions/countries`);
+  const { data } = await axios.get(`${API_URL}/regions/countries`);
   return data.map((c: any) => ({ value: c.id, label: c.name }));
 };
 
 const fetchProvinces = async (countryId: string) => {
-  const { data } = await axios.get(`${baseApiURL}/regions/provinces?countryId=${countryId}`);
+  const { data } = await axios.get(`${API_URL}/regions/provinces?countryId=${countryId}`);
   return data.map((p: any) => ({ value: p.id, label: p.name }));
 };
 
 const fetchCities = async (country: string, provinceId: string) => {
-  const { data } = await axios.get(`${baseApiURL}/regions/cities?country=${country}&province=${provinceId}`);
+  const { data } = await axios.get(`${API_URL}/regions/cities?countryId=${country}&provinceId=${provinceId}`);
   return data.map((c: any) => ({ value: c.id, label: c.name }));
 };
 

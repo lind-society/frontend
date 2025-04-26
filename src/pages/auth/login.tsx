@@ -35,7 +35,6 @@ export const LoginPage = () => {
 
     try {
       await authentication.login(formData.identifier, formData.password);
-      window.location.href = "/admin/login";
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
     } finally {
@@ -43,7 +42,7 @@ export const LoginPage = () => {
     }
   };
 
-  const { isSuccess } = useGetApiWithAuth({ key: ["profile"], url: `admins/profile` });
+  const { isSuccess } = useGetApiWithAuth({ key: ["profile"], url: `/admins/profile` });
 
   if (isSuccess) {
     return <Navigate to="/dashboard/main" />;

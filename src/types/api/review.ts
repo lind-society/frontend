@@ -1,13 +1,14 @@
+import { Booking } from "./booking";
+import { Villa } from "./villa";
+
 export interface Review {
   id: string;
-  name: string;
-  country: string;
-  checkIn: string;
-  checkOut: string;
   rating: string;
   message: string;
   bookingId: string;
   villaId: string;
+  villa: Villa;
+  booking: Booking;
   createdAt: string;
   updatedAt: string;
 }

@@ -24,7 +24,7 @@ export const HomeVillaPage = () => {
     url: `villas`,
     params: { search: searchQuery, page: currentPage },
   });
-  const { mutate: deleteVilla, isPending } = useDeleteApi({ url: "villas", key: ["delete-villa"], redirectPath: "/dashboard/management/home-villa" });
+  const { mutate: deleteVilla, isPending } = useDeleteApi({ key: ["delete-villa"], url: "/villas", redirectPath: "/dashboard/management/home-villa" });
 
   const villas = respVillas?.data.data || [];
   const totalPages = respVillas?.data.meta.totalPages || 1;

@@ -16,7 +16,7 @@ interface KeyFeaturesProps {
   onChange?: (hasChanges: boolean) => void;
 }
 
-export const AddKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, onChange }) => {
+export const AddKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKey, onChange }) => {
   const useStore = usePersistentData<Partial<FeaturePersistedType>>(persistedDataKey);
   const { setData, data } = useStore();
 
@@ -70,16 +70,14 @@ export const AddKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, o
 
   React.useEffect(() => {
     if (!onChange) return;
-    const isComplete = facilities.some((facility) => facility.includeDescription && facility.description.trim() !== "");
+    const isDescriptionField = facilities.some((facility) => facility.includeDescription && facility.description.trim() !== "");
+    const isDescriptionNotField = facilities.some((facility) => facility.includeDescription === false);
+
+    const isComplete = isDescriptionField || isDescriptionNotField;
 
     if (isComplete) {
       const dataToSave = {
-        facilities: facilities
-          .filter((feature) => feature.includeDescription && feature.description !== "")
-          .map((feature) => ({
-            id: feature.id,
-            description: feature.description,
-          })) as Facilities[],
+        facilities: facilities.map((feature) => ({ id: feature.id, description: feature.description })) as Facilities[],
       };
 
       setData(dataToSave);
@@ -100,7 +98,7 @@ export const AddKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, o
               name: facility.name,
               icon: facility.icon,
               description: data.facilities?.find((item) => item.id === facility.id)?.description || "",
-              includeDescription: true,
+              includeDescription: data.facilities?.find((item) => item.id === facility.id)?.description === "" ? false : true,
             }))
         );
       } else {
@@ -112,7 +110,7 @@ export const AddKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, o
               name: facility.name,
               icon: facility.icon,
               description: "",
-              includeDescription: true,
+              includeDescription: facility.description !== "" ? false : true,
             }))
         );
       }

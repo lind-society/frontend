@@ -9,7 +9,7 @@ export const ProtectedRoute = () => {
 
   if (!isAuthenticated) return <Navigate to="/admin/login" />;
 
-  const { isLoading, isError } = useGetApiWithAuth({ key: ["profile"], url: `admins/profile` });
+  const { isLoading, isError } = useGetApiWithAuth({ key: ["profile"], url: "/admins/profile" });
 
   if (isLoading) {
     return (

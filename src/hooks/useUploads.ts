@@ -1,9 +1,10 @@
+import { useState } from "react";
+
 import axios from "axios";
 
 import toast from "react-hot-toast";
 
-import { baseApiURL } from "../static";
-import { useState } from "react";
+import { API_URL } from "../utils/api";
 
 interface UseFileUpload<T> {
   uploadFile: (files: File | File[], folder: string, type: "photos" | "videos" | "video360s" | "floor-plans") => Promise<{ response: T | null }>;
@@ -27,7 +28,7 @@ export const useUploads = <T>(): UseFileUpload<T> => {
 
     try {
       const resData = await axios.post<T>(`/storages/${type}`, formData, {
-        baseURL: baseApiURL,
+        baseURL: API_URL,
         headers: {
           "Content-Type": "multipart/form-data",
         },

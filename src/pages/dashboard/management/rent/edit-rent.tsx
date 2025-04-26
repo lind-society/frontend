@@ -29,29 +29,28 @@ export const EditRentPage = () => {
   const [checkOutDate, setCheckOutDate] = React.useState<string>("");
   const [currency, setCurrency] = React.useState<OptionType | null>(null);
 
-  const { data: respBooking } = useGetApi<Payload<Booking>>({ key: ["get-booking", id], url: `bookings/${id}` });
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
+  const { data: respBooking } = useGetApi<Payload<Booking>>({ key: ["get-booking", id], url: `bookings/${id}` });
   const { data: phoneCodes } = useGetApi<PhoneCodes[]>({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
-
-  const { mutate: editBooking } = useUpdateApi({ key: ["edit-booking"], url: "bookings", redirectPath: `/dashboard/management/rent/edit/${id}` });
+  const { mutate: editBooking } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "/bookings", redirectPath: `/dashboard/management/rent/edit/${id}` });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formattedData = {
+    const dataToSave = {
       customer: {
         email,
         name,
         phoneNumber,
-        phoneCountryCode: phoneCountryCode?.value,
-      },
+        phoneCountryCode: phoneCountryCode?.value || "",
+      } as Booking["customer"],
       totalAmount: Number(totalAmount),
       totalGuest: Number(totalGuest),
       status,
       checkInDate,
       checkOutDate,
-      currencyId: currency?.value,
+      currencyId: currency?.value || "",
     };
-    editBooking({ id: id || "", updatedItem: formattedData });
+    editBooking({ id: id || "", updatedItem: dataToSave });
   };
 
   React.useEffect(() => {
@@ -170,7 +169,7 @@ export const EditRentPage = () => {
               <label className="block whitespace-nowrap min-w-60">Phone Number</label>
               <Select
                 className="w-full text-sm"
-                options={phoneCodes?.map((phone: any) => ({ value: phone.dial_code, label: `${phone.name} (${phone.dial_code})` }))}
+                options={phoneCodes?.map((phone) => ({ value: phone.dial_code, label: `${phone.name} (${phone.dial_code})` }))}
                 value={phoneCountryCode}
                 onChange={(option) => setPhoneCountryCode(option)}
                 placeholder="Select Currency"

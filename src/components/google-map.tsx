@@ -9,7 +9,7 @@ const containerStyle = {
 const Google = ({ lat = -8.7225847, lng = 115.1694985 }: { lat: number; lng: number }) => {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: "AIzaSyB_2tYRauYMQnu7rbWsRykYuqN0Jdtuyg8",
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAP_API_URL,
   });
 
   const [_, setMap] = React.useState(null);
@@ -27,7 +27,6 @@ const Google = ({ lat = -8.7225847, lng = 115.1694985 }: { lat: number; lng: num
 
   return isLoaded ? (
     <GoogleMap mapContainerStyle={containerStyle} center={{ lat, lng }} zoom={10} onLoad={onLoad} onUnmount={onUnmount}>
-      {/* Child components, such as markers, info windows, etc. */}
       <div>{}</div>
     </GoogleMap>
   ) : (

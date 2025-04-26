@@ -1,8 +1,10 @@
-import { FaBath, FaBed, FaUser } from "react-icons/fa";
-import { capitalize } from "../../utils";
 import { Link } from "react-router-dom";
+
 import { Img } from "../image";
-import { GrClose } from "react-icons/gr";
+
+import { FaBath, FaBed, FaRegTrashAlt, FaStar, FaUser } from "react-icons/fa";
+
+import { capitalize } from "../../utils";
 
 interface CardContentProps {
   isLoading: boolean;
@@ -39,9 +41,15 @@ export const CardContent = ({ isLoading, datas, type, openDeleteModal }: CardCon
         <div key={data.id} className="w-full card-shadow max-w-72">
           <div className="relative w-full">
             <button onClick={() => openDeleteModal(data)} className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1">
-              <GrClose />
+              <FaRegTrashAlt />
             </button>
             <Img src={data.photos && data.photos.length > 0 ? data.photos[0] : defaultImage} alt={data.name} className="object-cover w-full h-60" />
+            {type === "home-villa" && (
+              <span className="absolute flex items-center gap-1 py-1.5 px-4 text-xs font-bold bg-primary bottom-0 left-0 text-light z-1">
+                <FaStar />
+                {data.averageRating || 0}
+              </span>
+            )}
           </div>
           <div className="text-primary bg-light">
             <div className="flex items-center justify-between px-4 py-2 border-b border-dark/30">
@@ -62,7 +70,9 @@ export const CardContent = ({ isLoading, datas, type, openDeleteModal }: CardCon
               <Link to={`/dashboard/management/${type}/edit/${data.id}`}>
                 <h2 className="font-semibold">{data.name}</h2>
               </Link>
-              <p className="font-bold">{data.price || data.priceDaily || data.priceMonthly || data.priceYearly}</p>
+              <p className="font-bold">
+                {data.currency.symbol} {data.price || data.dailyBasePrice || data.priceMonthly || data.priceYearly}
+              </p>
             </div>
           </div>
         </div>

@@ -6,9 +6,11 @@ import {
   AddBuyPage,
   AddHomeVillaPage,
   AddPackagePage,
+  APITest,
   BuyPage,
   EditBuyPage,
   EditHomeVillaPage,
+  EditPackagePage,
   EditRentPage,
   HomeVillaPage,
   LoginPage,
@@ -17,10 +19,9 @@ import {
   OwnerPage,
   PropertyPage,
   RentPage,
-  ReviewPage,
 } from "./pages";
 
-import { ProtectedRoute } from "./components";
+import { ProtectedRoute } from "./routes/protected-route";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -36,6 +37,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <ScrollToTop />
+
       <Routes>
         <Route path="/" element={<Navigate to="/admin/login" replace />} />
         <Route path="/login" element={<Navigate to="/admin/login" replace />} />
@@ -55,9 +57,10 @@ const App = () => {
           <Route path="/dashboard/management/rent/edit/:id" element={<EditRentPage />} />
           <Route path="/dashboard/management/property" element={<PropertyPage />} />
           <Route path="/dashboard/management/property/package/add" element={<AddPackagePage />} />
-          <Route path="dashboard/customer-reviews" element={<ReviewPage />} />
+          <Route path="/dashboard/management/property/package/edit/:id" element={<EditPackagePage />} />
         </Route>
 
+        <Route path="/api-test" element={<APITest />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>

@@ -84,7 +84,7 @@ export const RentPage = () => {
     refetch,
   } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings", searchQuery, currentPage], url: "bookings", params: { search: searchQuery, page: currentPage } });
 
-  const { mutate: editRent } = useUpdateApi({ key: ["edit-booking"], url: "bookings" });
+  const { mutate: editRent } = useUpdateApi({ key: ["edit-booking"], url: "/bookings" });
 
   const bookings = respBookings?.data.data || [];
   const totalPages = respBookings?.data.meta.totalPages || 1;

@@ -29,7 +29,7 @@ const Table = ({ owners, isLoading, error }: OwnersTableProps) => {
     {
       key: "phoneNumber" as keyof Owner,
       header: "Phone Number",
-      render: (owner: Owner) => owner.phoneCountryCode + owner.phoneNumber,
+      render: (owner: Owner) => `${owner.phoneCountryCode} ${owner.phoneNumber}`,
     },
     {
       key: "email" as keyof Owner,
@@ -73,7 +73,7 @@ export const OwnerPage = () => {
     data: respOwners,
     isPending,
     error,
-  } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners", searchQuery, currentPage], url: "owners", params: { search: searchQuery, page: currentPage } });
+  } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners", searchQuery, currentPage], url: "/owners", params: { search: searchQuery, page: currentPage } });
 
   const owners = respOwners?.data.data || [];
   const totalPage = respOwners?.data.meta.totalPages || 1;

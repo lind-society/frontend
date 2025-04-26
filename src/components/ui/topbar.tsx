@@ -1,15 +1,17 @@
 import * as React from "react";
 
-import { authentication, useToggleState } from "../../hooks";
+import { authentication, useGetApiWithAuth, useToggleState } from "../../hooks";
 
 import { Button, Img } from "../../components";
 
 import { IoIosArrowDown, IoMdMenu, IoMdSearch } from "react-icons/io";
 
-import { User } from "../../types";
+import { Payload, User } from "../../types";
 
-export const TopBar = ({ setOpenNav, data }: { setOpenNav: React.Dispatch<React.SetStateAction<boolean>>; data: User | undefined }) => {
+export const TopBar = ({ setOpenNav }: { setOpenNav: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const [ref, dropdown, toggleDropdown] = useToggleState(false);
+
+  const { data } = useGetApiWithAuth<Payload<User>>({ key: ["profile"], url: `/admins/profile` });
 
   const [loading, setLoading] = React.useState<boolean>(false);
 
@@ -39,8 +41,8 @@ export const TopBar = ({ setOpenNav, data }: { setOpenNav: React.Dispatch<React.
           <div className="flex items-center gap-2 cursor-pointer text-dark" onClick={toggleDropdown}>
             <Img src="/logo.png" className="border rounded-full size-8 sm:size-10 border-gray/50" alt="user-profile" />
             <div className="mr-1">
-              <p className="text-sm font-semibold sm:text-base">{data?.username}</p>
-              <p className="text-xs tracking-tight sm:text-sm">{data?.email}</p>
+              <p className="text-sm font-semibold sm:text-base">{data?.data.username}</p>
+              <p className="text-xs tracking-tight sm:text-sm">{data?.data.email}</p>
             </div>
             <p className={`duration-300 ${dropdown && "rotate-180"}`}>
               <IoIosArrowDown />

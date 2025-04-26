@@ -1,0 +1,77 @@
+{
+  "state": {
+    "data": {
+      "name": "Home Vila",
+      "secondaryName": "Secondary Home Villa",
+      "highlight": "Sem convallis lectus est placerat ornare. Ornare at hac pretium velit viverra montes. Vulputate hac montes hendrerit nulla fames metus accumsan. Eu adipiscing risus tempor aptent enim quis egestas class montes suscipit.",
+      "currencyId": "6558102a-3237-4f71-bc3f-addea8a51a56",
+      "ownerId": "90d7bcbb-d21a-46f0-90a7-99e5b0d659d7",
+      "availabilityQuotaPerMonth": 0,
+      "availabilityQuotaPerYear": 0,
+      "checkInHour": "00:00",
+      "checkOutHour": "00:00",
+      "dailyBasePrice": 1234,
+      "discountMonthly": 0,
+      "discountYearly": 0,
+      "highSeasonPriceRate": 12,
+      "lowSeasonPriceRate": 12,
+      "peakSeasonPriceRate": 12,
+      "priceMonthly": 0,
+      "priceYearly": 0,
+      "additionals": [
+        { "name": "Bedrooms 1", "type": "bedrooms", "description": "single bed", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/login-background-1744918064783.png"] },
+        { "name": "Bedrooms 2", "type": "bedrooms", "description": "double bed", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/dashboard-1744918108798.png"] },
+        { "name": "Areas 1", "type": "outdoor areas", "description": "can smoking", "photos": ["https://storage.googleapis.com/lind-society-dev/villa/login-background-1744918160852.png"] }
+      ],
+      "photos": ["https://storage.googleapis.com/lind-society-dev/villa/login-background-1744917999344.png"],
+      "videos": ["https://storage.googleapis.com/lind-society-dev/villa/villa-1744918004723.mp4"],
+      "video360s": ["https://storage.googleapis.com/lind-society-dev/villa/test-pano-1744918014270.jpg"],
+      "address": "jln. soekarno hattaaa",
+      "postalCode": "1234567",
+      "mapLink": "https://maps.app.goo.gl/qhJY7j3Xm9uNNrrt8",
+      "country": "United Arab Emirates",
+      "state": "Abu Dhabi",
+      "city": "Al Ain",
+      "placeNearby": [{ "name": "Warung pak tri", "distance": 125 }],
+      "facilities": [
+        { "id": "e3453623-4098-4344-a898-5caf4685c133", "description": "pool 1" },
+        { "id": "56162125-f04a-42fe-b32e-4d79545cc6db", "description": "245" },
+        { "id": "04834e5e-d9a7-4bad-bf00-372acc303293", "description": "200" },
+        { "id": "5a195708-60ff-4482-9111-006311d3a6dc", "description": "yes bathroom" },
+        { "id": "3e70696a-cd91-4109-9821-9891969d2d6b", "description": "noo" }
+      ],
+      "features": [
+        {
+          "name": "Futsal",
+          "icon": { "key": "mdi:office-building", "url": "https://api.iconify.design/mdi/office-building.svg" },
+          "type": "Facilities",
+          "free": false,
+          "price": 50000,
+          "discountType": "percentage",
+          "discount": null,
+          "currencyId": "6558102a-3237-4f71-bc3f-addea8a51a56",
+          "currency": { "code": "IDR", "id": "6558102a-3237-4f71-bc3f-addea8a51a56" }
+        },
+        {
+          "name": "Movies",
+          "icon": { "key": "mdi:movie-outline", "url": "https://api.iconify.design/mdi/movie-outline.svg" },
+          "type": "Entertainment",
+          "free": true,
+          "price": 0,
+          "discountType": "percentage",
+          "discount": null,
+          "currencyId": "6558102a-3237-4f71-bc3f-addea8a51a56",
+          "currency": {}
+        }
+      ],
+      "availability": { "daily": true, "monthly": false, "yearly": false },
+      "floorPlans": [],
+      "policies": [
+        { "name": "check in rules", "typeId": "1e268f76-610c-48dd-af60-9c7d570c02be", "description": "test", "icon": { "key": "key", "url": "url" } },
+        { "name": "check out rules", "typeId": "1e268f76-610c-48dd-af60-9c7d570c02be", "description": "asdf", "icon": { "key": "key", "url": "url" } },
+        { "name": "late check out rules", "typeId": "1e268f76-610c-48dd-af60-9c7d570c02be", "description": "afdsafasd", "icon": { "key": "key", "url": "url" } }
+      ]
+    }
+  },
+  "version": 0
+}

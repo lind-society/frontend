@@ -19,7 +19,7 @@ const houseRulesLists = ["Add check in rules", "Add check out rules", "Add late 
 const paymentTermsLists = ["Terms 1", "Terms 2", "Terms 3"];
 const cancellationTermsLists = ["Terms 1", "Terms 2", "Terms 3", "Terms 4", "Terms 5", "Terms 6"];
 
-export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
+export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { setData, data } = useStore();
@@ -62,7 +62,7 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
       const dataToSave = {
         policies: [
           ...houseRules.map((rule) => ({
-            name: rule.title,
+            name: rule.title.replace("Add ", ""),
             typeId: baseHouseRules,
             description: rule.value,
             icon: { key: "key", url: "url" },
@@ -98,7 +98,7 @@ export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void 
         <div className="space-y-8">
           {houseRules.map((rule) => (
             <div key={rule.id} className="flex items-center">
-              <label className="block whitespace-nowrap min-w-60">{rule.title} *</label>
+              <label className="block whitespace-nowrap min-w-60">Add {rule.title} *</label>
               <input
                 type="text"
                 placeholder={`Enter description for ${rule.title}`}

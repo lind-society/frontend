@@ -1,4 +1,5 @@
 export * from "./not-found";
+export * from "./api-test";
 
 export * from "./auth/login";
 
@@ -20,5 +21,5 @@ export * from "./dashboard/management/owner/edit-owner";
 
 export * from "./dashboard/management/property/property";
 export * from "./dashboard/management/property/package/add-package";
-
-export * from "./dashboard/review/review";
+export * from "./dashboard/management/property/package/edit-package";
+export * from "./dashboard/management/property/package/delete-package";

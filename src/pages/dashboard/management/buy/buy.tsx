@@ -26,8 +26,8 @@ export const BuyPage = () => {
   });
 
   const { mutate: deleteProperty, isPending } = useDeleteApi({
-    url: "properties",
     key: ["delete-property"],
+    url: "/properties",
     redirectPath: "/dashboard/management/buy",
   });
 

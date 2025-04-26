@@ -30,7 +30,7 @@ const arraysEqual = (a: string, b: string) => {
   return true;
 };
 
-export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDataKey, onChange }) => {
+export const EditLocationTab: React.FC<LocationProps> = ({ persistedDataKey, editDataKey, onChange }) => {
   // Store data to session storage
   const useStore = usePersistentData<LocationPersistedType>(persistedDataKey);
   const useEdit = usePersistentData<LocationPersistedType>(editDataKey);
@@ -104,13 +104,10 @@ export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDa
   const handleSubmitLocation = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const requiredFields: Array<keyof LocationFormState> = ["address", "postalCode", "mapLink", "country", "state", "city", "placeNearby"];
+    const requiredFields: Array<keyof LocationFormState> = ["address", "postalCode", "mapLink", "country", "state", "city"];
     const isComplete = requiredFields.every((field) => {
       if (field === "country" || field === "state" || field === "city") {
         return formState[field] !== null;
-      }
-      if (field === "placeNearby") {
-        return formState[field].length > 0;
       }
       return formState[field] !== "";
     });
@@ -187,7 +184,7 @@ export const EditLocation: React.FC<LocationProps> = ({ persistedDataKey, editDa
         </FormField>
 
         <FormField label="Postal code" required>
-          <input type="text" required className="input-text" placeholder="1234567" value={formState.postalCode} onChange={(e) => updateFormState("postalCode", e.target.value)} />
+          <NumberInput required className="input-text" placeholder="1234567" value={formState.postalCode} onChange={(e) => updateFormState("postalCode", e.target.value)} />
         </FormField>
 
         <FormField label="Google Map Link" required>

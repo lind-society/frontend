@@ -24,6 +24,7 @@ export interface Property {
   videos: string[];
   video360s: string[];
   floorPlans: string[];
+  averageRating: number;
   soldStatus: boolean;
   currencyId: string;
   currency: Currency;

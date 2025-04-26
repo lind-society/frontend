@@ -19,7 +19,7 @@ interface ServiceFeatures {
   onChange?: (hasChanges: boolean) => void;
 }
 
-export const EditServiceFeatures: React.FC<ServiceFeatures> = ({ persistedDataKey, editDataKey, onChange }) => {
+export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDataKey, editDataKey, onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<FeaturesPersistedType>(persistedDataKey);
   const useEdit = usePersistentData<FeaturesPersistedType>(editDataKey);

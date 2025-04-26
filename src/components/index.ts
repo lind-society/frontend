@@ -7,7 +7,6 @@ export * from "./motion";
 export * from "./pagination";
 export * from "./image";
 export * from "./background";
-export * from "./protected-route";
 export * from "./images360";
 export * from "./toast-message";
 export * from "./google-map";

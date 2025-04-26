@@ -18,7 +18,7 @@ interface LocationProps {
   onChange?: (hasChanges: boolean) => void;
 }
 
-export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChange }) => {
+export const AddLocationTab: React.FC<LocationProps> = ({ persistedDataKey, onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<LocationPersistedType>(persistedDataKey);
   const { setData, data } = useStore();
@@ -57,13 +57,10 @@ export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChang
   React.useEffect(() => {
     if (!onChange) return;
 
-    const requiredFields: Array<keyof LocationFormState> = ["address", "postalCode", "mapLink", "country", "state", "city", "placeNearby"];
+    const requiredFields: Array<keyof LocationFormState> = ["address", "postalCode", "mapLink", "country", "state", "city"];
     const isComplete = requiredFields.every((field) => {
       if (field === "country" || field === "state" || field === "city") {
         return formState[field] !== null;
-      }
-      if (field === "placeNearby") {
-        return formState[field].length > 0;
       }
       return formState[field] !== "";
     });
@@ -124,7 +121,7 @@ export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChang
         </FormField>
 
         <FormField label="Postal code" required>
-          <input type="text" required className="input-text" placeholder="1234567" value={formState.postalCode} onChange={(e) => handleInputChange("postalCode", e.target.value)} />
+          <NumberInput required className="input-text" placeholder="1234567" value={formState.postalCode} onChange={(e) => handleInputChange("postalCode", e.target.value)} />
         </FormField>
 
         <FormField label="Google Map Link" required>
@@ -140,6 +137,11 @@ export const AddLocation: React.FC<LocationProps> = ({ persistedDataKey, onChang
 
         <FormField label="Map Link">
           {error && <span className="text-red-600">please input a correct map link</span>}
+          {isLoading && (
+            <div className="flex items-center justify-center w-full min-h-200">
+              <div className="loader size-8 after:size-8"></div>
+            </div>
+          )}
           {!isLoading && !!formState.mapLink && !error && <GoogleMaps lat={respCoordinates?.latitude || 0} lng={respCoordinates?.longitude || 0} />}
         </FormField>
 

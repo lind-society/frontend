@@ -17,7 +17,7 @@ interface KeyFeaturesProps {
   onChange?: (hasChanges: boolean) => void;
 }
 
-export const EditKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, editDataKey, onChange }) => {
+export const EditKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKey, editDataKey, onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<FeaturePersistedType>(persistedDataKey);
   const useEdit = usePersistentData<FeaturePersistedType>(editDataKey);
@@ -75,12 +75,10 @@ export const EditKeyFeatures: React.FC<KeyFeaturesProps> = ({ persistedDataKey, 
     e.preventDefault();
 
     const dataToSave = {
-      facilities: facilities
-        .filter((feature) => feature.description !== "")
-        .map((feature) => ({
-          id: feature.id,
-          description: feature.includeDescription ? feature.description : "",
-        })) as Facilities[],
+      facilities: facilities.map((feature) => ({
+        id: feature.id,
+        description: feature.includeDescription ? feature.description : "",
+      })) as Facilities[],
     };
 
     setData(dataToSave);

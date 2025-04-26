@@ -11,7 +11,7 @@ import { Owner } from "../../../../types";
 export const DeleteOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
   const [editModal, setEditModal] = React.useState<boolean>(false);
 
-  const { mutate: deleteOwner } = useDeleteApi({ key: ["delete-owner"], url: "owners", redirectPath: "/dashboard/management/owner" });
+  const { mutate: deleteOwner } = useDeleteApi({ key: ["delete-owner"], url: "/owners", redirectPath: "/dashboard/management/owner" });
 
   const handleSubmit = (e: React.MouseEvent) => {
     e.preventDefault();

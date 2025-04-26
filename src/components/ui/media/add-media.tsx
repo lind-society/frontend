@@ -24,13 +24,13 @@ interface MediaProps {
   onChange?: (hasChanges: boolean) => void;
 }
 
-export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChange }) => {
+export const AddMediaTab: React.FC<MediaProps> = ({ persistedDataKey, type, onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<MediaPersistedType>(persistedDataKey);
   const { setData, data } = useStore();
 
   const { uploadFile, isLoading } = useUploads<Payload<FileData>>();
-  const { mutate: deleteFile } = useCreateApi({ url: "storages", key: ["photoAdditional"] });
+  const { mutate: deleteFile } = useCreateApi({ key: [type], url: "/storages" });
 
   const defaultAdditional: Section[] = React.useMemo(() => {
     if (!data.additionals?.length) return [];
@@ -66,7 +66,7 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
 
     const hasAnyAdditional = formState.additional.some((a) => a.field.some((b) => b.name !== "" && b.description !== "" && b.photos.length > 0));
 
-    const isComplete = hasAnyAdditional && formState.photos.length > 0 && formState.videos.length > 0;
+    const isComplete = hasAnyAdditional && formState.photos.length > 0;
 
     if (isComplete) {
       const dataToSave = {
@@ -190,11 +190,11 @@ export const AddMedia: React.FC<MediaProps> = ({ persistedDataKey, type, onChang
       <div className="space-y-8">
         <UploadPhoto folder={type} type="photos" title="Photo" description="Catalog Photo *" fileUrl={formState.photos} setFileUrl={(photos) => updateFormState({ photos })} />
 
-        <UploadPhoto folder={type} type="videos" title="Video" description="Catalog Video *" fileUrl={formState.videos} setFileUrl={(videos) => updateFormState({ videos })} />
+        <UploadPhoto folder={type} type="videos" title="Video" description="Catalog Video" fileUrl={formState.videos} setFileUrl={(videos) => updateFormState({ videos })} />
 
         <UploadPhoto folder={type} type="video360s" title="360 Tour" description="360 Tour" fileUrl={formState.video360s} setFileUrl={(video360s) => updateFormState({ video360s })} />
 
-        <UploadPhoto folder={type} type="floor-plans" title="Floor Plan" description="Floor Plan" fileUrl={formState.floorPlans} setFileUrl={(floorPlans) => updateFormState({ floorPlans })} />
+        <UploadPhoto folder={type} type="floor-plans" title="Floor Plans" description="Floor Plans" fileUrl={formState.floorPlans} setFileUrl={(floorPlans) => updateFormState({ floorPlans })} />
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">

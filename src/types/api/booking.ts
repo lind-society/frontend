@@ -2,8 +2,6 @@ import { Currency } from "./currency";
 import { Review } from "./review";
 import { Villa } from "./villa";
 
-export type BookingStatus = "requested" | "negotiation" | "waiting for payment" | "booked" | "done" | "canceled";
-
 export interface Customer {
   id: string;
   name: string;
@@ -20,7 +18,7 @@ export interface Booking {
   totalAmount: number;
   checkInDate: string;
   checkOutDate: string;
-  status: BookingStatus;
+  status: string;
   currencyId: string;
   customerId: string;
   activityId: string;

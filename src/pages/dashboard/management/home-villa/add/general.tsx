@@ -43,13 +43,13 @@ const FormField = ({ label, children, required = false }: { label: string; child
   </div>
 );
 
-export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
+export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { setData, data } = useStore();
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
-  const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
+  const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: "/owners" });
 
   const [formState, setFormState] = React.useState<FormState>({
     name: data.name || "",

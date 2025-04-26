@@ -23,27 +23,27 @@ export const SectionField = ({ field, sectionTitle, onNameChange, onDescriptionC
   return (
     <div className="space-y-2">
       <div className="flex items-center">
-        <label className="whitespace-nowrap min-w-60">Name</label>
+        <label className="whitespace-nowrap min-w-60">Name*</label>
         <input type="text" placeholder={sectionTitle} value={field.name} onChange={(e) => onNameChange(e.target.value)} className="input-text" />
-        <label className="px-8 whitespace-nowrap">Description</label>
+        <label className="px-8 whitespace-nowrap">Description*</label>
         <input type="text" placeholder="King bed, Single bed, Bathroom" value={field.description} onChange={(e) => onDescriptionChange(e.target.value)} className="input-text" />
       </div>
 
       <div className="flex items-center pt-1">
-        <label className="whitespace-nowrap min-w-60">Photo</label>
+        <label className="whitespace-nowrap min-w-60">Photo*</label>
         <div className="relative">
           <input type="file" id={field.id} onChange={onUpdateImage} hidden accept="image/*" multiple disabled={isLoading} />
           <label htmlFor={field.id} className="file-label">
             <FaUpload /> {isLoading ? "Waiting..." : "Browse"}
           </label>
         </div>
-        <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 2mb</span>
+        <span className="pl-2 text-sm text-primary whitespace-nowrap">Max. 5mb</span>
       </div>
 
       <div className="grid grid-cols-4 gap-2.5 pt-2">
         {field.photos.map((image, index) => (
           <div key={index} className="relative">
-            <button onClick={() => onRemoveImage(index)} type="button" className="absolute flex items-center justify-center w-5 h-5 rounded-full -top-2 -right-2 z-1 bg-secondary">
+            <button onClick={() => onRemoveImage(index)} type="button" className="absolute flex items-center justify-center rounded-full size-6 -top-2 -right-2 z-1 bg-secondary">
               <IoCloseOutline className="text-light" />
             </button>
             <Img src={image || "/temp-business.webp"} alt={`Selected image ${index + 1}`} className="w-full h-48 rounded" />

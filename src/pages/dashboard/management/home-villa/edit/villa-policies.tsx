@@ -21,7 +21,7 @@ const houseRulesLists = ["Add check in rules", "Add check out rules", "Add late 
 const paymentTermsLists = ["Terms 1", "Terms 2", "Terms 3"];
 const cancellationTermsLists = ["Terms 1", "Terms 2", "Terms 3", "Terms 4", "Terms 5", "Terms 6"];
 
-export const VillaPolicies: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
+export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<Villa>("get-villa");
   const useEdit = usePersistentData<Villa>("edit-villa");

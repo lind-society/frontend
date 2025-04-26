@@ -4,26 +4,28 @@ import { useLocation, useParams } from "react-router-dom";
 
 import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
 
-import { EditKeyFeatures, EditLocation, EditMedia, EditServiceFeatures, Layout } from "../../../../../components/ui";
+import { EditKeyFeaturesTab, EditLocationTab, EditMediaTab, EditServiceFeaturesTab, Layout } from "../../../../../components/ui";
+
 import { Button } from "../../../../../components";
 
 import { FaUpload } from "react-icons/fa";
 
-import { General } from "./general";
-import { VillaPolicies } from "./villa-policies";
-import { RentManagement } from "./rent-management";
+import { GeneralTab } from "./general";
+import { ReviewTab } from "./review";
+import { VillaPoliciesTab } from "./villa-policies";
+import { RentManagementTab } from "./rent-management";
 
 import { Payload, Villa } from "../../../../../types";
 
 import { deleteKeysObject } from "../../../../../utils";
 
-const tabs = ["Rent Management", "General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies"];
+const tabs = ["Rent Management", "General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies", "Review"];
 
 export const EditHomeVillaPage = () => {
   const { pathname } = useLocation();
   const { id } = useParams();
 
-  const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ url: "villas", key: ["editing-villa"], redirectPath: `/dashboard/management/home-villa/edit/${id}` });
+  const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ key: ["editing-villa"], url: "/villas", redirectPath: `/dashboard/management/home-villa/edit/${id}` });
 
   const { data: responseVilla, isLoading } = useGetApi<Payload<Villa>>({ url: `villas/${id}`, key: ["get-villa", id] });
 
@@ -119,7 +121,8 @@ export const EditHomeVillaPage = () => {
       </div>
 
       <div className="relative p-8 border rounded-b bg-light border-dark/30 min-h-600">
-        {activeTab === "Rent Management" && <RentManagement />}
+        {activeTab === "Rent Management" && <RentManagementTab />}
+        {activeTab === "Review" && <ReviewTab />}
         {isLoading || isWaiting ? (
           <div className="flex items-center justify-center min-h-400">
             <div className="loader size-10 after:size-10"></div>
@@ -127,14 +130,14 @@ export const EditHomeVillaPage = () => {
         ) : (
           <>
             {activeTab === "General" && (
-              <General
+              <GeneralTab
                 onChange={(hasChanges: boolean) => {
                   setHasUnsavedChanges(hasChanges);
                 }}
               />
             )}
             {activeTab === "Media" && (
-              <EditMedia
+              <EditMediaTab
                 persistedDataKey="get-villa"
                 editDataKey="edit-villa"
                 type="villa"
@@ -144,7 +147,7 @@ export const EditHomeVillaPage = () => {
               />
             )}
             {activeTab === "Location" && (
-              <EditLocation
+              <EditLocationTab
                 persistedDataKey="get-villa"
                 editDataKey="edit-villa"
                 onChange={(hasChanges: boolean) => {
@@ -153,7 +156,7 @@ export const EditHomeVillaPage = () => {
               />
             )}
             {activeTab === "Key Features" && (
-              <EditKeyFeatures
+              <EditKeyFeaturesTab
                 persistedDataKey="get-villa"
                 editDataKey="edit-villa"
                 onChange={(hasChanges: boolean) => {
@@ -162,7 +165,7 @@ export const EditHomeVillaPage = () => {
               />
             )}
             {activeTab === "Service & Features" && (
-              <EditServiceFeatures
+              <EditServiceFeaturesTab
                 persistedDataKey="get-villa"
                 editDataKey="edit-villa"
                 onChange={(hasChanges: boolean) => {
@@ -171,7 +174,7 @@ export const EditHomeVillaPage = () => {
               />
             )}
             {activeTab === "Villa Policies" && (
-              <VillaPolicies
+              <VillaPoliciesTab
                 onChange={(hasChanges: boolean) => {
                   setHasUnsavedChanges(hasChanges);
                 }}

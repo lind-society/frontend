@@ -1,5 +1,6 @@
-import { Currency } from "./currency";
 import { AdditionalItem, Facilities, Features, Icon, PlaceNearby } from "./global";
+
+import { Currency } from "./currency";
 import { Owner } from "./owner";
 import { Review } from "./review";
 
@@ -49,6 +50,7 @@ export interface Villa {
   videos: string[];
   video360s: string[];
   floorPlans: string[];
+  averageRating: number;
   ownerId: string;
   owner: Owner;
   currencyId: string;

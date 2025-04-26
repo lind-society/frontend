@@ -4,8 +4,8 @@ import { useLocation, useParams } from "react-router-dom";
 
 import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
 
-import { General } from "./general";
-import { EditKeyFeatures, EditLocation, EditMedia, EditServiceFeatures, Layout } from "../../../../../components/ui";
+import { GeneralTab } from "./general";
+import { EditKeyFeaturesTab, EditLocationTab, EditMediaTab, EditServiceFeaturesTab, Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
 import { FaUpload } from "react-icons/fa";
@@ -20,7 +20,7 @@ export const EditBuyPage = () => {
   const { pathname } = useLocation();
   const { id } = useParams();
 
-  const { mutate: editProperty, isPending } = useUpdateApi<Partial<Property>>({ url: "properties", key: ["editing-property"], redirectPath: "/dashboard/management/buy" });
+  const { mutate: editProperty, isPending } = useUpdateApi<Partial<Property>>({ key: ["editing-property"], url: "/properties", redirectPath: "/dashboard/management/buy" });
 
   const { data: responseProperty, isLoading } = useGetApi<Payload<Property>>({ url: `properties/${id}`, key: ["get-property", id] });
 
@@ -122,14 +122,14 @@ export const EditBuyPage = () => {
         ) : (
           <>
             {activeTab === "General" && (
-              <General
+              <GeneralTab
                 onChange={(hasChanges: boolean) => {
                   setHasUnsavedChanges(hasChanges);
                 }}
               />
             )}
             {activeTab === "Media" && (
-              <EditMedia
+              <EditMediaTab
                 persistedDataKey="get-property"
                 editDataKey="edit-property"
                 type="property"
@@ -139,7 +139,7 @@ export const EditBuyPage = () => {
               />
             )}
             {activeTab === "Location" && (
-              <EditLocation
+              <EditLocationTab
                 persistedDataKey="get-property"
                 editDataKey="edit-property"
                 onChange={(hasChanges: boolean) => {
@@ -148,7 +148,7 @@ export const EditBuyPage = () => {
               />
             )}
             {activeTab === "Key Features" && (
-              <EditKeyFeatures
+              <EditKeyFeaturesTab
                 persistedDataKey="get-property"
                 editDataKey="edit-property"
                 onChange={(hasChanges: boolean) => {
@@ -157,7 +157,7 @@ export const EditBuyPage = () => {
               />
             )}
             {activeTab === "Service & Features" && (
-              <EditServiceFeatures
+              <EditServiceFeaturesTab
                 persistedDataKey="get-property"
                 editDataKey="edit-property"
                 onChange={(hasChanges: boolean) => {

@@ -4,9 +4,11 @@ import { useLocation } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
-import { General } from "./general";
-import { AddKeyFeatures, AddLocation, AddMedia, AddServiceFeatures, Layout } from "../../../../../components/ui";
+import { AddKeyFeaturesTab, AddLocationTab, AddMediaTab, AddServiceFeaturesTab, Layout } from "../../../../../components/ui";
+
 import { Button } from "../../../../../components";
+
+import { GeneralTab } from "./general";
 
 import { FaUpload } from "react-icons/fa";
 import { GrLinkNext } from "react-icons/gr";
@@ -22,7 +24,7 @@ const tabs: TabName[] = ["General", "Media", "Location", "Key Features", "Servic
 export const AddBuyPage = () => {
   const { pathname } = useLocation();
 
-  const { mutate: addProperty, isPending } = useCreateApi<Partial<Property>>({ url: "properties", key: ["add-property"], redirectPath: "/dashboard/management/buy" });
+  const { mutate: addProperty, isPending } = useCreateApi<Partial<Property>>({ key: ["add-property"], url: "/properties", redirectPath: "/dashboard/management/buy" });
 
   const useStore = usePersistentData<Partial<Property>>("add-property");
 
@@ -125,7 +127,7 @@ export const AddBuyPage = () => {
       <div className="p-8 border rounded-b bg-light border-dark/30">
         {activeTab === "General" && (
           <>
-            <General
+            <GeneralTab
               onChange={(hasChanges: boolean) => {
                 updateTabValidation("General", hasChanges);
               }}
@@ -141,7 +143,7 @@ export const AddBuyPage = () => {
         )}
         {activeTab === "Media" && (
           <>
-            <AddMedia
+            <AddMediaTab
               persistedDataKey="add-property"
               type="property"
               onChange={(hasChanges: boolean) => {
@@ -159,7 +161,7 @@ export const AddBuyPage = () => {
         )}
         {activeTab === "Location" && (
           <>
-            <AddLocation
+            <AddLocationTab
               persistedDataKey="add-property"
               onChange={(hasChanges: boolean) => {
                 updateTabValidation("Location", hasChanges);
@@ -176,7 +178,7 @@ export const AddBuyPage = () => {
         )}
         {activeTab === "Key Features" && (
           <>
-            <AddKeyFeatures
+            <AddKeyFeaturesTab
               persistedDataKey="add-property"
               onChange={(hasChanges: boolean) => {
                 updateTabValidation("Key Features", hasChanges);
@@ -192,7 +194,7 @@ export const AddBuyPage = () => {
           </>
         )}
         {activeTab === "Service & Features" && (
-          <AddServiceFeatures
+          <AddServiceFeaturesTab
             persistedDataKey="add-property"
             onChange={(hasChanges: boolean) => {
               updateTabValidation("Service & Features", hasChanges);

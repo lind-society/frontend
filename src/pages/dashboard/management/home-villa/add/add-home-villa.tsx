@@ -4,10 +4,12 @@ import { useLocation } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
-import { Layout, AddMedia, AddLocation, AddKeyFeatures, AddServiceFeatures } from "../../../../../components/ui";
+import { Layout, AddMediaTab, AddLocationTab, AddKeyFeaturesTab, AddServiceFeaturesTab } from "../../../../../components/ui";
+
 import { Button } from "../../../../../components";
-import { General } from "./general";
-import { VillaPolicies } from "./villa-policies";
+
+import { GeneralTab } from "./general";
+import { VillaPoliciesTab } from "./villa-policies";
 
 import { FaUpload } from "react-icons/fa";
 import { GrLinkNext } from "react-icons/gr";
@@ -22,7 +24,7 @@ const tabs: TabName[] = ["General", "Media", "Location", "Key Features", "Servic
 
 export const AddHomeVillaPage = () => {
   const { pathname } = useLocation();
-  const { mutate: addVillas, isPending } = useCreateApi<Partial<Villa>>({ url: "villas", key: ["add-villa"], redirectPath: "/dashboard/management/home-villa/add" });
+  const { mutate: addVillas, isPending } = useCreateApi<Partial<Villa>>({ key: ["add-villa"], url: "/villas", redirectPath: "/dashboard/management/home-villa/add" });
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { data } = useStore();
 
@@ -128,7 +130,7 @@ export const AddHomeVillaPage = () => {
       <div className="p-8 border rounded-b bg-light border-dark/30">
         {activeTab === "General" && (
           <>
-            <General
+            <GeneralTab
               onChange={(hasChanges: boolean) => {
                 updateTabValidation("General", hasChanges);
               }}
@@ -144,7 +146,7 @@ export const AddHomeVillaPage = () => {
         )}
         {activeTab === "Media" && (
           <>
-            <AddMedia
+            <AddMediaTab
               persistedDataKey="add-villa"
               type="villa"
               onChange={(hasChanges: boolean) => {
@@ -162,7 +164,7 @@ export const AddHomeVillaPage = () => {
         )}
         {activeTab === "Location" && (
           <>
-            <AddLocation
+            <AddLocationTab
               persistedDataKey="add-villa"
               onChange={(hasChanges: boolean) => {
                 updateTabValidation("Location", hasChanges);
@@ -179,7 +181,7 @@ export const AddHomeVillaPage = () => {
         )}
         {activeTab === "Key Features" && (
           <>
-            <AddKeyFeatures
+            <AddKeyFeaturesTab
               persistedDataKey="add-villa"
               onChange={(hasChanges: boolean) => {
                 updateTabValidation("Key Features", hasChanges);
@@ -196,7 +198,7 @@ export const AddHomeVillaPage = () => {
         )}
         {activeTab === "Service & Features" && (
           <>
-            <AddServiceFeatures
+            <AddServiceFeaturesTab
               persistedDataKey="add-villa"
               onChange={(hasChanges: boolean) => {
                 updateTabValidation("Service & Features", hasChanges);
@@ -212,7 +214,7 @@ export const AddHomeVillaPage = () => {
           </>
         )}
         {activeTab === "Villa Policies" && (
-          <VillaPolicies
+          <VillaPoliciesTab
             onChange={(hasChanges: boolean) => {
               updateTabValidation("Villa Policies", hasChanges);
             }}

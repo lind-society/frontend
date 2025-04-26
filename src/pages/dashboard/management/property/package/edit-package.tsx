@@ -1,6 +1,8 @@
 import * as React from "react";
 
-import { useCreateApi, useGetApiWithAuth } from "../../../../../hooks";
+import { useParams } from "react-router-dom";
+
+import { useGetApi, useGetApiWithAuth, useUpdateApi } from "../../../../../hooks";
 
 import Select from "react-select";
 import { Layout } from "../../../../../components/ui";
@@ -15,18 +17,22 @@ interface PackageFormItem {
   benefit: OptionType | null;
 }
 
-export const AddPackagePage = () => {
+export const EditPackagePage = () => {
+  const { id } = useParams();
+
   const [packageName, setPackageName] = React.useState("");
   const [packageDescription, setPackageDescription] = React.useState("");
   const [packageBenefits, setPackageBenefits] = React.useState<PackageFormItem[]>([]);
 
-  const { data: benefitsResponse, isLoading } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({
+  const { data: benefitsResponse } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({
     key: ["get-benefits"],
     url: "/package-benefits",
     params: { limit: "20" },
   });
 
-  const { mutate: addPackage, isPending } = useCreateApi<Partial<Package>>({ key: ["add-package"], url: "/packages", redirectPath: `/dashboard/management/property/package/add` });
+  const { data: packageResponse, isLoading } = useGetApi<Payload<Package>>({ key: ["get-package"], url: `packages/${id}` });
+
+  const { mutate: editPackage, isPending } = useUpdateApi<Partial<Package>>({ key: ["edit-package"], url: "/packages", redirectPath: `/dashboard/management/property` });
 
   const benefitOptions = React.useMemo(() => {
     return benefitsResponse?.data?.data.map((benefit) => ({ value: benefit.id, label: benefit.title })) || [];
@@ -42,7 +48,8 @@ export const AddPackagePage = () => {
   };
 
   const resetBenefit = (id: string) => {
-    setPackageBenefits((prev) => prev.map((item) => (item.id === id ? { ...item, benefit: null } : item)));
+    const benefit = packageResponse?.data.benefits.find((item) => item.id === id);
+    setPackageBenefits((prev) => prev.map((item) => (item.id === id ? { ...item, benefit: { label: benefit?.title || "", value: benefit?.title || "" } } : item)));
   };
 
   const removeBenefit = (id: string) => {
@@ -51,10 +58,11 @@ export const AddPackagePage = () => {
   };
 
   const resetForm = () => {
-    const newItem: PackageFormItem = { id: crypto.randomUUID(), benefit: null };
-    setPackageName("");
-    setPackageDescription("");
-    setPackageBenefits(() => [newItem]);
+    if (packageResponse) {
+      setPackageName(packageResponse.data.name);
+      setPackageDescription(packageResponse.data.description);
+      setPackageBenefits(packageResponse.data.benefits.map((item) => ({ benefit: { label: item.title, value: item.id }, id: item.id })));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -66,14 +74,16 @@ export const AddPackagePage = () => {
       benefits: packageBenefits.map((item) => ({ id: item.benefit?.value || "" })) as Package["benefits"],
     };
 
-    addPackage(dataToSave);
+    editPackage({ updatedItem: dataToSave, id: id || "" });
   };
 
   React.useEffect(() => {
-    if (packageBenefits.length === 0 && !isLoading) {
-      addBenefit();
+    if (packageResponse) {
+      setPackageName(packageResponse.data.name);
+      setPackageDescription(packageResponse.data.description);
+      setPackageBenefits(packageResponse.data.benefits.map((item) => ({ benefit: { label: item.title, value: item.id }, id: item.id })));
     }
-  }, [isLoading]);
+  }, [packageResponse]);
 
   return (
     <Layout>

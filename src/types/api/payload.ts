@@ -1,21 +1,21 @@
-export class PaginateResponseMetaProps {
-  itemsPerPage!: number;
-  totalItems!: number;
-  currentPage!: number;
-  totalPages!: number;
-  sortBy!: unknown;
-  searchBy!: unknown;
-  search!: string;
-  select!: string[];
+export interface PaginateResponseMetaProps {
+  itemsPerPage: number;
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+  sortBy: unknown;
+  searchBy: unknown;
+  search: string;
+  select: string[];
   filter?: {
     [column: string]: string | string[];
   };
 }
 
-export class PaginateResponseLinksProps {
+export interface PaginateResponseLinksProps {
   first?: string | null;
   previous?: string | null;
-  current!: string;
+  current: string;
   next?: string | null;
   last?: string | null;
 }

@@ -2,44 +2,37 @@ import axios from "axios";
 
 import Cookies from "universal-cookie";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { API, API_URL, TOKEN_KEY, USER_KEY } from "../utils/api";
 
 import { Payload } from "../types";
-import { API } from "../utils/api";
 
 interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
 
-const TOKEN_KEY = "lind_auth_token";
-const USER_KEY = "lind_user";
-const baseApiURL = "https://lind-society.duckdns.org/api/v1";
+const COOKIES_CONFIG = { path: "/", expires: new Date(Date.now() + 86400000), secure: true, sameSite: "strict" as "strict" };
 
 const cookies = new Cookies();
 
 export const authentication = {
   login: async (identifier: string, password: string): Promise<Payload<AuthResponse>> => {
     try {
-      const response = await axios.post<Payload<AuthResponse>>(`${baseApiURL}/auth/login`, { identifier, password }, { headers: { "Content-Type": "application/json" } });
-
-      const data = response.data;
-
-      // Store authentication data in cookies
-      cookies.set(TOKEN_KEY, data.data.accessToken || "", { path: "/", expires: new Date(Date.now() + 86400000), secure: true, sameSite: "strict" });
-      cookies.set(USER_KEY, identifier, { path: "/", expires: new Date(Date.now() + 86400000), secure: true, sameSite: "strict" });
-
+      const { data } = await axios.post<Payload<AuthResponse>>(`${API_URL}/auth/login`, { identifier, password }, { headers: { "Content-Type": "application/json" } });
+      cookies.set(TOKEN_KEY, data.data.accessToken || "", COOKIES_CONFIG);
+      cookies.set(USER_KEY, identifier, COOKIES_CONFIG);
+      window.location.href = "/dashboard/main";
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.response?.data?.data.message || "Login failed");
+      throw new Error(error.response?.data?.data.message || "Login failed");
     }
   },
 
   logout: async () => {
     try {
-      await API.post(`${baseApiURL}/auth/logout`);
+      await API.post(`${API_URL}/auth/logout`);
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.response?.data?.data.message || "Logout failed");
+      throw new Error(error.response?.data?.data.message || "Logout failed");
     }
     cookies.remove(TOKEN_KEY, { path: "/" });
     cookies.remove(USER_KEY, { path: "/" });
@@ -60,25 +53,4 @@ export const authentication = {
     const userJson = cookies.get(USER_KEY);
     return userJson ? userJson : null;
   },
-};
-
-// React Query Hooks
-export const useLogin = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ identifier, password }: { identifier: string; password: string }) => authentication.login(identifier, password),
-    onSuccess: (data) => {
-      queryClient.setQueryData(["authUser"], data.data.accessToken);
-    },
-  });
-};
-
-export const useLogout = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async () => authentication.logout(),
-    onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ["authUser"] });
-    },
-  });
 };

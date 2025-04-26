@@ -41,7 +41,7 @@ const arraysEqual = (a: string, b: string) => {
   return true;
 };
 
-export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
+export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<Property>("get-property");
   const useEdit = usePersistentData<Property>("edit-property");
@@ -64,7 +64,7 @@ export const General: React.FC<{ onChange?: (hasChanges: boolean) => void }> = (
   }, [dataAfterEdit, dataBeforeEdit]);
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
-  const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: `owners` });
+  const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: "/owners" });
 
   const [editMode, setEditMode] = React.useState<boolean>(false);
 
