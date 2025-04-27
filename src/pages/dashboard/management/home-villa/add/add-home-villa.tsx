@@ -22,6 +22,15 @@ type TabName = "General" | "Media" | "Location" | "Key Features" | "Service & Fe
 
 const tabs: TabName[] = ["General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies"];
 
+const getInitialTabValidationState = (): Record<TabName, boolean> => ({
+  General: JSON.parse(sessionStorage.getItem("General") || "true"),
+  Media: JSON.parse(sessionStorage.getItem("Media") || "true"),
+  Location: JSON.parse(sessionStorage.getItem("Location") || "true"),
+  "Key Features": JSON.parse(sessionStorage.getItem("Key Features") || "true"),
+  "Service & Features": JSON.parse(sessionStorage.getItem("Service & Features") || "true"),
+  "Villa Policies": JSON.parse(sessionStorage.getItem("Villa Policies") || "true"),
+});
+
 export const AddHomeVillaPage = () => {
   const { pathname } = useLocation();
   const { mutate: addVillas, isPending } = useCreateApi<Partial<Villa>>({ key: ["add-villa"], url: "/villas", redirectPath: "/dashboard/management/home-villa/add" });
@@ -33,14 +42,7 @@ export const AddHomeVillaPage = () => {
     return (storedTab as TabName) || "General";
   });
 
-  const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>({
-    General: true,
-    Media: true,
-    Location: true,
-    "Key Features": true,
-    "Service & Features": true,
-    "Villa Policies": true,
-  });
+  const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
 
   React.useEffect(() => {
     if (pathname === "/dashboard/management/home-villa/add") {
@@ -60,6 +62,7 @@ export const AddHomeVillaPage = () => {
 
   const updateTabValidation = (tab: TabName, hasUnsavedChanges: boolean) => {
     setTabValidationState((prev) => ({ ...prev, [tab]: hasUnsavedChanges }));
+    sessionStorage.setItem(tab, JSON.stringify(hasUnsavedChanges));
   };
 
   const handleNavigateAway = (tab: TabName) => {

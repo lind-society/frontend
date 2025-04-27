@@ -21,6 +21,14 @@ type TabName = "General" | "Media" | "Location" | "Key Features" | "Service & Fe
 
 const tabs: TabName[] = ["General", "Media", "Location", "Key Features", "Service & Features"];
 
+const getInitialTabValidationState = (): Record<TabName, boolean> => ({
+  General: JSON.parse(sessionStorage.getItem("General") || "true"),
+  Media: JSON.parse(sessionStorage.getItem("Media") || "true"),
+  Location: JSON.parse(sessionStorage.getItem("Location") || "true"),
+  "Key Features": JSON.parse(sessionStorage.getItem("Key Features") || "true"),
+  "Service & Features": JSON.parse(sessionStorage.getItem("Service & Features") || "true"),
+});
+
 export const AddBuyPage = () => {
   const { pathname } = useLocation();
 
@@ -35,13 +43,7 @@ export const AddBuyPage = () => {
     return (storedTab as TabName) || "General";
   });
 
-  const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>({
-    General: true,
-    Media: true,
-    Location: true,
-    "Key Features": true,
-    "Service & Features": true,
-  });
+  const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
 
   React.useEffect(() => {
     // Set active tab in session storage when on the add property page
@@ -62,6 +64,7 @@ export const AddBuyPage = () => {
 
   const updateTabValidation = (tab: TabName, hasUnsavedChanges: boolean) => {
     setTabValidationState((prev) => ({ ...prev, [tab]: hasUnsavedChanges }));
+    sessionStorage.setItem(tab, JSON.stringify(hasUnsavedChanges));
   };
 
   const handleNavigateAway = (tab: TabName) => {

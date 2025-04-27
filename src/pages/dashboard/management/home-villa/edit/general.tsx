@@ -200,8 +200,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     updateFormState(type, value);
   };
 
-  const calculateDiscountedPrice = (price: string, discount: string) => {
-    return (+price - +price * (+discount / 100)).toFixed(2);
+  const calculatePrice = (price: string, discount: string, isDiscount?: boolean) => {
+    return isDiscount ? (+price - +price * (+discount / 100)).toFixed(2) : (+price + +price * (+discount / 100)).toFixed(2);
   };
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
@@ -354,7 +354,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                   />
                   <span className="ml-2">%</span>
                 </div>
-                <p className="text-sm">Final Price : {calculateDiscountedPrice(formState.dailyBasePrice, formState.lowSeasonPriceRate)}</p>
+                <p className="text-sm">Final Price : {calculatePrice(formState.dailyBasePrice, formState.lowSeasonPriceRate, true)}</p>
               </div>
               <div className="space-y-2.5 text-center">
                 <p className="leading-5">
@@ -369,7 +369,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                   />
                   <span className="ml-2">%</span>
                 </div>
-                <p className="text-sm">Final Price :{calculateDiscountedPrice(formState.dailyBasePrice, formState.highSeasonPriceRate)}</p>
+                <p className="text-sm">Final Price :{calculatePrice(formState.dailyBasePrice, formState.highSeasonPriceRate)}</p>
               </div>
               <div className="space-y-2.5 text-center">
                 <p className="leading-5">
@@ -384,7 +384,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                   />
                   <span className="ml-2">%</span>
                 </div>
-                <p className="text-sm">Final Price : {calculateDiscountedPrice(formState.dailyBasePrice, formState.peakSeasonPriceRate)}</p>
+                <p className="text-sm">Final Price : {calculatePrice(formState.dailyBasePrice, formState.peakSeasonPriceRate)}</p>
               </div>
             </div>
           </div>
@@ -442,7 +442,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                   </div>
                 </FormField>
                 <div className="flex justify-end">
-                  <p className="w-full text-sm italic whitespace-nowrap max-w-40">Final Price : {calculateDiscountedPrice(formState.price[type], formState.discount[type])}</p>
+                  <p className="w-full text-sm italic whitespace-nowrap max-w-40">Final Price : {calculatePrice(formState.price[type], formState.discount[type], true)}</p>
                 </div>
 
                 <FormField label={`Minimum stay (${type})`} required>
