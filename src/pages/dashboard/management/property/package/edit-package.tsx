@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { useGetApi, useGetApiWithAuth, useUpdateApi } from "../../../../../hooks";
 
@@ -8,7 +8,7 @@ import Select from "react-select";
 import { Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
-import { FaPlus } from "react-icons/fa";
+import { FaArrowLeft, FaPlus } from "react-icons/fa";
 
 import { Benefit, Data, OptionType, Package, Payload } from "../../../../../types";
 
@@ -19,6 +19,7 @@ interface PackageFormItem {
 
 export const EditPackagePage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [packageName, setPackageName] = React.useState("");
   const [packageDescription, setPackageDescription] = React.useState("");
@@ -88,8 +89,11 @@ export const EditPackagePage = () => {
   return (
     <Layout>
       {/* Header */}
-      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="text-2xl font-bold">Property Management</h1>
+      <header className="flex items-center gap-4 pb-4 mb-6 border-b border-dark/30">
+        <Button className="btn-primary" onClick={() => navigate(-1)}>
+          <FaArrowLeft size={20} />
+        </Button>
+        <h1 className="head-title">Edit Property Management</h1>
       </header>
 
       <div className="p-8 border rounded-b bg-light border-dark/30">

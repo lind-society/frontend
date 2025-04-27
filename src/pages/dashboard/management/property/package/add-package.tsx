@@ -1,12 +1,14 @@
 import * as React from "react";
 
+import { useNavigate } from "react-router-dom";
+
 import { useCreateApi, useGetApiWithAuth } from "../../../../../hooks";
 
 import Select from "react-select";
 import { Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
-import { FaPlus } from "react-icons/fa";
+import { FaArrowLeft, FaPlus } from "react-icons/fa";
 
 import { Benefit, Data, OptionType, Package, Payload } from "../../../../../types";
 
@@ -16,6 +18,8 @@ interface PackageFormItem {
 }
 
 export const AddPackagePage = () => {
+  const navigate = useNavigate();
+
   const [packageName, setPackageName] = React.useState("");
   const [packageDescription, setPackageDescription] = React.useState("");
   const [packageBenefits, setPackageBenefits] = React.useState<PackageFormItem[]>([]);
@@ -78,8 +82,11 @@ export const AddPackagePage = () => {
   return (
     <Layout>
       {/* Header */}
-      <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="text-2xl font-bold">Property Management</h1>
+      <header className="flex items-center gap-4 pb-4 mb-6 border-b border-dark/30">
+        <Button className="btn-primary" onClick={() => navigate(-1)}>
+          <FaArrowLeft size={20} />
+        </Button>
+        <h1 className="head-title">Add Property Management</h1>
       </header>
 
       <div className="p-8 border rounded-b bg-light border-dark/30">

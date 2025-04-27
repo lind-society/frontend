@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
@@ -11,7 +11,7 @@ import { Button } from "../../../../../components";
 import { GeneralTab } from "./general";
 import { VillaPoliciesTab } from "./villa-policies";
 
-import { FaUpload } from "react-icons/fa";
+import { FaArrowLeft, FaUpload } from "react-icons/fa";
 import { GrLinkNext } from "react-icons/gr";
 
 import { deleteKeysObject } from "../../../../../utils";
@@ -33,6 +33,8 @@ const getInitialTabValidationState = (): Record<TabName, boolean> => ({
 
 export const AddHomeVillaPage = () => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+
   const { mutate: addVillas, isPending } = useCreateApi<Partial<Villa>>({ key: ["add-villa"], url: "/villas", redirectPath: "/dashboard/management/home-villa/add" });
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { data } = useStore();
@@ -96,7 +98,12 @@ export const AddHomeVillaPage = () => {
   return (
     <Layout>
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="text-2xl font-bold">Add New Home & Villa</h1>
+        <div className="flex items-center gap-4">
+          <Button className="btn-primary" onClick={() => navigate(-1)}>
+            <FaArrowLeft size={20} />
+          </Button>
+          <h1 className="head-title">Add New Home & Villa</h1>
+        </div>
 
         <div className="flex items-center gap-4">
           {!tabValidationState["General"] &&

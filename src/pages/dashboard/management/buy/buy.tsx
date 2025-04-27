@@ -56,7 +56,7 @@ export const BuyPage = () => {
     <Layout>
       {/* Header */}
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="text-2xl font-bold">Buy Management</h1>
+        <h1 className="head-title">Buy Management</h1>
 
         <Button onClick={() => navigate("/dashboard/management/buy/add")} className="flex items-center gap-2 btn-primary">
           <FaPlus /> Add New

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
 
@@ -8,7 +8,7 @@ import { EditKeyFeaturesTab, EditLocationTab, EditMediaTab, EditServiceFeaturesT
 
 import { Button } from "../../../../../components";
 
-import { FaUpload } from "react-icons/fa";
+import { FaArrowLeft, FaUpload } from "react-icons/fa";
 
 import { GeneralTab } from "./general";
 import { ReviewTab } from "./review";
@@ -24,6 +24,7 @@ const tabs = ["Rent Management", "General", "Media", "Location", "Key Features",
 export const EditHomeVillaPage = () => {
   const { pathname } = useLocation();
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ key: ["editing-villa"], url: "/villas", redirectPath: `/dashboard/management/home-villa/edit/${id}` });
 
@@ -93,7 +94,12 @@ export const EditHomeVillaPage = () => {
   return (
     <Layout>
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="text-2xl font-bold">{responseVilla?.data.name}</h1>
+        <div className="flex items-center gap-4">
+          <Button className="btn-primary" onClick={() => navigate(-1)}>
+            <FaArrowLeft size={20} />
+          </Button>
+          <h1 className="head-title">{responseVilla?.data.name}</h1>
+        </div>
 
         <div className="flex items-center gap-4">
           <Button onClick={handlePublish} className="btn-primary">

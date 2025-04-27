@@ -17,7 +17,7 @@ export const Sidebar = ({ openNav }: { openNav: boolean }) => {
     <motion.aside variants={animation} animate={openNav ? "open" : "closed"} className="fixed h-screen py-4 space-y-8 overflow-auto text-center min-w-64 bg-primary text-light z-10000">
       <div className="mx-2 space-y-8">
         <Img className="mx-auto h-14 min-w-28 max-w-28" src="/logo.png" alt="logo lind society" />
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <span className="block text-2xl font-semibold">Dashboard</span>
       </div>
       <ul className="space-y-4">
         {sideBarMenu.map((item, index) => {

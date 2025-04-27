@@ -20,7 +20,7 @@ export const PropertyPage = () => {
     <Layout>
       {/* Header */}
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="text-2xl font-bold">Property Management</h1>
+        <h1 className="head-title">Property Management</h1>
 
         {activeTab === "Management" ? (
           <span className="flex items-center gap-2 px-4 py-2 rounded bg-light">

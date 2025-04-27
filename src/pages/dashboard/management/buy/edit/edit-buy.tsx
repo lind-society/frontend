@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
 
@@ -8,7 +8,7 @@ import { GeneralTab } from "./general";
 import { EditKeyFeaturesTab, EditLocationTab, EditMediaTab, EditServiceFeaturesTab, Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
-import { FaUpload } from "react-icons/fa";
+import { FaArrowLeft, FaUpload } from "react-icons/fa";
 
 import { deleteKeysObject } from "../../../../../utils";
 
@@ -19,6 +19,7 @@ const tabs = ["General", "Media", "Location", "Key Features", "Service & Feature
 export const EditBuyPage = () => {
   const { pathname } = useLocation();
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const { mutate: editProperty, isPending } = useUpdateApi<Partial<Property>>({ key: ["editing-property"], url: "/properties", redirectPath: "/dashboard/management/buy" });
 
@@ -87,7 +88,12 @@ export const EditBuyPage = () => {
   return (
     <Layout>
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="text-2xl font-bold">{responseProperty?.data.name}</h1>
+        <div className="flex items-center gap-4">
+          <Button className="btn-primary" onClick={() => navigate(-1)}>
+            <FaArrowLeft size={20} />
+          </Button>
+          <h1 className="head-title">{responseProperty?.data.name}</h1>
+        </div>
 
         <div className="flex items-center gap-4">
           <Button onClick={handlePublish} className="btn-primary">

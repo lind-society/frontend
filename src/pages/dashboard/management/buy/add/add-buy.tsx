@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
@@ -10,7 +10,7 @@ import { Button } from "../../../../../components";
 
 import { GeneralTab } from "./general";
 
-import { FaUpload } from "react-icons/fa";
+import { FaArrowLeft, FaUpload } from "react-icons/fa";
 import { GrLinkNext } from "react-icons/gr";
 
 import { deleteKeysObject } from "../../../../../utils";
@@ -31,6 +31,7 @@ const getInitialTabValidationState = (): Record<TabName, boolean> => ({
 
 export const AddBuyPage = () => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   const { mutate: addProperty, isPending } = useCreateApi<Partial<Property>>({ key: ["add-property"], url: "/properties", redirectPath: "/dashboard/management/buy" });
 
@@ -98,7 +99,12 @@ export const AddBuyPage = () => {
   return (
     <Layout>
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="text-2xl font-bold">Add Buy Management</h1>
+        <div className="flex items-center gap-4">
+          <Button className="btn-primary" onClick={() => navigate(-1)}>
+            <FaArrowLeft size={20} />
+          </Button>
+          <h1 className="head-title">Add Buy Management</h1>
+        </div>
 
         <div className="flex items-center gap-4">
           {!tabValidationState["General"] && !tabValidationState["Key Features"] && !tabValidationState["Location"] && !tabValidationState["Media"] && !tabValidationState["Service & Features"] && (
