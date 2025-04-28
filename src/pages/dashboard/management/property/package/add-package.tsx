@@ -1,15 +1,10 @@
 import * as React from "react";
-
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, useBeforeUnload } from "react-router-dom";
 import { useCreateApi, useGetApiWithAuth } from "../../../../../hooks";
-
 import Select from "react-select";
 import { Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
-
 import { FaArrowLeft, FaPlus } from "react-icons/fa";
-
 import { Benefit, Data, OptionType, Package, Payload } from "../../../../../types";
 
 interface PackageFormItem {
@@ -17,18 +12,26 @@ interface PackageFormItem {
   benefit: OptionType | null;
 }
 
+// Merged state interface to hold all form fields
+interface PackageFormState {
+  packageName: string;
+  packageDescription: string;
+  packageBenefits: PackageFormItem[];
+}
+
 export const AddPackagePage = () => {
   const navigate = useNavigate();
 
-  const [packageName, setPackageName] = React.useState("");
-  const [packageDescription, setPackageDescription] = React.useState("");
-  const [packageBenefits, setPackageBenefits] = React.useState<PackageFormItem[]>([]);
-
-  const { data: benefitsResponse, isLoading } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({
-    key: ["get-benefits"],
-    url: "/package-benefits",
-    params: { limit: "20" },
+  // Create a single state object for the form
+  const [formState, setFormState] = React.useState<PackageFormState>({
+    packageName: "",
+    packageDescription: "",
+    packageBenefits: [],
   });
+
+  const [isDirty, setIsDirty] = React.useState<boolean>(false);
+
+  const { data: benefitsResponse, isLoading } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "20" } });
 
   const { mutate: addPackage, isPending } = useCreateApi<Partial<Package>>({ key: ["add-package"], url: "/packages", redirectPath: `/dashboard/management/property/package/add` });
 
@@ -36,54 +39,83 @@ export const AddPackagePage = () => {
     return benefitsResponse?.data?.data.map((benefit) => ({ value: benefit.id, label: benefit.title })) || [];
   }, [benefitsResponse]);
 
+  const updateFormField = <K extends keyof PackageFormState>(field: K, value: PackageFormState[K]) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    setIsDirty(true);
+  };
+
   const addBenefit = () => {
     const newItem: PackageFormItem = { id: crypto.randomUUID(), benefit: null };
-    setPackageBenefits((prev) => [newItem, ...prev]);
+    updateFormField("packageBenefits", [newItem, ...formState.packageBenefits]);
   };
 
   const updateBenefit = (id: string, option: OptionType | null) => {
-    setPackageBenefits((prev) => prev.map((item) => (item.id === id ? { ...item, benefit: option } : item)));
+    const updatedBenefits = formState.packageBenefits.map((item) => (item.id === id ? { ...item, benefit: option } : item));
+    updateFormField("packageBenefits", updatedBenefits);
   };
 
   const resetBenefit = (id: string) => {
-    setPackageBenefits((prev) => prev.map((item) => (item.id === id ? { ...item, benefit: null } : item)));
+    const updatedBenefits = formState.packageBenefits.map((item) => (item.id === id ? { ...item, benefit: null } : item));
+    updateFormField("packageBenefits", updatedBenefits);
   };
 
   const removeBenefit = (id: string) => {
     if (!window.confirm("Are you sure you want to remove this benefit?")) return;
-    setPackageBenefits((prev) => prev.filter((item) => item.id !== id));
+    const updatedBenefits = formState.packageBenefits.filter((item) => item.id !== id);
+    updateFormField("packageBenefits", updatedBenefits);
   };
 
   const resetForm = () => {
     const newItem: PackageFormItem = { id: crypto.randomUUID(), benefit: null };
-    setPackageName("");
-    setPackageDescription("");
-    setPackageBenefits(() => [newItem]);
+    setFormState({
+      packageName: "",
+      packageDescription: "",
+      packageBenefits: [newItem],
+    });
+    setIsDirty(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     const dataToSave = {
-      name: packageName,
-      description: packageDescription,
-      benefits: packageBenefits.map((item) => ({ id: item.benefit?.value || "" })) as Package["benefits"],
+      name: formState.packageName,
+      description: formState.packageDescription,
+      benefits: formState.packageBenefits.map((item) => ({ id: item.benefit?.value || "" })) as Package["benefits"],
     };
-
+    setIsDirty(false);
     addPackage(dataToSave);
   };
 
-  React.useEffect(() => {
-    if (packageBenefits.length === 0 && !isLoading) {
-      addBenefit();
+  useBeforeUnload(
+    React.useCallback(
+      (event) => {
+        if (isDirty) event.preventDefault();
+      },
+      [isDirty]
+    )
+  );
+
+  const handleNavigation = (to: number) => {
+    if (isDirty) {
+      const confirmed = window.confirm("You have unsaved changes. Are you sure you want to leave?");
+      if (confirmed) {
+        navigate(to);
+      }
+    } else {
+      navigate(to);
     }
-  }, [isLoading]);
+  };
+
+  React.useEffect(() => {
+    if (!isLoading && formState.packageBenefits.length === 0) {
+      setFormState((prev) => ({ ...prev, packageBenefits: [{ id: crypto.randomUUID(), benefit: null }] }));
+    }
+  }, [isLoading, formState.packageBenefits.length]);
 
   return (
     <Layout>
-      {/* Header */}
       <header className="flex items-center gap-4 pb-4 mb-6 border-b border-dark/30">
-        <Button className="btn-primary" onClick={() => navigate(-1)}>
+        <Button className="btn-primary" onClick={() => handleNavigation(-1)}>
           <FaArrowLeft size={20} />
         </Button>
         <h1 className="head-title">Add Property Management</h1>
@@ -93,12 +125,19 @@ export const AddPackagePage = () => {
         <h2 className="heading">General</h2>
 
         <form className="mt-6 space-y-8" onSubmit={handleSubmit}>
-          {/* Property name */}
           <div className="flex items-center">
             <label htmlFor="package-name" className="block whitespace-nowrap min-w-60">
               Name*
             </label>
-            <input id="package-name" type="text" className="input-text" placeholder="Online Marketing" value={packageName} onChange={(e) => setPackageName(e.target.value)} required />
+            <input
+              id="package-name"
+              type="text"
+              className="input-text"
+              placeholder="Online Marketing"
+              value={formState.packageName}
+              onChange={(e) => updateFormField("packageName", e.target.value)}
+              required
+            />
           </div>
 
           <div className="flex items-center">
@@ -110,8 +149,8 @@ export const AddPackagePage = () => {
               type="text"
               className="input-text"
               placeholder="Brief description of the package"
-              value={packageDescription}
-              onChange={(e) => setPackageDescription(e.target.value)}
+              value={formState.packageDescription}
+              onChange={(e) => updateFormField("packageDescription", e.target.value)}
               required
             />
           </div>
@@ -125,7 +164,7 @@ export const AddPackagePage = () => {
             </div>
 
             <div className="space-y-8">
-              {packageBenefits.map((item) => (
+              {formState.packageBenefits.map((item) => (
                 <div key={item.id} className="space-y-2">
                   <div className="flex items-center">
                     <label className="block whitespace-nowrap min-w-60">Title</label>
