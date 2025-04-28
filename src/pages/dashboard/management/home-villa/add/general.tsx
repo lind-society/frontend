@@ -118,12 +118,13 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
   };
 
   const handlePriceRateChange = (type: "lowSeasonPriceRate" | "highSeasonPriceRate" | "peakSeasonPriceRate", value: string) => {
-    if (+value > 100 || +value < 0) return;
+    if (+value > 999999999999999 || +value < 0) return;
     updateFormState(type, value);
   };
 
   const calculatePrice = (price: string, discount: string, isDiscount?: boolean) => {
-    return isDiscount ? (+price - +price * (+discount / 100)).toFixed(2) : (+price + +price * (+discount / 100)).toFixed(2);
+    const result = isDiscount ? +price - +price * (+discount / 100) : +price + +price * (+discount / 100);
+    return Number.isInteger(result) ? result.toString() : result.toFixed(2);
   };
 
   // Check if form is complete
@@ -258,13 +259,11 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 placeholder={`0`}
                 required
               />
-              <p className="ml-2">{formState.currency?.label !== null || formState.currency?.label !== undefined ? formState.currency?.label : ""}</p>
+              {formState.currency && <p className="pl-2">{formState.currency ? formState.currency?.label : ""}</p>}
             </FormField>
             <div className="grid grid-cols-3 gap-16 px-8">
               <div className="space-y-2.5 text-center">
-                <p className="leading-5">
-                  Low Season Price Rate* <br /> (Daily Base Price)
-                </p>
+                <p className="leading-5">Low Season Price Rate*</p>
                 <div className="flex items-center">
                   <NumberInput
                     value={formState.lowSeasonPriceRate}
@@ -272,14 +271,11 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                     className="input-text placeholder:text-dark"
                     placeholder="0"
                   />
-                  <span className="ml-2">%</span>
+                  <p className="ml-2">{formState.currency ? formState.currency?.label : ""}</p>
                 </div>
-                <p className="text-sm">Final Price : {calculatePrice(formState.dailyBasePrice, formState.lowSeasonPriceRate, true)}</p>
               </div>
               <div className="space-y-2.5 text-center">
-                <p className="leading-5">
-                  High Season Price Rate* <br /> (Daily Base Price)
-                </p>
+                <p className="leading-5">High Season Price Rate*</p>
                 <div className="flex items-center">
                   <NumberInput
                     value={formState.highSeasonPriceRate}
@@ -287,14 +283,11 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                     className="input-text placeholder:text-dark"
                     placeholder="0"
                   />
-                  <span className="ml-2">%</span>
+                  <p className="ml-2">{formState.currency ? formState.currency?.label : ""}</p>
                 </div>
-                <p className="text-sm">Final Price :{calculatePrice(formState.dailyBasePrice, formState.highSeasonPriceRate)}</p>
               </div>
               <div className="space-y-2.5 text-center">
-                <p className="leading-5">
-                  Peak Season Price Rate* <br /> (Daily Base Price)
-                </p>
+                <p className="leading-5">Peak Season Price Rate*</p>
                 <div className="flex items-center">
                   <NumberInput
                     value={formState.peakSeasonPriceRate}
@@ -302,9 +295,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                     className="input-text placeholder:text-dark"
                     placeholder="0"
                   />
-                  <span className="ml-2">%</span>
+                  <p className="ml-2">{formState.currency ? formState.currency?.label : ""}</p>
                 </div>
-                <p className="text-sm">Final Price : {calculatePrice(formState.dailyBasePrice, formState.peakSeasonPriceRate)}</p>
               </div>
             </div>
           </div>
@@ -325,7 +317,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                         placeholder={`0`}
                         required
                       />
-                      <p>{formState.currency?.label !== null || formState.currency?.label !== undefined ? formState.currency?.label : ""}</p>
+                      <p>{formState.currency ? formState.currency?.label : ""}</p>
                     </div>
 
                     <div className="flex items-center justify-center w-full gap-8">

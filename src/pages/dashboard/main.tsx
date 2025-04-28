@@ -72,7 +72,7 @@ export const MainPage = () => {
 
   const { data: respBooking, isError: isErrorBooking } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings", searchQueryBooking, currentPageBooking],
-    url: "bookings",
+    url: "bookings/villas",
     params: { search: searchQueryBooking, page: currentPageBooking, limit: "5" },
   });
 

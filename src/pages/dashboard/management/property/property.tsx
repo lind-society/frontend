@@ -1,20 +1,36 @@
 import * as React from "react";
 
-import { useNavigate } from "react-router-dom";
+import { Layout } from "../../../../components/ui";
 
 import { PackageTab } from "./package";
+import { BenefitsTab } from "./benefits";
 
-import { Layout } from "../../../../components/ui";
-import { Button } from "../../../../components";
+import { FaCalendar } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
 
-import { IoFilterSharp } from "react-icons/io5";
-import { FaPlus } from "react-icons/fa";
-
-const tabs = ["Package"];
+const tabs = ["Packages", "Benefits"];
 
 export const PropertyPage = () => {
-  const [activeTab, setActiveTab] = React.useState<string>("Package");
-  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  const [activeTab, setActiveTab] = React.useState<string>(() => {
+    return sessionStorage.getItem("activeTab") || "Packages";
+  });
+
+  React.useEffect(() => {
+    if (pathname === "/dashboard/management/property") {
+      sessionStorage.setItem("activeTab", activeTab);
+    }
+
+    return () => {
+      sessionStorage.removeItem("activeTab");
+    };
+  }, [activeTab, pathname]);
+
+  const formatted = new Intl.DateTimeFormat("en-US", {
+    dateStyle: "full",
+    timeStyle: "medium",
+  }).format(new Date());
 
   return (
     <Layout>
@@ -22,26 +38,21 @@ export const PropertyPage = () => {
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="head-title">Property Management</h1>
 
-        {activeTab === "Management" ? (
-          <span className="flex items-center gap-2 px-4 py-2 rounded bg-light">
-            <IoFilterSharp /> Filters
-          </span>
-        ) : (
-          <Button onClick={() => navigate("/dashboard/management/property/package/add")} className="flex items-center gap-2 btn-primary">
-            <FaPlus /> Add New
-          </Button>
-        )}
+        <span className="flex items-center gap-2 px-4 py-2 rounded bg-light">
+          <FaCalendar /> {formatted}
+        </span>
       </header>
 
       <div className="flex">
         {tabs.map((tab) => (
-          <button key={tab} className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab && "bg-primary text-light"}`} onClick={() => setActiveTab(tab)}>
+          <button key={tab} className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`} onClick={() => setActiveTab(tab)}>
             {tab}
           </button>
         ))}
       </div>
 
-      {activeTab === "Package" && <PackageTab />}
+      {activeTab === "Packages" && <PackageTab />}
+      {activeTab === "Benefits" && <BenefitsTab />}
     </Layout>
   );
 };

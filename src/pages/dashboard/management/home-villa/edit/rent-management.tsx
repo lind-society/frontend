@@ -68,7 +68,7 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
     },
   ];
 
-  return <DataTable data={bookings} columns={columns} keyExtractor={(booking) => booking.id} isLoading={isLoading} error={error} emptyMessage="Bookings not found" />;
+  return <DataTable data={bookings} columns={columns} keyExtractor={(booking) => booking.id} isLoading={isLoading} error={error} emptyMessage="No one has booked yet" />;
 };
 
 export const RentManagementTab: React.FC = () => {
@@ -84,12 +84,12 @@ export const RentManagementTab: React.FC = () => {
     refetch,
   } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings", id, searchQuery, currentPage],
-    url: "bookings",
+    url: "bookings/villas",
     params: { "filter.villaId": id, search: searchQuery, page: currentPage },
     enabled: Boolean(id),
   });
 
-  const { mutate: editRent } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "/bookings" });
+  const { mutate: editRent } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "bookings/villas" });
 
   const bookings = respBookings?.data.data || [];
   const totalPages = respBookings?.data.meta.totalPages || 1;

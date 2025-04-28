@@ -69,7 +69,7 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
     },
   ];
 
-  return <DataTable data={bookings} columns={columns} keyExtractor={(booking) => booking.id} isLoading={isLoading} error={error} emptyMessage="Bookings not found" />;
+  return <DataTable data={bookings} columns={columns} keyExtractor={(booking) => booking.id} isLoading={isLoading} error={error} emptyMessage="No one has booked yet" />;
 };
 
 export const RentPage = () => {
@@ -82,9 +82,9 @@ export const RentPage = () => {
     isPending,
     error,
     refetch,
-  } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings", searchQuery, currentPage], url: "bookings", params: { search: searchQuery, page: currentPage } });
+  } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings", searchQuery, currentPage], url: "bookings/villas", params: { search: searchQuery, page: currentPage } });
 
-  const { mutate: editRent } = useUpdateApi({ key: ["edit-booking"], url: "/bookings" });
+  const { mutate: editRent } = useUpdateApi({ key: ["edit-booking"], url: "/bookings/villas" });
 
   const bookings = respBookings?.data.data || [];
   const totalPages = respBookings?.data.meta.totalPages || 1;

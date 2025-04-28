@@ -32,9 +32,9 @@ export const EditRentPage = () => {
   const [currency, setCurrency] = React.useState<OptionType | null>(null);
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
-  const { data: respBooking } = useGetApi<Payload<Booking>>({ key: ["get-booking", id], url: `bookings/${id}` });
+  const { data: respBooking } = useGetApi<Payload<Booking>>({ key: ["get-booking", id], url: `bookings/villas/${id}` });
   const { data: phoneCodes } = useGetApi<PhoneCodes[]>({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
-  const { mutate: editBooking } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "/bookings", redirectPath: `/dashboard/management/rent/edit/${id}` });
+  const { mutate: editBooking } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "/bookings/villas", redirectPath: `/dashboard/management/rent/edit/${id}` });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
