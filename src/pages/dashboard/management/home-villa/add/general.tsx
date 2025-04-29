@@ -199,7 +199,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
         updateFormState("currency", { label: findCurrency.code, value: findCurrency.id });
       }
       if (findOwner) {
-        updateFormState("owner", { label: findOwner.name, value: findOwner.id });
+        updateFormState("owner", { label: findOwner.companyName, value: findOwner.id });
       }
     }
   }, [currencies, owners]);
@@ -230,7 +230,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
         <FormField label="Owner" required>
           <Select
             className="w-full text-sm"
-            options={owners?.data.data.map((owner) => ({ value: owner.id, label: owner.name }))}
+            options={owners?.data.data.map((owner) => ({ value: owner.id, label: owner.companyName }))}
             value={formState.owner}
             onChange={(option) => updateFormState("owner", option)}
             placeholder="Select Owner"

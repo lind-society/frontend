@@ -38,7 +38,13 @@ export const PackageTab = () => {
   };
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/30">
+    <>
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="heading">Packages</h2>
+        <Button onClick={() => navigate("/dashboard/management/property/package/add")} className="btn-primary">
+          Add Package
+        </Button>
+      </div>
       {isLoading ? (
         <div className="flex justify-center min-h-400">
           <div className="loader size-12 after:size-12"></div>
@@ -68,6 +74,6 @@ export const PackageTab = () => {
           </Button>
         </div>
       </Modal>
-    </div>
+    </>
   );
 };

@@ -133,7 +133,7 @@ export const EditPackagePage = () => {
         <Button className="btn-primary" onClick={() => handleNavigation(-1)}>
           <FaArrowLeft size={20} />
         </Button>
-        <h1 className="head-title">Edit Property Management</h1>
+        <h1 className="head-title">Edit Package</h1>
       </header>
 
       <div className="p-8 border rounded-b bg-light border-dark/30">

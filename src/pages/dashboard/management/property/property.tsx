@@ -51,8 +51,10 @@ export const PropertyPage = () => {
         ))}
       </div>
 
-      {activeTab === "Packages" && <PackageTab />}
-      {activeTab === "Benefits" && <BenefitsTab />}
+      <div className="p-8 border rounded-b bg-light border-dark/30">
+        {activeTab === "Packages" && <PackageTab />}
+        {activeTab === "Benefits" && <BenefitsTab />}
+      </div>
     </Layout>
   );
 };

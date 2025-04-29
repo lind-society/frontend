@@ -86,16 +86,15 @@ export const BenefitsTab = () => {
   }
 
   return (
-    <div className="p-8 border rounded-b bg-light border-dark/30">
+    <>
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="heading">Benefits</h2>
+        <Button type="button" onClick={addBenefit} className="flex items-center gap-2 btn-primary">
+          <FaPlus /> Add Benefit
+        </Button>
+      </div>
       <form className="space-y-8" onSubmit={handleSubmit}>
-        <div className="flex items-center justify-between">
-          <h2 className="heading">Benefits</h2>
-          <Button type="button" onClick={addBenefit} className="flex items-center gap-2 btn-primary">
-            <FaPlus /> Add Benefit
-          </Button>
-        </div>
-
-        <div className="space-y-8">
+        <div className="space-y-4">
           {formState.length === 0 && <div className="p-4 text-center text-gray-500">No benefits added yet. Click "Add Benefit" to create one.</div>}
 
           {formState.map((benefit, index) => (
@@ -142,6 +141,6 @@ export const BenefitsTab = () => {
           </Button>
         </div>
       </form>
-    </div>
+    </>
   );
 };

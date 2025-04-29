@@ -142,7 +142,7 @@ export const MainPage = () => {
         {/* Recent Bookings */}
         <div className="p-4 rounded-lg shadow bg-light">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Recent Bookings</h2>
+            <h2 className="text-lg font-semibold">Recent Booking Home & Villa</h2>
             <Pagination page={currentPageBooking} setPage={handlePageChangeBooking} totalPage={totalPageBooking} />
           </div>
           {isErrorBooking && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
