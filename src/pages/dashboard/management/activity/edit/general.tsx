@@ -23,10 +23,10 @@ interface FormState {
     monthly: boolean;
     yearly: boolean;
   };
-  dailyBasePrice: string;
-  lowSeasonPriceRate: string;
-  highSeasonPriceRate: string;
-  peakSeasonPriceRate: string;
+  dailyPrice: string;
+  lowSeasonDailyPrice: string;
+  highSeasonDailyPrice: string;
+  peakSeasonDailyPrice: string;
   price: Record<AvailabilityType, string>;
   isDiscount: Record<AvailabilityType, boolean>;
   discount: Record<AvailabilityType, string>;
@@ -76,6 +76,10 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     dataAfterEdit.availability?.daily ||
     dataAfterEdit.availability?.monthly ||
     dataAfterEdit.availability?.yearly ||
+    dataAfterEdit.dailyPrice ||
+    dataAfterEdit.lowSeasonDailyPrice ||
+    dataAfterEdit.highSeasonDailyPrice ||
+    dataAfterEdit.peakSeasonDailyPrice ||
     dataAfterEdit.priceMonthly ||
     dataAfterEdit.priceYearly ||
     dataAfterEdit.discountMonthly ||
@@ -98,10 +102,10 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       monthly: data.availability?.monthly || false,
       yearly: data.availability?.yearly || false,
     },
-    dailyBasePrice: String(data.dailyBasePrice || ""),
-    lowSeasonPriceRate: String(data.lowSeasonPriceRate || ""),
-    highSeasonPriceRate: String(data.highSeasonPriceRate || ""),
-    peakSeasonPriceRate: String(data.peakSeasonPriceRate || ""),
+    dailyPrice: String(data.dailyPrice || ""),
+    lowSeasonDailyPrice: String(data.lowSeasonDailyPrice || ""),
+    highSeasonDailyPrice: String(data.highSeasonDailyPrice || ""),
+    peakSeasonDailyPrice: String(data.peakSeasonDailyPrice || ""),
     price: {
       monthly: String(data.priceMonthly || ""),
       yearly: String(data.priceYearly || ""),
@@ -195,7 +199,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     updateNestedField("discount", type, value);
   };
 
-  const handlePriceRateChange = (type: "lowSeasonPriceRate" | "highSeasonPriceRate" | "peakSeasonPriceRate", value: string) => {
+  const handlePriceDailyChange = (type: "lowSeasonDailyPrice" | "highSeasonDailyPrice" | "peakSeasonDailyPrice", value: string) => {
     if (+value > 999999999999999 || +value < 0) return;
     updateFormState(type, value);
   };
@@ -215,10 +219,10 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       owner,
       discount,
       price,
-      dailyBasePrice,
-      lowSeasonPriceRate,
-      highSeasonPriceRate,
-      peakSeasonPriceRate,
+      dailyPrice,
+      lowSeasonDailyPrice,
+      highSeasonDailyPrice,
+      peakSeasonDailyPrice,
       availabilityQuotaPerMonth,
       availabilityQuotaPerYear,
       isDiscount,
@@ -227,7 +231,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
 
     const requiredFields = [name, secondaryName, highlight, currency, owner];
 
-    const daily = [dailyBasePrice, lowSeasonPriceRate, highSeasonPriceRate, peakSeasonPriceRate].every((field) => !!field);
+    const daily = [dailyPrice, lowSeasonDailyPrice, highSeasonDailyPrice, peakSeasonDailyPrice].every((field) => !!field);
 
     const monthly = [price.monthly, discount.monthly, availabilityQuotaPerMonth, isDiscount.monthly].every((field) => !!field);
 
@@ -246,10 +250,10 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       currencyId: currency?.value || "",
       ownerId: owner?.value || "",
       availability: availability,
-      dailyBasePrice: availability.daily ? +dailyBasePrice : 0,
-      lowSeasonPriceRate: availability.daily ? +lowSeasonPriceRate : 0,
-      highSeasonPriceRate: availability.daily ? +highSeasonPriceRate : 0,
-      peakSeasonPriceRate: availability.daily ? +peakSeasonPriceRate : 0,
+      dailyPrice: availability.daily ? +dailyPrice : 0,
+      lowSeasonDailyPrice: availability.daily ? +lowSeasonDailyPrice : 0,
+      highSeasonDailyPrice: availability.daily ? +highSeasonDailyPrice : 0,
+      peakSeasonDailyPrice: availability.daily ? +peakSeasonDailyPrice : 0,
       availabilityQuotaPerMonth: availability.monthly ? +availabilityQuotaPerMonth : 0,
       availabilityQuotaPerYear: availability.yearly ? +availabilityQuotaPerYear : 0,
       priceMonthly: availability.monthly ? +price.monthly : 0,
@@ -332,13 +336,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
         {formState.availability["daily"] && (
           <div className="space-y-6">
             <FormField label="Daily Base Price" required>
-              <NumberInput
-                className="input-text placeholder:text-dark"
-                value={formState.dailyBasePrice}
-                onChange={(e) => updateFormState("dailyBasePrice", e.target.value)}
-                placeholder={`0`}
-                required
-              />
+              <NumberInput className="input-text placeholder:text-dark" value={formState.dailyPrice} onChange={(e) => updateFormState("dailyPrice", e.target.value)} placeholder={`0`} required />
               {formState.currency && <p className="pl-2">{formState.currency ? formState.currency?.label : ""}</p>}
             </FormField>
             <div className="grid grid-cols-3 gap-16 px-8">
@@ -346,8 +344,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 <p className="leading-5">Low Season Price *</p>
                 <div className="flex items-center">
                   <NumberInput
-                    value={formState.lowSeasonPriceRate}
-                    onChange={(e) => handlePriceRateChange("lowSeasonPriceRate", e.target.value)}
+                    value={formState.lowSeasonDailyPrice}
+                    onChange={(e) => handlePriceDailyChange("lowSeasonDailyPrice", e.target.value)}
                     className="input-text placeholder:text-dark"
                     placeholder="0"
                   />
@@ -358,8 +356,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 <p className="leading-5">High Season Price *</p>
                 <div className="flex items-center">
                   <NumberInput
-                    value={formState.highSeasonPriceRate}
-                    onChange={(e) => handlePriceRateChange("highSeasonPriceRate", e.target.value)}
+                    value={formState.highSeasonDailyPrice}
+                    onChange={(e) => handlePriceDailyChange("highSeasonDailyPrice", e.target.value)}
                     className="input-text placeholder:text-dark"
                     placeholder="0"
                   />
@@ -370,8 +368,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 <p className="leading-5">Peak Season Price *</p>
                 <div className="flex items-center">
                   <NumberInput
-                    value={formState.peakSeasonPriceRate}
-                    onChange={(e) => handlePriceRateChange("peakSeasonPriceRate", e.target.value)}
+                    value={formState.peakSeasonDailyPrice}
+                    onChange={(e) => handlePriceDailyChange("peakSeasonDailyPrice", e.target.value)}
                     className="input-text placeholder:text-dark"
                     placeholder="0"
                   />
