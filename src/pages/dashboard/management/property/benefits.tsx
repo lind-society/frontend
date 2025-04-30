@@ -82,7 +82,11 @@ export const BenefitsTab = () => {
   };
 
   if (isLoading) {
-    return <div className="p-8 text-center">Loading benefits...</div>;
+    return (
+      <div className="flex justify-center min-h-400">
+        <div className="loader size-12 after:size-12"></div>
+      </div>
+    );
   }
 
   return (
@@ -95,7 +99,7 @@ export const BenefitsTab = () => {
       </div>
       <form className="space-y-8" onSubmit={handleSubmit}>
         <div className="space-y-4">
-          {formState.length === 0 && <div className="p-4 text-center text-gray-500">No benefits added yet. Click "Add Benefit" to create one.</div>}
+          {formState.length === 0 && <div className="p-4 text-center text-dark/50">No benefits added yet. Click "Add Benefit" to create one.</div>}
 
           {formState.map((benefit, index) => (
             <div key={benefit.id} className="flex items-center w-full gap-8">
