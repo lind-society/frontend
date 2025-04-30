@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useGetApi, usePersistentData } from "../../../hooks";
+import { useGetApiWithAuth, usePersistentData } from "../../../hooks";
 
 import { CategoryModal } from "./category-modal";
 import { FeatureItem } from "./feature-item";
@@ -52,7 +52,7 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
   const [editMode, setEditMode] = React.useState<boolean>(false);
   const [idIcon, setIdIcon] = React.useState<string>();
 
-  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
+  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
 
   const otherFeatures = [...mainFeatures, ...optionalFeatures].filter((feature) => !features.some((item) => item.name === feature.name));
 

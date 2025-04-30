@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useGetApi, useGetApiWithAuth, usePersistentData } from "../../../../../hooks";
+import { useGetApiWithAuth, usePersistentData } from "../../../../../hooks";
 
 import Select from "react-select";
 
@@ -64,7 +64,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
   const { data: dataBeforeEdit } = useStore();
   const { setData, data: dataAfterEdit } = useEdit();
 
-  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
+  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: "/owners" });
 
   const dataCondition =
@@ -111,8 +111,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       yearly: String(data.priceYearly || ""),
     },
     isDiscount: {
-      monthly: false,
-      yearly: false,
+      monthly: data.discountMonthly ? false : true,
+      yearly: data.discountYearly ? false : true,
     },
     discount: {
       monthly: String(data.discountMonthly || ""),
@@ -123,32 +123,6 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     availabilityQuotaPerYear: String(data.availabilityQuotaPerYear || ""),
     owner: null,
   });
-
-  // Check if form is complete
-  React.useEffect(() => {
-    if (!onChange) return;
-
-    const findCurrency = currencies?.data.data.find((c) => c.id === data.currencyId);
-    const findOwner = owners?.data.data.find((o) => o.id === data.ownerId);
-
-    const hasChanges =
-      !arraysEqual(formState.name, data.name || "") ||
-      !arraysEqual(formState.secondaryName, data.secondaryName || "") ||
-      !arraysEqual(formState.price.monthly, String(data.priceMonthly || "")) ||
-      !arraysEqual(formState.price.yearly, String(data.priceYearly || "")) ||
-      !arraysEqual(formState.discount.monthly, String(data.discountMonthly || "")) ||
-      !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||
-      !arraysEqual(formState.currency?.value || "", String(findCurrency?.id || "")) ||
-      !arraysEqual(formState.owner?.value || "", String(findOwner?.id || "")) ||
-      !arraysEqual(formState.availabilityQuotaPerMonth, String(data.availabilityQuotaPerMonth || "")) ||
-      !arraysEqual(formState.availabilityQuotaPerYear, String(data.availabilityQuotaPerYear || "")) ||
-      !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||
-      !(formState.availability.daily === data.availability?.daily) ||
-      !(formState.availability.monthly === data.availability?.monthly) ||
-      !(formState.availability.yearly === data.availability?.yearly);
-
-    onChange(hasChanges);
-  }, [formState]);
 
   React.useEffect(() => {
     if (currencies && owners) {
@@ -209,6 +183,32 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     return Number.isInteger(result) ? result.toString() : result.toFixed(2);
   };
 
+  // Check if form is changes
+  React.useEffect(() => {
+    if (!onChange) return;
+
+    const findCurrency = currencies?.data.data.find((c) => c.id === data.currencyId);
+    const findOwner = owners?.data.data.find((o) => o.id === data.ownerId);
+
+    const hasChanges =
+      !arraysEqual(formState.name, data.name || "") ||
+      !arraysEqual(formState.secondaryName, data.secondaryName || "") ||
+      !arraysEqual(formState.price.monthly, String(data.priceMonthly || "")) ||
+      !arraysEqual(formState.price.yearly, String(data.priceYearly || "")) ||
+      !arraysEqual(formState.discount.monthly, String(data.discountMonthly || "")) ||
+      !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||
+      !arraysEqual(formState.currency?.value || "", String(findCurrency?.id || "")) ||
+      !arraysEqual(formState.owner?.value || "", String(findOwner?.id || "")) ||
+      !arraysEqual(formState.availabilityQuotaPerMonth, String(data.availabilityQuotaPerMonth || "")) ||
+      !arraysEqual(formState.availabilityQuotaPerYear, String(data.availabilityQuotaPerYear || "")) ||
+      !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||
+      !(formState.availability.daily === data.availability?.daily) ||
+      !(formState.availability.monthly === data.availability?.monthly) ||
+      !(formState.availability.yearly === data.availability?.yearly);
+
+    onChange(hasChanges);
+  }, [formState]);
+
   const handleSubmitGeneral = (e: React.FormEvent) => {
     e.preventDefault();
     const {
@@ -233,9 +233,9 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
 
     const daily = [dailyPrice, lowSeasonDailyPrice, highSeasonDailyPrice, peakSeasonDailyPrice].every((field) => !!field);
 
-    const monthly = [price.monthly, discount.monthly, availabilityQuotaPerMonth, isDiscount.monthly].every((field) => !!field);
+    const monthly = [price.monthly, availabilityQuotaPerMonth].every((field) => !!field);
 
-    const yearly = [price.yearly, discount.yearly, availabilityQuotaPerYear, isDiscount.yearly].every((field) => !!field);
+    const yearly = [price.yearly, availabilityQuotaPerYear].every((field) => !!field);
 
     const hasAnyOnePriceAndDiscount = daily || monthly || yearly;
 
@@ -258,8 +258,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       availabilityQuotaPerYear: availability.yearly ? +availabilityQuotaPerYear : 0,
       priceMonthly: availability.monthly ? +price.monthly : 0,
       priceYearly: availability.yearly ? +price.yearly : 0,
-      discountMonthly: availability.monthly ? +discount.monthly : 0,
-      discountYearly: availability.yearly ? +discount.yearly : 0,
+      discountMonthly: isDiscount.monthly && availability.monthly ? 0 : +discount.monthly,
+      discountYearly: isDiscount.yearly && availability.yearly ? 0 : +discount.yearly,
       checkInHour: "00:00",
       checkOutHour: "00:00",
     };
@@ -422,7 +422,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                       <p>Discount</p>
                       <NumberInput
                         className="input-text max-w-32 placeholder:text-dark"
-                        value={formState.discount[type]}
+                        value={formState.isDiscount[type] ? "0" : formState.discount[type]}
                         onChange={(e) => handleDiscountChange(type, e.target.value)}
                         placeholder="0"
                         disabled={formState.isDiscount[type]}
@@ -457,7 +457,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
             className="h-40 input-text"
             value={formState.highlight}
             onChange={(e) => updateFormState("highlight", e.target.value)}
-            placeholder="The beautiful Uma Santai Villa is set in the background of the Kerobokan paddy fields swaying in the tropical wind."
+            placeholder="Sem et lacinia vestibulum enim suscipit nisi sociosqu imperdiet. Nisi integer sem rhoncus sociosqu dictum rutrum mattis. Erat tempor dapibus sed vel ac lectus rhoncus."
             required
           />
         </FormField>

@@ -1,3 +1,4 @@
+import { Activity } from "./activity";
 import { Currency } from "./currency";
 import { Review } from "./review";
 import { Villa } from "./villa";
@@ -28,6 +29,7 @@ export interface Booking {
   customer: Customer;
   currency: Currency;
   villa: Villa;
+  activity: Activity;
   review: Review;
   // activity: null; // TODO add activity type
   // payments: any[]; // TODO add payments type

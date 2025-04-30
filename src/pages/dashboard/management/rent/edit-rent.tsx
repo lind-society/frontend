@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useGetApi, useUpdateApi } from "../../../../hooks";
+import { useGetApi, useGetApiWithAuth, useUpdateApi } from "../../../../hooks";
 
 import Select from "react-select";
 
@@ -31,7 +31,7 @@ export const EditRentPage = () => {
   const [checkOutDate, setCheckOutDate] = React.useState<string>("");
   const [currency, setCurrency] = React.useState<OptionType | null>(null);
 
-  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
+  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
   const { data: respBooking } = useGetApi<Payload<Booking>>({ key: ["get-booking", id], url: `bookings/villas/${id}` });
   const { data: phoneCodes } = useGetApi<PhoneCodes[]>({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
   const { mutate: editBooking } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "/bookings/villas", redirectPath: `/dashboard/management/rent/edit/${id}` });

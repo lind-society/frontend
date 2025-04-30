@@ -3,9 +3,9 @@ import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import {
-  // ActivityPage,
-  // AddActivityPage,
-  // EditActivityPage,
+  ActivityPage,
+  AddActivityPage,
+  EditActivityPage,
   AddBuyPage,
   AddHomeVillaPage,
   AddPackagePage,
@@ -52,9 +52,9 @@ const App = () => {
           <Route path="/dashboard/management/home-villa" element={<HomeVillaPage />} />
           <Route path="/dashboard/management/home-villa/add" element={<AddHomeVillaPage />} />
           <Route path="/dashboard/management/home-villa/edit/:id" element={<EditHomeVillaPage />} />
-          {/* <Route path="/dashboard/management/activity" element={<ActivityPage />} />
+          <Route path="/dashboard/management/activity" element={<ActivityPage />} />
           <Route path="/dashboard/management/activity/add" element={<AddActivityPage />} />
-          <Route path="/dashboard/management/activity/edit/:id" element={<EditActivityPage />} /> */}
+          <Route path="/dashboard/management/activity/edit/:id" element={<EditActivityPage />} />
           <Route path="/dashboard/management/buy" element={<BuyPage />} />
           <Route path="/dashboard/management/buy/add" element={<AddBuyPage />} />
           <Route path="/dashboard/management/buy/edit/:id" element={<EditBuyPage />} />

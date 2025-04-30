@@ -24,7 +24,6 @@ const Table = ({ owners, isLoading, error }: OwnersTableProps) => {
     {
       key: "name" as keyof Owner,
       header: "Full Name",
-      render: (owner: Owner) => owner.name,
     },
     {
       key: "phoneNumber" as keyof Owner,
@@ -34,17 +33,14 @@ const Table = ({ owners, isLoading, error }: OwnersTableProps) => {
     {
       key: "email" as keyof Owner,
       header: "Email",
-      render: (owner: Owner) => owner.email,
     },
     {
       key: "type" as keyof Owner,
       header: "Type",
-      render: (owner: Owner) => owner.type,
     },
     {
       key: "address" as keyof Owner,
       header: "Address",
-      render: (owner: Owner) => owner.address,
     },
     {
       key: "status" as keyof Owner,

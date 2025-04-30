@@ -43,7 +43,7 @@ export const SectionField = ({ field, sectionTitle, onNameChange, onDescriptionC
       <div className="grid grid-cols-4 gap-2.5 pt-2">
         {field.photos.map((image, index) => (
           <div key={index} className="relative">
-            <button onClick={() => onRemoveImage(index)} type="button" className="absolute flex items-center justify-center rounded-full size-6 -top-2 -right-2 z-1 bg-secondary">
+            <button onClick={() => onRemoveImage(index)} type="button" className="btn-close">
               <IoCloseOutline className="text-light" />
             </button>
             <Img src={image || "/temp-business.webp"} alt={`Selected image ${index + 1}`} className="w-full h-48 rounded" />

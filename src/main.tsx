@@ -2,6 +2,9 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 
+import "react-datepicker/dist/react-datepicker.css";
+import "@photo-sphere-viewer/markers-plugin/index.css";
+
 import "./index.css";
 
 const queryClient = new QueryClient({

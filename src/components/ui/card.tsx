@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import { Img } from "../image";
 
-import { FaBath, FaBed, FaRegTrashAlt, FaStar, FaUser } from "react-icons/fa";
+import { FaRegTrashAlt, FaStar } from "react-icons/fa";
 
 import { capitalize } from "../../utils";
 
@@ -30,9 +30,6 @@ export const CardContent = ({ isLoading, datas, type, openDeleteModal }: CardCon
     );
   }
 
-  const bedrooms = 0;
-  const bathrooms = 0;
-  const occupancy = 0;
   const defaultImage = "/images/modern-villa-background.webp";
 
   return (
@@ -52,19 +49,10 @@ export const CardContent = ({ isLoading, datas, type, openDeleteModal }: CardCon
             )}
           </div>
           <div className="text-primary bg-light">
-            <div className="flex items-center justify-between px-4 py-2 border-b border-dark/30">
-              <span className="block font-medium">{capitalize(data.state)}</span>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="flex items-center gap-1">
-                  <FaBed className="p-1.5 rounded-full bg-primary/20" size={24} /> {bedrooms}
-                </span>
-                <span className="flex items-center gap-1">
-                  <FaBath className="p-1.5 rounded-full bg-primary/20" size={24} /> {bathrooms}
-                </span>
-                <span className="flex items-center gap-1">
-                  <FaUser className="p-1.5 rounded-full bg-primary/20" size={24} /> {occupancy}
-                </span>
-              </div>
+            <div className="px-4 py-2 border-b border-dark/30">
+              <span className="block font-medium whitespace-nowrap">
+                {capitalize(data.city)} - {capitalize(data.country)}
+              </span>
             </div>
             <div className="p-4 space-y-1 text-xl">
               <Link to={`/dashboard/management/${type}/edit/${data.id}`}>

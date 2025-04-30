@@ -26,7 +26,7 @@ export const Sidebar = ({ openNav }: { openNav: boolean }) => {
             <div className="w-full px-4" key={index}>
               <span className={`sidebar-menu group ${isActive ? "bg-light" : "bg-primary"}`}>
                 <Link to={`/dashboard${item.link}`} className="block">
-                  <span className={`absolute top-0 left-0 w-1 h-full bg-secondary group-hover:block ${isActive ? "block" : "hidden"}`}></span>
+                  <span className={`absolute top-0 left-0 w-1 h-full bg-red-500 group-hover:block ${isActive ? "block" : "hidden"}`}></span>
                   <p className={`font-semibold text-sm group-hover:text-primary ${isActive ? "text-primary" : "text-light"}`}>{item.title}</p>
                 </Link>
               </span>

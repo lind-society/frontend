@@ -1,7 +1,5 @@
 import * as React from "react";
 
-import "@photo-sphere-viewer/markers-plugin/index.css";
-
 import { useCreateApi, usePersistentData, useUploads } from "../../../hooks";
 
 import { UploadPhoto } from "./upload-photo";

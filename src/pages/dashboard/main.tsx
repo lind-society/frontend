@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components";
 import { Layout, StatusBadge } from "../../components/ui";
@@ -6,7 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FaCalendar, FaRegStar, FaStar } from "react-icons/fa";
 import { HiDownload } from "react-icons/hi";
-import { useGetApi, useSearchPagination } from "../../hooks";
+import { useGetApi } from "../../hooks";
 import { Booking, Data, PaginationProps, Payload, Review } from "../../types";
 import { convertDate } from "../../utils";
 
@@ -67,22 +68,22 @@ const Pagination = ({ setPage, page, totalPage }: PaginationProps) => {
 };
 
 export const MainPage = () => {
-  const { searchQuery: searchQueryReview, currentPage: currentPageReview, handlePageChange: handlePageChangeReview } = useSearchPagination();
-  const { searchQuery: searchQueryBooking, currentPage: currentPageBooking, handlePageChange: handlePageChangeBooking } = useSearchPagination();
+  const [currentPageBooking, setCurrentPageBooking] = React.useState<number>(1);
+  const [currentPageReview, setCurrentPageReview] = React.useState<number>(1);
 
   const { data: respBooking, isError: isErrorBooking } = useGetApi<Payload<Data<Booking[]>>>({
-    key: ["get-bookings", searchQueryBooking, currentPageBooking],
+    key: ["get-bookings", currentPageBooking],
     url: "bookings/villas",
-    params: { search: searchQueryBooking, page: currentPageBooking, limit: "5" },
+    params: { page: currentPageBooking, limit: "5" },
   });
 
   const bookings = respBooking?.data.data || [];
   const totalPageBooking = respBooking?.data.meta.totalPages || 1;
 
   const { data: respReviews, isError: isErrorReview } = useGetApi<Payload<Data<Review[]>>>({
-    key: ["get-reviews", searchQueryReview, currentPageReview],
+    key: ["get-reviews", currentPageReview],
     url: "reviews",
-    params: { search: searchQueryReview, page: currentPageReview, limit: "5" },
+    params: { page: currentPageReview, limit: "5" },
   });
 
   const reviews = respReviews?.data.data || [];
@@ -130,7 +131,7 @@ export const MainPage = () => {
               <FaCalendar /> Monthly
             </span>
           </div>
-          <ResponsiveContainer width="100%" height={600}>
+          <ResponsiveContainer width="100%" height={720}>
             <BarChart data={data}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -140,40 +141,42 @@ export const MainPage = () => {
         </div>
 
         {/* Recent Bookings */}
-        <div className="p-4 rounded-lg shadow bg-light">
+        <div className="p-4 rounded-lg shadow bg-light min-h-400">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Recent Booking Home & Villa</h2>
-            <Pagination page={currentPageBooking} setPage={handlePageChangeBooking} totalPage={totalPageBooking} />
+            <Pagination page={currentPageBooking} setPage={setCurrentPageBooking} totalPage={totalPageBooking} />
           </div>
           {isErrorBooking && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
-          {!isErrorBooking && bookings.length <= 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has booked yet</p>}
-          {bookings.map((booking) => (
-            <div key={booking.id} className="flex items-center justify-between py-2 text-sm">
-              <div>
-                <p className="font-bold">{booking.customer.name}</p>
-                <p className="text-dark">{convertDate(booking.checkInDate)}</p>
+          {!isErrorBooking && bookings.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has booked yet</p>}
+          <div className="space-y-2">
+            {bookings.map((booking) => (
+              <div key={booking.id} className="flex items-center justify-between py-2 text-sm">
+                <div>
+                  <p className="font-bold">{booking.customer.name}</p>
+                  <p className="text-dark">{convertDate(booking.checkInDate)}</p>
+                </div>
+                <StatusBadge status={booking.status} />
               </div>
-              <StatusBadge status={booking.status} />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/*  Customer Reviews */}
-        <div className="p-6 shadow bg-light rounded-xl">
+        <div className="p-6 shadow bg-light rounded-xl min-h-400">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Customer Reviews</h2>
-            <Pagination page={currentPageReview} setPage={handlePageChangeReview} totalPage={totalPageReviews} />
+            <Pagination page={currentPageReview} setPage={setCurrentPageReview} totalPage={totalPageReviews} />
           </div>
-          <ul>
+          <ul className="space-y-4">
             {isErrorReview && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
-            {!isErrorReview && reviews.length <= 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No customer review</p>}
+            {!isErrorReview && reviews.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No customer review</p>}
             {reviews.map((review, index) => (
-              <li key={index} className="flex items-center justify-between py-2 border-b last:border-none">
+              <li key={index} className="flex items-center justify-between border-b last:border-none">
                 <div>
-                  <p className="font-medium">{review.booking.customer.name}</p>
+                  <p className="font-medium">{review.villaBooking.customer.name}</p>
                   <p className="text-sm text-dark">{review.villa.name}</p>
                 </div>
-                <div className="flex text-yellow-500">{[...Array(5)].map((_, i) => (i < +review.rating ? <FaStar key={i} /> : <FaRegStar key={i} />))}</div>
+                <div className="flex text-yellow-500">{[...Array(5)].map((_, i) => (i < review.rating ? <FaStar key={i} /> : <FaRegStar key={i} />))}</div>
               </li>
             ))}
           </ul>

@@ -22,7 +22,7 @@ interface UploadPhotoProps {
 const ViewFiles = ({ children, index, handleRemoveFiles }: { children: React.ReactNode; handleRemoveFiles: (index: number) => void; index: number }) => {
   return (
     <div className="relative">
-      <button onClick={() => handleRemoveFiles(index)} type="button" className="absolute flex items-center justify-center rounded-full size-6 -top-2 -right-2 z-1 bg-secondary hover:bg-secondary/80">
+      <button onClick={() => handleRemoveFiles(index)} type="button" className="btn-close">
         <IoCloseOutline className="text-light" />
       </button>
       {children}

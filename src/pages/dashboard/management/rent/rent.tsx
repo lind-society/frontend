@@ -100,7 +100,7 @@ export const RentPage = () => {
 
   const handleApprove = (bookingId: string) => {
     if (!window.confirm("Are you sure you want to approve?")) return;
-    editRent({ id: bookingId, updatedItem: { status: "done" } });
+    editRent({ id: bookingId, updatedItem: { status: "Done" } });
     setTimeout(() => {
       refetch();
     }, 1000);
@@ -108,7 +108,7 @@ export const RentPage = () => {
 
   const handleCancel = (bookingId: string) => {
     if (!window.confirm("Are you sure you want to cancel?")) return;
-    editRent({ id: bookingId, updatedItem: { status: "canceled" } });
+    editRent({ id: bookingId, updatedItem: { status: "Canceled" } });
     setTimeout(() => {
       refetch();
     }, 1000);

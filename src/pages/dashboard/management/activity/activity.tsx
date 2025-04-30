@@ -48,8 +48,8 @@ const CardContent = ({ isLoading, activities, openDeleteModal }: CardContentProp
             <Img src={activity.photos && activity.photos.length > 0 ? activity.photos[0] : defaultImage} alt={activity.name} className="object-cover w-full h-60" />
           </div>
           <div className="text-primary bg-light">
-            <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-dark/30">
-              <p className="font-medium">{`${capitalize(activity.state)} - ${capitalize(activity.country)}`}</p>
+            <div className="flex items-center gap-2 px-4 py-2 border-b border-dark/30">
+              <p className="font-medium line-clamp-1">{`${capitalize(activity.state)} - ${capitalize(activity.country)}`}</p>
               <p className="px-4 py-1 text-sm rounded bg-primary text-light">{activity.category.name}</p>
             </div>
             <div className="p-4 space-y-2">
@@ -58,7 +58,7 @@ const CardContent = ({ isLoading, activities, openDeleteModal }: CardContentProp
                   <h2 className="h-20 font-semibold line-clamp-3">{activity.name}</h2>
                 </Link>
                 <div className="font-bold text-end">
-                  <p className="text-lg font-bold">
+                  <p className="text-lg font-bold whitespace-nowrap">
                     {activity.currency.code} {activity.price}
                   </p>
                   <p className="text-sm font-light">/session</p>

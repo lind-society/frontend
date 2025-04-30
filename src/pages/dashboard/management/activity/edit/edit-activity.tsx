@@ -16,6 +16,8 @@ import { ReviewTab } from "./review";
 import { Payload, Activity } from "../../../../../types";
 
 import { deleteKeysObject } from "../../../../../utils";
+import { OrderManagementTab } from "./order-management";
+import { EditMediaTab } from "./media";
 
 const tabs = ["Order Management", "General", "Media", "Location", "Review"];
 
@@ -24,9 +26,9 @@ export const EditActivityPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { mutate: editActivity, isPending } = useUpdateApi<Partial<Activity>>({ key: ["editing-activity"], url: "/activitys", redirectPath: `/dashboard/management/activity/edit/${id}` });
+  const { mutate: editActivity, isPending } = useUpdateApi<Partial<Activity>>({ key: ["editing-activity"], url: "/activities", redirectPath: `/dashboard/management/activity/edit/${id}` });
 
-  const { data: respActivity, isLoading } = useGetApi<Payload<Activity>>({ url: `activitys/${id}`, key: ["get-activity", id] });
+  const { data: respActivity, isLoading } = useGetApi<Payload<Activity>>({ url: `activities/${id}`, key: ["get-activity", id] });
 
   const useStore = usePersistentData<Activity>("get-activity");
   const useEdit = usePersistentData<Activity>("edit-activity");
@@ -121,6 +123,7 @@ export const EditActivityPage = () => {
       </div>
 
       <div className="relative p-8 border rounded-b bg-light border-dark/30 min-h-600">
+        {activeTab === "Order Management" && <OrderManagementTab />}
         {activeTab === "Review" && <ReviewTab />}
         {isLoading || isWaiting ? (
           <div className="flex items-center justify-center min-h-400">
@@ -130,6 +133,13 @@ export const EditActivityPage = () => {
           <>
             {activeTab === "General" && (
               <GeneralTab
+                onChange={(hasChanges: boolean) => {
+                  setHasUnsavedChanges(hasChanges);
+                }}
+              />
+            )}
+            {activeTab === "Media" && (
+              <EditMediaTab
                 onChange={(hasChanges: boolean) => {
                   setHasUnsavedChanges(hasChanges);
                 }}

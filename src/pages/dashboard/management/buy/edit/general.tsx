@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useGetApi, useGetApiWithAuth, usePersistentData } from "../../../../../hooks";
+import { useGetApiWithAuth, usePersistentData } from "../../../../../hooks";
 
 import Select from "react-select";
 
@@ -15,6 +15,7 @@ interface FormState {
   highlight: string;
   price: string;
   discount: string;
+  isDiscount: boolean;
   ownershipType: string;
   soldStatus: boolean;
   currency: OptionType | null;
@@ -63,7 +64,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     return dataCondition ? dataAfterEdit : dataBeforeEdit;
   }, [dataAfterEdit, dataBeforeEdit]);
 
-  const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
+  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: "/owners" });
 
   const [editMode, setEditMode] = React.useState<boolean>(false);
@@ -74,13 +75,14 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     highlight: data.highlight || "",
     price: String(data.price || ""),
     discount: String(data.discount || ""),
+    isDiscount: data.discount ? false : true,
     soldStatus: data.soldStatus || false,
     ownershipType: data.ownershipType || "Leasehold",
     currency: null,
     owner: null,
   });
 
-  const updateFormState = (field: keyof Property, value: string | boolean | OptionType | null) => {
+  const updateFormState = (field: keyof FormState, value: string | boolean | OptionType | null) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -94,27 +96,35 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     updateFormState("discount", value);
   };
 
-  const calculateDiscountedPrice = () => {
-    const basePrice = +formState.price || 0;
-    const discountPercent = +formState.discount || 0;
-    return basePrice - basePrice * (discountPercent / 100);
+  const calculatePrice = (price: string, discount: string, isDiscount?: boolean) => {
+    const result = isDiscount ? +price - +price * (+discount / 100) : +price + +price * (+discount / 100);
+    return Number.isInteger(result) ? result.toString() : result.toFixed(2);
   };
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
     e.preventDefault();
     // Submit general data here
-    const formattedData = {
-      name: formState.name,
-      secondaryName: formState.secondaryName,
-      highlight: formState.highlight,
-      soldStatus: formState.soldStatus,
-      ownershipType: formState.ownershipType,
-      price: +formState.price,
-      discount: +formState.discount,
-      currencyId: formState.currency?.value || "",
-      ownerId: formState.owner?.value || "",
+
+    const { name, secondaryName, highlight, currency, owner, price, isDiscount, soldStatus, ownershipType, discount } = formState;
+
+    const requiredFields = [name, secondaryName, highlight, currency, owner, price];
+
+    const isComplete = requiredFields.every((field) => !!field);
+
+    if (!isComplete) return;
+
+    const dataToSave = {
+      name,
+      secondaryName,
+      highlight,
+      soldStatus,
+      ownershipType,
+      price: +price,
+      discount: isDiscount ? 0 : +discount,
+      currencyId: currency?.value || "",
+      ownerId: owner?.value || "",
     };
-    setData(formattedData);
+    setData(dataToSave);
     ToastMessage({ message: "Success saving edit general...", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();
@@ -205,19 +215,51 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
           />
         </FormField>
 
-        <FormField label="Price" required>
-          <div className="flex items-center w-full gap-4">
-            <NumberInput className="input-text" value={formState.price} onChange={(e) => handlePriceChange(e.target.value)} placeholder={`Enter price in ${formState.currency?.label}`} required />
+        <div className="space-y-4">
+          <FormField label="Price" required>
+            <div className="flex items-center w-full gap-4">
+              <div className="flex items-center w-full gap-2 max-w-80">
+                <NumberInput className="input-text max-w-72 placeholder:text-dark" value={formState.price} onChange={(e) => handlePriceChange(e.target.value)} placeholder={`0`} required />
+                <p>{formState.currency ? formState.currency?.label : ""}</p>
+              </div>
 
-            <label className="block whitespace-nowrap">Discount</label>
+              <div className="flex items-center justify-center w-full gap-8">
+                <p>Discount*</p>
+                <div className="flex gap-4">
+                  {(["Yes", "No"] as const).map((status, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <label className="cursor-pointer" htmlFor={status}>
+                        {status}
+                      </label>
+                      <input
+                        type="checkbox"
+                        id={status}
+                        className="cursor-pointer accent-primary"
+                        checked={formState.isDiscount === (status === "Yes")}
+                        onChange={() => updateFormState("isDiscount", status === "Yes")}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            <NumberInput className="input-text" value={formState.discount} onChange={(e) => handleDiscountChange(e.target.value)} placeholder="e.g. 0%" />
-
-            <label className="block whitespace-nowrap">Discounted Price</label>
-
-            <input type="number" className="input-text" value={calculateDiscountedPrice()} readOnly />
+              <div className="flex items-center w-full gap-2 max-w-60">
+                <p>Discount</p>
+                <NumberInput
+                  className="input-text max-w-32 placeholder:text-dark"
+                  value={formState.isDiscount ? 0 : formState.discount}
+                  onChange={(e) => handleDiscountChange(e.target.value)}
+                  placeholder="0"
+                  disabled={formState.isDiscount}
+                />
+                <p>%</p>
+              </div>
+            </div>
+          </FormField>
+          <div className="flex justify-end">
+            <p className="w-full text-sm italic whitespace-nowrap max-w-40">Final Price : {calculatePrice(formState.price, formState.discount, true)}</p>
           </div>
-        </FormField>
+        </div>
 
         <FormField label="Ownership" required>
           {(["Freehold", "Leasehold"] as const).map((ownership, index) => (
@@ -258,7 +300,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
             className="h-40 input-text"
             value={formState.highlight}
             onChange={(e) => updateFormState("highlight", e.target.value)}
-            placeholder="The beautiful Uma Santai Villa is set in the background of the Kerobokan paddy fields swaying in the tropical wind."
+            placeholder="Sem et lacinia vestibulum enim suscipit nisi sociosqu imperdiet. Nisi integer sem rhoncus sociosqu dictum rutrum mattis. Erat tempor dapibus sed vel ac lectus rhoncus."
             required
           />
         </FormField>

@@ -2,7 +2,7 @@ import { Currency } from "./currency";
 import { PlaceNearby } from "./global";
 import { Owner } from "./owner";
 
-interface Category {
+export interface Category {
   id: string;
   name: string;
   createdAt: string;
@@ -23,11 +23,12 @@ export interface Activity {
   city: string;
   postalCode: string;
   mapLink: string;
+  dailyLimit: number;
   placeNearby: PlaceNearby[];
   openingHour: string;
   closingHour: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date | null;
+  endDate: Date | null;
   photos: string[];
   videos: string[];
   video360s: string[];

@@ -1,29 +1,35 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { useGetApi, useSearchPagination, useUpdateApi } from "../../../../../hooks";
 
 import { Pagination } from "../../../../../components";
 
-import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
+import { FaCheckSquare, FaWindowClose } from "react-icons/fa";
 
 import { Booking, Data, Payload } from "../../../../../types";
 import { DataTable, SearchBox, StatusBadge } from "../../../../../components/ui";
 
 interface BookingsTableProps {
   bookings: Booking[];
-  onEdit: (id: string) => void;
   onApprove?: (id: string) => void;
   onCancel?: (id: string) => void;
   isLoading?: boolean;
   error?: unknown;
 }
 
-const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: BookingsTableProps) => {
+const STATUS_COLORS: Record<string, string> = {
+  Pending: "bg-yellow-300 text-yellow-700",
+  Confirmed: "bg-purple-300 text-purple-700",
+  Completed: "bg-green-300 text-green-700",
+  Canceled: "bg-red-300 text-red-700",
+};
+
+const Table = ({ bookings, onApprove, onCancel, isLoading, error }: BookingsTableProps) => {
   const columns = [
     {
-      key: "villa.name" as keyof Booking,
-      header: "Villa",
-      render: (booking: Booking) => booking.villa?.name,
+      key: "activity.name" as keyof Booking,
+      header: "Activity",
+      render: (booking: Booking) => booking.activity?.name,
     },
     {
       key: "customer.name" as keyof Booking,
@@ -41,26 +47,20 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
       render: (booking: Booking) => booking.customer.phoneNumber,
     },
     {
-      key: "totalGuest" as keyof Booking,
-      header: "Guest",
-      className: "px-4 py-3 text-center",
-    },
-    {
-      key: "totalAmount" as keyof Booking,
-      header: "Total Amount",
-      className: "px-4 py-3 text-center",
+      key: "activity.category.name" as keyof Booking,
+      header: "Category",
+      render: (booking: Booking) => booking.activity.category.name,
     },
     {
       key: "status" as keyof Booking,
       header: "Status",
-      render: (booking: Booking) => <StatusBadge status={booking.status} />,
+      render: (booking: Booking) => <StatusBadge status={booking.status} colors={STATUS_COLORS} />,
     },
     {
       key: "actions",
       header: "Actions",
       render: (booking: Booking) => (
         <div className="flex items-center justify-center gap-2">
-          <FaEdit size={20} className="cursor-pointer text-primary" onClick={() => onEdit(booking.id)} />
           {onApprove && <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking.id)} />}
           {onCancel && <FaWindowClose size={20} className="text-red-600 cursor-pointer" onClick={() => onCancel(booking.id)} />}
         </div>
@@ -72,7 +72,6 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
 };
 
 export const OrderManagementTab: React.FC = () => {
-  const navigate = useNavigate();
   const { id } = useParams();
 
   const { searchQuery, inputValue, setInputValue, handleSearch, currentPage, handlePageChange } = useSearchPagination();
@@ -84,19 +83,15 @@ export const OrderManagementTab: React.FC = () => {
     refetch,
   } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings", id, searchQuery, currentPage],
-    url: "bookings/villas",
-    params: { "filter.villaId": id, search: searchQuery, page: currentPage },
+    url: "bookings/activities",
+    params: { "filter.activityId": id, search: searchQuery, page: currentPage },
     enabled: Boolean(id),
   });
 
-  const { mutate: editRent } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "bookings/villas" });
+  const { mutate: editRent } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "bookings/activities" });
 
   const bookings = respBookings?.data.data || [];
   const totalPages = respBookings?.data.meta.totalPages || 1;
-
-  const handleEdit = (bookingId: string) => {
-    navigate(`/dashboard/management/rent/edit/${bookingId}`);
-  };
 
   const handleApprove = (bookingId: string) => {
     if (!window.confirm("Are you sure you want to approve?")) return;
@@ -116,10 +111,10 @@ export const OrderManagementTab: React.FC = () => {
 
   return (
     <>
-      <h2 className="mb-8 heading">Rent Management</h2>
+      <h2 className="mb-8 heading">Order Management</h2>
       <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
       <div className="pb-2 my-4 overflow-x-auto scrollbar min-h-600">
-        <Table bookings={bookings} onEdit={handleEdit} onApprove={handleApprove} onCancel={handleCancel} isLoading={isPending} error={error} />
+        <Table bookings={bookings} onApprove={handleApprove} onCancel={handleCancel} isLoading={isPending} error={error} />
       </div>
       <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
     </>

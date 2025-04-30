@@ -16,6 +16,7 @@ import { GrLinkNext } from "react-icons/gr";
 import { deleteKeysObject } from "../../../../../utils";
 
 import { Activity } from "../../../../../types";
+import { AddMediaTab } from "./media";
 
 type TabName = "General" | "Media" | "Location";
 
@@ -147,6 +148,11 @@ export const AddActivityPage = () => {
         )}
         {activeTab === "Media" && (
           <>
+            <AddMediaTab
+              onChange={(hasChanges: boolean) => {
+                updateTabValidation("Media", hasChanges);
+              }}
+            />
             {!tabValidationState["Media"] && (
               <div className="flex justify-end mt-4">
                 <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
@@ -159,18 +165,11 @@ export const AddActivityPage = () => {
         {activeTab === "Location" && (
           <>
             <AddLocationTab
-              persistedDataKey="add-Activity"
+              persistedDataKey="add-activity"
               onChange={(hasChanges: boolean) => {
                 updateTabValidation("Location", hasChanges);
               }}
             />
-            {!tabValidationState["Location"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
-            )}
           </>
         )}
       </div>

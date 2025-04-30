@@ -21,9 +21,9 @@ interface ReviewsTableProps {
 const Table = ({ reviews, onCancel, isLoading, error }: ReviewsTableProps) => {
   const columns = [
     {
-      key: "booking.customer.name" as keyof Review,
+      key: "activityBooking.customer.name" as keyof Review,
       header: "Name",
-      render: (review: Review) => review.booking.customer.name,
+      render: (review: Review) => review.activityBooking.customer.name,
     },
     {
       key: "villa.country" as keyof Review,
@@ -31,24 +31,23 @@ const Table = ({ reviews, onCancel, isLoading, error }: ReviewsTableProps) => {
       render: (review: Review) => review.villa.country,
     },
     {
-      key: "booking.checkInDate" as keyof Review,
+      key: "activityBooking.checkInDate" as keyof Review,
       header: "Check In",
-      render: (review: Review) => convertDate(review.booking.checkInDate),
+      render: (review: Review) => convertDate(review.activityBooking.checkInDate),
     },
     {
-      key: "booking.checkOutDate" as keyof Review,
+      key: "activityBooking.checkOutDate" as keyof Review,
       header: "Check Out",
-      render: (review: Review) => convertDate(review.booking.checkOutDate),
+      render: (review: Review) => convertDate(review.activityBooking.checkOutDate),
     },
     {
       key: "rating" as keyof Review,
       header: "Rating",
-      render: (review: Review) => review.rating,
+      className: "px-4 py-3 text-center",
     },
     {
       key: "message" as keyof Review,
       header: "Message",
-      render: (review: Review) => review.message,
     },
     {
       key: "actions",
@@ -74,11 +73,11 @@ export const ReviewTab: React.FC = () => {
   } = useGetApi<Payload<Data<Review[]>>>({
     key: ["get-reviews", id, searchQuery, currentPage],
     url: "reviews",
-    params: { "filter.villaId": id, search: searchQuery, page: currentPage },
+    params: { "filter.activityId": id, search: searchQuery, page: currentPage },
     enabled: Boolean(id),
   });
 
-  const { mutate: deleteReview } = useDeleteApi({ key: ["delete-review"], url: "/reviews", redirectPath: `/dashboard/management/home-villa/edit/${id}` });
+  const { mutate: deleteReview } = useDeleteApi({ key: ["delete-review"], url: "/reviews", redirectPath: `/dashboard/management/activity/edit/${id}` });
 
   const reviews = respReviews?.data.data || [];
   const totalPages = respReviews?.data.meta.totalPages || 1;
