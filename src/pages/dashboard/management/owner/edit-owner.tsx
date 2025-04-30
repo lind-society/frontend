@@ -116,7 +116,7 @@ export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
           </div>
 
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-44">Company Name</label>
+            <label className="block whitespace-nowrap min-w-44">Company Name *</label>
             <input type="text" className="input-text" value={owner.companyName} placeholder="icodeu" onChange={(e) => handleChange("companyName", e.target.value)} />
           </div>
           <div className="flex items-center">

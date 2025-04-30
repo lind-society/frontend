@@ -4,35 +4,38 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
 
-import { GeneralTab } from "./general";
-import { EditKeyFeaturesTab, EditLocationTab, EditMediaTab, EditServiceFeaturesTab, Layout } from "../../../../../components/ui";
+import { EditLocationTab, Layout } from "../../../../../components/ui";
+
 import { Button } from "../../../../../components";
 
 import { FaArrowLeft, FaUpload } from "react-icons/fa";
 
+import { GeneralTab } from "./general";
+import { ReviewTab } from "./review";
+
+import { Payload, Activity } from "../../../../../types";
+
 import { deleteKeysObject } from "../../../../../utils";
 
-import { Payload, Property } from "../../../../../types";
+const tabs = ["Order Management", "General", "Media", "Location", "Review"];
 
-const tabs = ["General", "Media", "Location", "Key Features", "Service & Features"];
-
-export const EditBuyPage = () => {
+export const EditActivityPage = () => {
   const { pathname } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { mutate: editProperty, isPending } = useUpdateApi<Partial<Property>>({ key: ["editing-property"], url: "/properties", redirectPath: "/dashboard/management/buy" });
+  const { mutate: editActivity, isPending } = useUpdateApi<Partial<Activity>>({ key: ["editing-activity"], url: "/activitys", redirectPath: `/dashboard/management/activity/edit/${id}` });
 
-  const { data: respProperty, isLoading } = useGetApi<Payload<Property>>({ url: `properties/${id}`, key: ["get-property", id] });
+  const { data: respActivity, isLoading } = useGetApi<Payload<Activity>>({ url: `activitys/${id}`, key: ["get-activity", id] });
 
-  const useStore = usePersistentData<Property>("get-property");
-  const useEdit = usePersistentData<Property>("edit-property");
+  const useStore = usePersistentData<Activity>("get-activity");
+  const useEdit = usePersistentData<Activity>("edit-activity");
 
   const { setData } = useStore();
   const { data } = useEdit();
 
   const [activeTab, setActiveTab] = React.useState<string>(() => {
-    return sessionStorage.getItem("activeTab") || "General";
+    return sessionStorage.getItem("activeTab") || "Order Management";
   });
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState<boolean>(false);
@@ -47,7 +50,7 @@ export const EditBuyPage = () => {
   }, []);
 
   React.useEffect(() => {
-    if (pathname === `/dashboard/management/buy/edit/${id}`) {
+    if (pathname === `/dashboard/management/activity/edit/${id}`) {
       sessionStorage.setItem("activeTab", activeTab);
     }
 
@@ -57,17 +60,14 @@ export const EditBuyPage = () => {
   }, [pathname, activeTab]);
 
   React.useEffect(() => {
-    if (respProperty) {
-      const { data: responseData } = respProperty;
+    if (respActivity) {
+      const { data: responseData } = respActivity;
+
       setData({
         ...responseData,
-        facilities: responseData.facilities.map((facility) => ({
-          id: facility.id,
-          description: facility.description,
-        })) as Property["facilities"],
       });
     }
-  }, [respProperty]);
+  }, [respActivity]);
 
   const handleNavigateAway = (tab: string) => {
     if (hasUnsavedChanges) {
@@ -81,8 +81,8 @@ export const EditBuyPage = () => {
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
-    const processData = deleteKeysObject(data, ["currency", "pivotId", "facilities", "priceAfterDiscount", "createdAt", "updatedAt", "id", "reviews"]);
-    editProperty({ updatedItem: processData, id: id || "" });
+    const processData = deleteKeysObject(data, ["currency", "pivotId", "facilities", "priceAfterDiscount", "createdAt", "updatedAt", "id"]);
+    editActivity({ updatedItem: processData, id: id || "" });
   };
 
   return (
@@ -92,7 +92,7 @@ export const EditBuyPage = () => {
           <Button className="btn-primary" onClick={() => navigate(-1)}>
             <FaArrowLeft size={20} />
           </Button>
-          <h1 className="head-title">{respProperty?.data.name}</h1>
+          <h1 className="head-title">{respActivity?.data.name}</h1>
         </div>
 
         <div className="flex items-center gap-4">
@@ -121,6 +121,7 @@ export const EditBuyPage = () => {
       </div>
 
       <div className="relative p-8 border rounded-b bg-light border-dark/30 min-h-600">
+        {activeTab === "Review" && <ReviewTab />}
         {isLoading || isWaiting ? (
           <div className="flex items-center justify-center min-h-400">
             <div className="loader size-10 after:size-10"></div>
@@ -134,38 +135,10 @@ export const EditBuyPage = () => {
                 }}
               />
             )}
-            {activeTab === "Media" && (
-              <EditMediaTab
-                persistedDataKey="get-property"
-                editDataKey="edit-property"
-                type="property"
-                onChange={(hasChanges: boolean) => {
-                  setHasUnsavedChanges(hasChanges);
-                }}
-              />
-            )}
             {activeTab === "Location" && (
               <EditLocationTab
-                persistedDataKey="get-property"
-                editDataKey="edit-property"
-                onChange={(hasChanges: boolean) => {
-                  setHasUnsavedChanges(hasChanges);
-                }}
-              />
-            )}
-            {activeTab === "Key Features" && (
-              <EditKeyFeaturesTab
-                persistedDataKey="get-property"
-                editDataKey="edit-property"
-                onChange={(hasChanges: boolean) => {
-                  setHasUnsavedChanges(hasChanges);
-                }}
-              />
-            )}
-            {activeTab === "Service & Features" && (
-              <EditServiceFeaturesTab
-                persistedDataKey="get-property"
-                editDataKey="edit-property"
+                persistedDataKey="get-activity"
+                editDataKey="edit-activity"
                 onChange={(hasChanges: boolean) => {
                   setHasUnsavedChanges(hasChanges);
                 }}

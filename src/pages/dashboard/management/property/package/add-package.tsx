@@ -31,13 +31,13 @@ export const AddPackagePage = () => {
 
   const [isDirty, setIsDirty] = React.useState<boolean>(false);
 
-  const { data: benefitsResponse, isLoading } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "20" } });
+  const { data: respBenefits, isLoading } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "20" } });
 
   const { mutate: addPackage, isPending } = useCreateApi<Partial<Package>>({ key: ["add-package"], url: "/packages", redirectPath: `/dashboard/management/property/package/add` });
 
   const benefitOptions = React.useMemo(() => {
-    return benefitsResponse?.data?.data.map((benefit) => ({ value: benefit.id, label: benefit.title })) || [];
-  }, [benefitsResponse]);
+    return respBenefits?.data?.data.map((benefit) => ({ value: benefit.id, label: benefit.title })) || [];
+  }, [respBenefits]);
 
   const updateFormField = <K extends keyof PackageFormState>(field: K, value: PackageFormState[K]) => {
     setFormState((prev) => ({ ...prev, [field]: value }));

@@ -171,6 +171,10 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
   const handleSubmitService = (e: React.MouseEvent) => {
     e.preventDefault();
 
+    const hasValidFeature = features.some((feature) => feature.items.some((item) => item.title.trim() !== ""));
+
+    if (!hasValidFeature) return;
+
     const dataToSave = {
       features: features.flatMap((feature) =>
         feature.items

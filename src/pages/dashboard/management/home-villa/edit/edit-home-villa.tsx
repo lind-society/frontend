@@ -28,7 +28,7 @@ export const EditHomeVillaPage = () => {
 
   const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ key: ["editing-villa"], url: "/villas", redirectPath: `/dashboard/management/home-villa/edit/${id}` });
 
-  const { data: responseVilla, isLoading } = useGetApi<Payload<Villa>>({ url: `villas/${id}`, key: ["get-villa", id] });
+  const { data: respVilla, isLoading } = useGetApi<Payload<Villa>>({ url: `villas/${id}`, key: ["get-villa", id] });
 
   const useStore = usePersistentData<Villa>("get-villa");
   const useEdit = usePersistentData<Villa>("edit-villa");
@@ -62,8 +62,8 @@ export const EditHomeVillaPage = () => {
   }, [pathname, activeTab]);
 
   React.useEffect(() => {
-    if (responseVilla) {
-      const { data: responseData } = responseVilla;
+    if (respVilla) {
+      const { data: responseData } = respVilla;
 
       setData({
         ...responseData,
@@ -73,7 +73,7 @@ export const EditHomeVillaPage = () => {
         })) as Villa["facilities"],
       });
     }
-  }, [responseVilla]);
+  }, [respVilla]);
 
   const handleNavigateAway = (tab: string) => {
     if (hasUnsavedChanges) {
@@ -87,7 +87,7 @@ export const EditHomeVillaPage = () => {
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
-    const processData = deleteKeysObject(data, ["currency", "pivotId", "facilities", "priceAfterDiscount", "createdAt", "updatedAt", "id", "reviews"]);
+    const processData = deleteKeysObject(data, ["currency", "pivotId", "facilities", "priceAfterDiscount", "createdAt", "updatedAt", "id"]);
     editVilla({ updatedItem: processData, id: id || "" });
   };
 
@@ -98,7 +98,7 @@ export const EditHomeVillaPage = () => {
           <Button className="btn-primary" onClick={() => navigate(-1)}>
             <FaArrowLeft size={20} />
           </Button>
-          <h1 className="head-title">{responseVilla?.data.name}</h1>
+          <h1 className="head-title">{respVilla?.data.name}</h1>
         </div>
 
         <div className="flex items-center gap-4">

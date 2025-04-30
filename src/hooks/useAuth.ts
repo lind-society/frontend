@@ -11,7 +11,7 @@ interface AuthResponse {
   refreshToken: string;
 }
 
-const COOKIES_CONFIG = { path: "/", expires: new Date(Date.now() + 86400000), secure: true, sameSite: "strict" as "strict" };
+const COOKIES_CONFIG = { path: "/", expires: new Date(Date.now() + 21600000), secure: true, sameSite: "strict" as "strict" };
 
 const cookies = new Cookies();
 

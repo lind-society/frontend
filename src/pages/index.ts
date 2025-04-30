@@ -22,3 +22,7 @@ export * from "./dashboard/management/owner/edit-owner";
 export * from "./dashboard/management/property/property";
 export * from "./dashboard/management/property/package/add-package";
 export * from "./dashboard/management/property/package/edit-package";
+
+export * from "./dashboard/management/activity/activity";
+export * from "./dashboard/management/activity/add/add-activity";
+export * from "./dashboard/management/activity/edit/edit-activity";

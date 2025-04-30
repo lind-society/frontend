@@ -50,13 +50,13 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
   React.useEffect(() => {
     if (!onChange) return;
 
-    const hasValidFeature = features.some((feature) => feature.items.some((item) => item.title.trim() !== "" && item.currency !== null && item.price.trim() !== ""));
+    const hasValidFeature = features.some((feature) => feature.items.some((item) => item.title.trim() !== ""));
 
     if (hasValidFeature) {
       const dataToSave = {
         features: features.flatMap((feature) =>
           feature.items
-            .filter((item) => item.title !== "")
+            .filter((item) => item.title.trim() !== "")
             .map((item) => ({
               name: item.title,
               icon: feature.icon,

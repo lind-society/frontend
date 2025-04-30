@@ -24,10 +24,10 @@ export interface Villa {
     monthly: boolean;
     yearly: boolean;
   };
-  dailyBasePrice: number;
-  lowSeasonPriceRate: number;
-  highSeasonPriceRate: number;
-  peakSeasonPriceRate: number;
+  dailyPrice: number;
+  lowSeasonDailyPrice: number;
+  highSeasonDailyPrice: number;
+  peakSeasonDailyPrice: number;
   priceMonthly: number;
   priceYearly: number;
   discountMonthly: number;

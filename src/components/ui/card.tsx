@@ -71,7 +71,7 @@ export const CardContent = ({ isLoading, datas, type, openDeleteModal }: CardCon
                 <h2 className="font-semibold">{data.name}</h2>
               </Link>
               <p className="font-bold">
-                {data.currency.symbol} {data.price || data.dailyBasePrice || data.priceMonthly || data.priceYearly}
+                {data.currency.symbol} {data.price || data.dailyPrice || data.priceMonthly || data.priceYearly}
               </p>
             </div>
           </div>

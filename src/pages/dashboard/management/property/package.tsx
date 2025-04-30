@@ -16,7 +16,7 @@ export const PackageTab = () => {
   const [deleteModal, setDeleteModal] = React.useState<boolean>(false);
   const [selectedPackage, setSelectedPackage] = React.useState<Package | null>(null);
 
-  const { data: responsePackages, isLoading } = useGetApi<Payload<Data<Package[]>>>({ key: ["get-packages"], url: "packages" });
+  const { data: respPackages, isLoading } = useGetApi<Payload<Data<Package[]>>>({ key: ["get-packages"], url: "packages" });
   const { mutate: deletePackage, isPending } = useDeleteApi({ key: ["delete-package"], url: "/packages", redirectPath: "/dashboard/management/property" });
 
   const openDeleteModal = (packages: Package) => {
@@ -51,7 +51,7 @@ export const PackageTab = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 text-primary">
-          {responsePackages?.data.data.map((item) => (
+          {respPackages?.data.data.map((item) => (
             <div key={item.id} className="relative p-4 space-y-4 border rounded bg-light border-primary">
               <button onClick={() => openDeleteModal(item)} className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1">
                 <FaRegTrashAlt />

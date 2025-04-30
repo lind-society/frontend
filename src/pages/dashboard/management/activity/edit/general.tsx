@@ -4,7 +4,9 @@ import { useGetApi, useGetApiWithAuth, usePersistentData } from "../../../../../
 
 import Select from "react-select";
 
-import { NumberInput } from "../../../../../components";
+import { Button, NumberInput, ToastMessage } from "../../../../../components";
+
+import { FaEdit, FaEye } from "react-icons/fa";
 
 import { capitalize } from "../../../../../utils";
 
@@ -21,10 +23,10 @@ interface FormState {
     monthly: boolean;
     yearly: boolean;
   };
-  dailyPrice: string;
-  lowSeasonDailyPrice: string;
-  highSeasonDailyPrice: string;
-  peakSeasonDailyPrice: string;
+  dailyBasePrice: string;
+  lowSeasonPriceRate: string;
+  highSeasonPriceRate: string;
+  peakSeasonPriceRate: string;
   price: Record<AvailabilityType, string>;
   isDiscount: Record<AvailabilityType, boolean>;
   discount: Record<AvailabilityType, string>;
@@ -43,13 +45,49 @@ const FormField = ({ label, children, required = false }: { label: string; child
   </div>
 );
 
+const arraysEqual = (a: string, b: string) => {
+  if (a === b) return true;
+  if (a === null || b === null) return false;
+  if (a.length !== b.length) return false;
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+};
+
 export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
   // store data to session storage
-  const useStore = usePersistentData<Partial<Villa>>("add-villa");
-  const { setData, data } = useStore();
+  const useStore = usePersistentData<Villa>("get-villa");
+  const useEdit = usePersistentData<Villa>("edit-villa");
+
+  const { data: dataBeforeEdit } = useStore();
+  const { setData, data: dataAfterEdit } = useEdit();
 
   const { data: currencies } = useGetApi<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "currencies" });
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: "/owners" });
+
+  const dataCondition =
+    dataAfterEdit.name ||
+    dataAfterEdit.highlight ||
+    dataAfterEdit.secondaryName ||
+    dataAfterEdit.currencyId ||
+    dataAfterEdit.ownerId ||
+    dataAfterEdit.availability?.daily ||
+    dataAfterEdit.availability?.monthly ||
+    dataAfterEdit.availability?.yearly ||
+    dataAfterEdit.priceMonthly ||
+    dataAfterEdit.priceYearly ||
+    dataAfterEdit.discountMonthly ||
+    dataAfterEdit.discountYearly ||
+    dataAfterEdit.availabilityQuotaPerMonth ||
+    dataAfterEdit.availabilityQuotaPerYear;
+
+  const data = React.useMemo(() => {
+    return dataCondition ? dataAfterEdit : dataBeforeEdit;
+  }, [dataAfterEdit, dataBeforeEdit]);
+
+  const [editMode, setEditMode] = React.useState<boolean>(false);
 
   const [formState, setFormState] = React.useState<FormState>({
     name: data.name || "",
@@ -60,10 +98,10 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       monthly: data.availability?.monthly || false,
       yearly: data.availability?.yearly || false,
     },
-    dailyPrice: String(data.dailyPrice || ""),
-    lowSeasonDailyPrice: String(data.lowSeasonDailyPrice || ""),
-    highSeasonDailyPrice: String(data.highSeasonDailyPrice || ""),
-    peakSeasonDailyPrice: String(data.peakSeasonDailyPrice || ""),
+    dailyBasePrice: String(data.dailyBasePrice || ""),
+    lowSeasonPriceRate: String(data.lowSeasonPriceRate || ""),
+    highSeasonPriceRate: String(data.highSeasonPriceRate || ""),
+    peakSeasonPriceRate: String(data.peakSeasonPriceRate || ""),
     price: {
       monthly: String(data.priceMonthly || ""),
       yearly: String(data.priceYearly || ""),
@@ -81,6 +119,46 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     availabilityQuotaPerYear: String(data.availabilityQuotaPerYear || ""),
     owner: null,
   });
+
+  // Check if form is complete
+  React.useEffect(() => {
+    if (!onChange) return;
+
+    const findCurrency = currencies?.data.data.find((c) => c.id === data.currencyId);
+    const findOwner = owners?.data.data.find((o) => o.id === data.ownerId);
+
+    const hasChanges =
+      !arraysEqual(formState.name, data.name || "") ||
+      !arraysEqual(formState.secondaryName, data.secondaryName || "") ||
+      !arraysEqual(formState.price.monthly, String(data.priceMonthly || "")) ||
+      !arraysEqual(formState.price.yearly, String(data.priceYearly || "")) ||
+      !arraysEqual(formState.discount.monthly, String(data.discountMonthly || "")) ||
+      !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||
+      !arraysEqual(formState.currency?.value || "", String(findCurrency?.id || "")) ||
+      !arraysEqual(formState.owner?.value || "", String(findOwner?.id || "")) ||
+      !arraysEqual(formState.availabilityQuotaPerMonth, String(data.availabilityQuotaPerMonth || "")) ||
+      !arraysEqual(formState.availabilityQuotaPerYear, String(data.availabilityQuotaPerYear || "")) ||
+      !arraysEqual(formState.discount.yearly, String(data.discountYearly || "")) ||
+      !(formState.availability.daily === data.availability?.daily) ||
+      !(formState.availability.monthly === data.availability?.monthly) ||
+      !(formState.availability.yearly === data.availability?.yearly);
+
+    onChange(hasChanges);
+  }, [formState]);
+
+  React.useEffect(() => {
+    if (currencies && owners) {
+      const findCurrency = currencies.data.data.find((c) => c.id === data.currencyId);
+      const findOwner = owners.data.data.find((o) => o.id === data.ownerId);
+
+      if (findCurrency) {
+        updateFormState("currency", { label: findCurrency.code, value: findCurrency.id });
+      }
+      if (findOwner) {
+        updateFormState("owner", { label: findOwner.companyName, value: findOwner.id });
+      }
+    }
+  }, [currencies, owners]);
 
   const updateFormState = (field: keyof FormState, value: string | boolean | OptionType | null) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -117,7 +195,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     updateNestedField("discount", type, value);
   };
 
-  const handlePriceDailyChange = (type: "lowSeasonDailyPrice" | "highSeasonDailyPrice" | "peakSeasonDailyPrice", value: string) => {
+  const handlePriceRateChange = (type: "lowSeasonPriceRate" | "highSeasonPriceRate" | "peakSeasonPriceRate", value: string) => {
     if (+value > 999999999999999 || +value < 0) return;
     updateFormState(type, value);
   };
@@ -127,10 +205,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     return Number.isInteger(result) ? result.toString() : result.toFixed(2);
   };
 
-  // Check if form is complete
-  React.useEffect(() => {
-    if (!onChange) return;
-
+  const handleSubmitGeneral = (e: React.FormEvent) => {
+    e.preventDefault();
     const {
       name,
       secondaryName,
@@ -139,10 +215,10 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       owner,
       discount,
       price,
-      dailyPrice,
-      lowSeasonDailyPrice,
-      highSeasonDailyPrice,
-      peakSeasonDailyPrice,
+      dailyBasePrice,
+      lowSeasonPriceRate,
+      highSeasonPriceRate,
+      peakSeasonPriceRate,
       availabilityQuotaPerMonth,
       availabilityQuotaPerYear,
       isDiscount,
@@ -151,7 +227,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
 
     const requiredFields = [name, secondaryName, highlight, currency, owner];
 
-    const daily = [dailyPrice, lowSeasonDailyPrice, highSeasonDailyPrice, peakSeasonDailyPrice].every((field) => !!field);
+    const daily = [dailyBasePrice, lowSeasonPriceRate, highSeasonPriceRate, peakSeasonPriceRate].every((field) => !!field);
 
     const monthly = [price.monthly, discount.monthly, availabilityQuotaPerMonth, isDiscount.monthly].every((field) => !!field);
 
@@ -161,53 +237,57 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
 
     const isComplete = requiredFields.every((field) => !!field) && hasAnyOnePriceAndDiscount;
 
-    if (isComplete) {
-      const dataToSave = {
-        name,
-        secondaryName,
-        highlight,
-        currencyId: currency?.value || "",
-        ownerId: owner?.value || "",
-        availability: availability,
-        dailyPrice: availability.daily ? +dailyPrice : 0,
-        lowSeasonDailyPrice: availability.daily ? +lowSeasonDailyPrice : 0,
-        highSeasonDailyPrice: availability.daily ? +highSeasonDailyPrice : 0,
-        peakSeasonDailyPrice: availability.daily ? +peakSeasonDailyPrice : 0,
-        availabilityQuotaPerMonth: availability.monthly ? +availabilityQuotaPerMonth : 0,
-        availabilityQuotaPerYear: availability.yearly ? +availabilityQuotaPerYear : 0,
-        priceMonthly: availability.monthly ? +price.monthly : 0,
-        priceYearly: availability.yearly ? +price.yearly : 0,
-        discountMonthly: availability.monthly ? +discount.monthly : 0,
-        discountYearly: availability.yearly ? +discount.yearly : 0,
-        checkInHour: "00:00",
-        checkOutHour: "00:00",
-      };
+    if (!isComplete) return;
 
-      setData(dataToSave);
-      onChange(false);
-    } else {
-      onChange(true);
-    }
-  }, [formState]);
+    const dataToSave = {
+      name,
+      secondaryName,
+      highlight,
+      currencyId: currency?.value || "",
+      ownerId: owner?.value || "",
+      availability: availability,
+      dailyBasePrice: availability.daily ? +dailyBasePrice : 0,
+      lowSeasonPriceRate: availability.daily ? +lowSeasonPriceRate : 0,
+      highSeasonPriceRate: availability.daily ? +highSeasonPriceRate : 0,
+      peakSeasonPriceRate: availability.daily ? +peakSeasonPriceRate : 0,
+      availabilityQuotaPerMonth: availability.monthly ? +availabilityQuotaPerMonth : 0,
+      availabilityQuotaPerYear: availability.yearly ? +availabilityQuotaPerYear : 0,
+      priceMonthly: availability.monthly ? +price.monthly : 0,
+      priceYearly: availability.yearly ? +price.yearly : 0,
+      discountMonthly: availability.monthly ? +discount.monthly : 0,
+      discountYearly: availability.yearly ? +discount.yearly : 0,
+      checkInHour: "00:00",
+      checkOutHour: "00:00",
+    };
 
-  React.useEffect(() => {
-    if (currencies && owners) {
-      const findCurrency = currencies.data.data.find((c) => c.id === data.currencyId);
-      const findOwner = owners.data.data.find((o) => o.id === data.ownerId);
-
-      if (findCurrency) {
-        updateFormState("currency", { label: findCurrency.code, value: findCurrency.id });
-      }
-      if (findOwner) {
-        updateFormState("owner", { label: findOwner.companyName, value: findOwner.id });
-      }
-    }
-  }, [currencies, owners]);
+    setData(dataToSave);
+    ToastMessage({ message: "Success saving edit general...", color: "#22c55e" });
+    setTimeout(() => {
+      window.location.reload();
+    }, 200);
+  };
 
   return (
     <>
-      <h2 className="heading">General</h2>
-      <div className="mt-6 space-y-8">
+      <div className="flex items-center justify-between">
+        <h2 className="heading">General</h2>
+        <Button className="btn-outline" onClick={() => setEditMode((prev) => !prev)}>
+          {editMode ? (
+            <div className="flex items-center gap-2">
+              <FaEye size={18} />
+              Show Mode
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <FaEdit size={18} />
+              Edit Mode
+            </div>
+          )}
+        </Button>
+      </div>
+      <form className="relative mt-6 space-y-8" onSubmit={handleSubmitGeneral}>
+        <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-2000"}`}></div>
+
         <FormField label="Name" required>
           <input type="text" className="input-text" placeholder="Urna Santal Villa" value={formState.name} onChange={(e) => updateFormState("name", e.target.value)} required />
         </FormField>
@@ -220,7 +300,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
           <div className="flex items-center gap-4">
             {(["daily", "monthly", "yearly"] as const).map((type) => (
               <div key={type} className="flex items-center gap-2">
-                <p>{capitalize(type)}</p>
+                <span className="block cursor-pointer">{capitalize(type)}</span>
                 <input type="checkbox" className="cursor-pointer accent-primary" checked={formState.availability[type]} onChange={() => handleAvailabilityChange(type)} />
               </div>
             ))}
@@ -252,7 +332,13 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
         {formState.availability["daily"] && (
           <div className="space-y-6">
             <FormField label="Daily Base Price" required>
-              <NumberInput className="input-text placeholder:text-dark" value={formState.dailyPrice} onChange={(e) => updateFormState("dailyPrice", e.target.value)} placeholder={`0`} required />
+              <NumberInput
+                className="input-text placeholder:text-dark"
+                value={formState.dailyBasePrice}
+                onChange={(e) => updateFormState("dailyBasePrice", e.target.value)}
+                placeholder={`0`}
+                required
+              />
               {formState.currency && <p className="pl-2">{formState.currency ? formState.currency?.label : ""}</p>}
             </FormField>
             <div className="grid grid-cols-3 gap-16 px-8">
@@ -260,8 +346,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 <p className="leading-5">Low Season Price *</p>
                 <div className="flex items-center">
                   <NumberInput
-                    value={formState.lowSeasonDailyPrice}
-                    onChange={(e) => handlePriceDailyChange("lowSeasonDailyPrice", e.target.value)}
+                    value={formState.lowSeasonPriceRate}
+                    onChange={(e) => handlePriceRateChange("lowSeasonPriceRate", e.target.value)}
                     className="input-text placeholder:text-dark"
                     placeholder="0"
                   />
@@ -272,8 +358,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 <p className="leading-5">High Season Price *</p>
                 <div className="flex items-center">
                   <NumberInput
-                    value={formState.highSeasonDailyPrice}
-                    onChange={(e) => handlePriceDailyChange("highSeasonDailyPrice", e.target.value)}
+                    value={formState.highSeasonPriceRate}
+                    onChange={(e) => handlePriceRateChange("highSeasonPriceRate", e.target.value)}
                     className="input-text placeholder:text-dark"
                     placeholder="0"
                   />
@@ -284,8 +370,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 <p className="leading-5">Peak Season Price *</p>
                 <div className="flex items-center">
                   <NumberInput
-                    value={formState.peakSeasonDailyPrice}
-                    onChange={(e) => handlePriceDailyChange("peakSeasonDailyPrice", e.target.value)}
+                    value={formState.peakSeasonPriceRate}
+                    onChange={(e) => handlePriceRateChange("peakSeasonPriceRate", e.target.value)}
                     className="input-text placeholder:text-dark"
                     placeholder="0"
                   />
@@ -377,7 +463,13 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
             required
           />
         </FormField>
-      </div>
+
+        <div className={`justify-end gap-4 ${editMode ? "flex" : "hidden"}`}>
+          <Button className="btn-primary" type="submit">
+            Save
+          </Button>
+        </div>
+      </form>
     </>
   );
 };

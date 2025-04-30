@@ -32,13 +32,13 @@ export const EditPackagePage = () => {
 
   const [isDirty, setIsDirty] = React.useState<boolean>(false);
 
-  const { data: benefitsResponse } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "20" } });
-  const { data: packageResponse, isLoading } = useGetApi<Payload<Package>>({ key: ["get-package"], url: `packages/${id}` });
+  const { data: respBenefits } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "20" } });
+  const { data: respPackage, isLoading } = useGetApi<Payload<Package>>({ key: ["get-package"], url: `packages/${id}` });
   const { mutate: editPackage, isPending } = useUpdateApi<Partial<Package>>({ key: ["edit-package"], url: "/packages", redirectPath: `/dashboard/management/property` });
 
   const benefitOptions = React.useMemo(() => {
-    return benefitsResponse?.data?.data.map((benefit) => ({ value: benefit.id, label: benefit.title })) || [];
-  }, [benefitsResponse]);
+    return respBenefits?.data?.data.map((benefit) => ({ value: benefit.id, label: benefit.title })) || [];
+  }, [respBenefits]);
 
   const updateFormField = <K extends keyof PackageFormState>(field: K, value: PackageFormState[K]) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -56,9 +56,9 @@ export const EditPackagePage = () => {
   };
 
   const resetBenefit = (id: string) => {
-    if (!packageResponse) return;
+    if (!respPackage) return;
 
-    const benefit = packageResponse.data.benefits.find((item) => item.id === id);
+    const benefit = respPackage.data.benefits.find((item) => item.id === id);
     const updatedBenefits = formState.packageBenefits.map((item) => (item.id === id ? { ...item, benefit: { label: benefit?.title || "", value: benefit?.id || "" } } : item));
     updateFormField("packageBenefits", updatedBenefits);
   };
@@ -70,11 +70,11 @@ export const EditPackagePage = () => {
   };
 
   const resetForm = () => {
-    if (packageResponse) {
+    if (respPackage) {
       setFormState({
-        packageName: packageResponse.data.name,
-        packageDescription: packageResponse.data.description,
-        packageBenefits: packageResponse.data.benefits.map((item) => ({
+        packageName: respPackage.data.name,
+        packageDescription: respPackage.data.description,
+        packageBenefits: respPackage.data.benefits.map((item) => ({
           benefit: { label: item.title, value: item.id },
           id: item.id,
         })),
@@ -117,15 +117,15 @@ export const EditPackagePage = () => {
   };
 
   React.useEffect(() => {
-    if (packageResponse) {
+    if (respPackage) {
       setFormState({
-        packageName: packageResponse.data.name,
-        packageDescription: packageResponse.data.description,
-        packageBenefits: packageResponse.data.benefits.map((item) => ({ benefit: { label: item.title, value: item.id }, id: item.id })),
+        packageName: respPackage.data.name,
+        packageDescription: respPackage.data.description,
+        packageBenefits: respPackage.data.benefits.map((item) => ({ benefit: { label: item.title, value: item.id }, id: item.id })),
       });
       setIsDirty(false);
     }
-  }, [packageResponse]);
+  }, [respPackage]);
 
   return (
     <Layout>

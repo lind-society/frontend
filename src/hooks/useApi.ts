@@ -18,8 +18,8 @@ interface FetchOptions<T> {
   select?: (data: any) => T;
 }
 
-const GC_TIME = 3 * 60 * 60 * 1000;
-const STALE_TIME = 2 * 60 * 60 * 1000;
+const GC_TIME = 6 * 60 * 60 * 1000;
+const STALE_TIME = 6 * 60 * 60 * 1000;
 
 // Fetch all items
 export const useGetApi = <T>({ key, url, params, gcTime = GC_TIME, staleTime = STALE_TIME, enabled = true, select }: FetchOptions<T>) => {
