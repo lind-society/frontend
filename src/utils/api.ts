@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "universal-cookie";
 
-export const API_URL = import.meta.env.VITE_SECONDARY_API_URL;
+export const API_URL = import.meta.env.VITE_BASE_API_URL || import.meta.env.VITE_SECONDARY_API_URL;
 export const TOKEN_KEY = "lind_auth_token";
 export const USER_KEY = "lind_user";
 
