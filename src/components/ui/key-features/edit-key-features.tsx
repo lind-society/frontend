@@ -90,7 +90,17 @@ export const EditKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKe
 
   React.useEffect(() => {
     if (!onChange || !data.facilities) return;
-    const hasChanges = facilities.every((newFacility) => data.facilities?.some((oldFacility) => newFacility.description === oldFacility.description));
+
+    const tempData = responseFacilities?.data.data
+      .filter((facility) => data.facilities?.some((item) => item.id === facility.id))
+      .map((facility) => ({
+        description: data.facilities?.find((item) => item.id === facility.id)?.description || "",
+        includeDescription: true,
+      }));
+
+    const hasChanges = facilities.every((newFacility) =>
+      tempData?.some((oldFacility) => newFacility.description === oldFacility.description && newFacility.includeDescription === oldFacility.includeDescription)
+    );
     onChange(!hasChanges);
   }, [facilities]);
 

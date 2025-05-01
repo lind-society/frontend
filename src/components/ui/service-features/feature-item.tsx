@@ -49,7 +49,7 @@ export const FeatureItem = ({ feature, item, currencies, onUpdateItem, onResetIt
         <NumberInput
           className="input-text"
           placeholder={item.currency?.label ? `Enter currency in ${item.currency?.label}` : "Select currency first"}
-          value={item.price}
+          value={item.free ? 0 : item.price}
           onChange={(e) => onUpdateItem(feature.id, item.id, "price", e.target.value)}
           disabled={item.free || !item.currency}
         />

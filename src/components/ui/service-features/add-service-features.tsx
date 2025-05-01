@@ -66,7 +66,7 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
               discountType: "percentage",
               discount: null,
               currencyId: item.currency?.value || baseCurrency,
-              currency: { code: item.currency?.label, id: item.currency?.value },
+              currency: { code: item.currency?.label || "IDR", id: item.currency?.value || baseCurrency },
             }))
         ) as Features[],
       };
@@ -101,7 +101,7 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
         id: crypto.randomUUID(),
         name: "New Category",
         icon: { url: "", key: "" },
-        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
+        items: [{ id: crypto.randomUUID(), title: "", free: true, price: "", currency: null, hidden: false }],
         isEditing: false,
       },
       ...prevFeatures,
@@ -115,7 +115,7 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
         id: crypto.randomUUID(),
         name,
         icon,
-        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
+        items: [{ id: crypto.randomUUID(), title: "", free: true, price: "", currency: null, hidden: false }],
         isEditing: false,
       },
       ...prevFeatures,
@@ -136,7 +136,7 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
               id: feature.id,
               name: findDefaultFeatureValue?.name || "New Category",
               icon: { url: findDefaultFeatureValue?.icon.url || "", key: findDefaultFeatureValue?.icon.key || "" },
-              items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
+              items: [{ id: crypto.randomUUID(), title: "", free: true, price: "", currency: null, hidden: false }],
               isEditing: false,
             }
           : feature
@@ -155,7 +155,7 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
         feature.id === featureId
           ? {
               ...feature,
-              items: [...feature.items, { id: crypto.randomUUID(), title: "", free: false, price: "", hidden: false, currency: null }],
+              items: [...feature.items, { id: crypto.randomUUID(), title: "", free: true, price: "", hidden: false, currency: null }],
             }
           : feature
       )
@@ -177,7 +177,7 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
         feature.id === featureId
           ? {
               ...feature,
-              items: feature.items.map((item) => (item.id === itemId ? { id: item.id, title: "", free: false, price: "", icon: { url: "", value: "" }, currency: null, hidden: false } : item)),
+              items: feature.items.map((item) => (item.id === itemId ? { id: item.id, title: "", free: true, price: "", icon: { url: "", value: "" }, currency: null, hidden: false } : item)),
             }
           : feature
       )

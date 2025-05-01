@@ -40,7 +40,7 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
         title: feature.name,
         free: feature.free,
         price: String(feature.price),
-        currency: { label: feature.currency?.code, value: feature.currency?.id },
+        currency: feature.currency ? { label: feature.currency?.code, value: feature.currency?.id } : null,
         hidden: false,
       });
       return acc;
@@ -79,7 +79,7 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
         id: crypto.randomUUID(),
         name: "New Category",
         icon: { url: "", key: "" },
-        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
+        items: [{ id: crypto.randomUUID(), title: "", free: true, price: "", currency: null, hidden: false }],
         isEditing: false,
       },
       ...prevFeatures,
@@ -93,7 +93,7 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
         id: crypto.randomUUID(),
         name,
         icon,
-        items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
+        items: [{ id: crypto.randomUUID(), title: "", free: true, price: "", currency: null, hidden: false }],
         isEditing: false,
       },
       ...prevFeatures,
@@ -114,7 +114,7 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
               id: feature.id,
               name: findDefaultFeatureValue?.name || "New Category",
               icon: { url: findDefaultFeatureValue?.icon.url || "", key: findDefaultFeatureValue?.icon.key || "" },
-              items: [{ id: crypto.randomUUID(), title: "", free: false, price: "", currency: null, hidden: false }],
+              items: [{ id: crypto.randomUUID(), title: "", free: true, price: "", currency: null, hidden: false }],
               isEditing: false,
             }
           : feature
@@ -133,7 +133,7 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
         feature.id === featureId
           ? {
               ...feature,
-              items: [...feature.items, { id: crypto.randomUUID(), title: "", free: false, price: "", hidden: false, currency: null }],
+              items: [...feature.items, { id: crypto.randomUUID(), title: "", free: true, price: "", hidden: false, currency: null }],
             }
           : feature
       )
@@ -155,7 +155,7 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
         feature.id === featureId
           ? {
               ...feature,
-              items: feature.items.map((item) => (item.id === itemId ? { id: item.id, title: "", free: false, price: "", icon: { url: "", value: "" }, currency: null, hidden: false } : item)),
+              items: feature.items.map((item) => (item.id === itemId ? { id: item.id, title: "", free: true, price: "", icon: { url: "", value: "" }, currency: null, hidden: false } : item)),
             }
           : feature
       )
@@ -188,7 +188,7 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
             discountType: "percentage",
             discount: null,
             currencyId: item.currency?.value || baseCurrency,
-            currency: { code: item.currency?.label, id: item.currency?.value },
+            currency: item.currency ? { code: item.currency?.label, id: item.currency?.value } : null,
           }))
       ) as Features[],
     };
@@ -202,30 +202,9 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
 
   React.useEffect(() => {
     if (!onChange || !data.features) return;
-    const flattenFeatures = features.flatMap((feature) =>
-      feature.items.map((item) => ({
-        name: item.title,
-        icon: feature.icon,
-        type: feature.name,
-        free: item.free,
-        price: item.price,
-        currencyId: item.currency?.value || baseCurrency,
-      }))
-    );
-    const hasChanges =
-      data.features.length !== flattenFeatures.length ||
-      data.features.some((origItem, i) => {
-        const currentItem = flattenFeatures[i];
-        return (
-          origItem.name !== currentItem.name ||
-          origItem.icon !== currentItem.icon ||
-          origItem.type !== currentItem.type ||
-          origItem.free !== currentItem.free ||
-          +origItem.price !== +currentItem.price ||
-          origItem.currencyId !== currentItem.currencyId
-        );
-      });
 
+    const hasChanges = defaultFeature !== features;
+    // TODO : adding some validation
     onChange(hasChanges);
   }, [features]);
 
