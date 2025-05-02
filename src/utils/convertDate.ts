@@ -6,7 +6,6 @@ export const convertDate = (dateInput: string | Date): string => {
   }
 
   const options: Intl.DateTimeFormatOptions = {
-    weekday: "long", // Monday, Tuesday
     year: "numeric",
     month: "long", // January, February
     day: "numeric",

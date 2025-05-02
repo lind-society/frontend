@@ -22,6 +22,7 @@ import {
   OwnerPage,
   PropertyPage,
   RentPage,
+  OrderPage,
 } from "./pages";
 
 import { ProtectedRoute } from "./routes/protected-route";
@@ -61,6 +62,7 @@ const App = () => {
           <Route path="/dashboard/management/owner" element={<OwnerPage />} />
           <Route path="/dashboard/management/rent" element={<RentPage />} />
           <Route path="/dashboard/management/rent/edit/:id" element={<EditRentPage />} />
+          <Route path="/dashboard/management/order" element={<OrderPage />} />
           <Route path="/dashboard/management/property" element={<PropertyPage />} />
           <Route path="/dashboard/management/property/package/add" element={<AddPackagePage />} />
           <Route path="/dashboard/management/property/package/edit/:id" element={<EditPackagePage />} />

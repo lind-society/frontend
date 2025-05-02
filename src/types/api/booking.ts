@@ -19,6 +19,7 @@ export interface Booking {
   totalAmount: number;
   checkInDate: string;
   checkOutDate: string;
+  bookingDate: string;
   status: string;
   currencyId: string;
   customerId: string;

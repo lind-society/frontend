@@ -2,18 +2,18 @@ import * as React from "react";
 
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useGetApi, useGetApiWithAuth, useUpdateApi } from "../../../../hooks";
+import { useGetApi, useGetApiWithAuth, useUpdateApi } from "../../../../../hooks";
 
 import Select from "react-select";
 
-import { Layout } from "../../../../components/ui";
-import { Button, NumberInput } from "../../../../components";
+import { Layout } from "../../../../../components/ui";
+import { Button, NumberInput } from "../../../../../components";
 
 import { FaArrowLeft } from "react-icons/fa";
 
-import { statusBookings } from "../../../../static";
+import { statusBookings } from "../../../../../static";
 
-import { Booking, Currency, Data, OptionType, Payload, PhoneCodes } from "../../../../types";
+import { Booking, Currency, Data, OptionType, Payload, PhoneCodes } from "../../../../../types";
 
 export const EditRentPage = () => {
   const navigate = useNavigate();

@@ -1,15 +1,19 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
+
+import { useGetApi } from "../../hooks";
+
 import { Button } from "../../components";
 import { Layout, StatusBadge } from "../../components/ui";
 
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
+
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FaCalendar, FaRegStar, FaStar } from "react-icons/fa";
-import { HiDownload } from "react-icons/hi";
-import { useGetApi } from "../../hooks";
-import { Booking, Data, PaginationProps, Payload, Review } from "../../types";
+
 import { convertDate } from "../../utils";
+
+import { Booking, Data, PaginationProps, Payload, Review } from "../../types";
 
 const data = [
   { name: "Jan", value: 100 },
@@ -23,26 +27,12 @@ const data = [
   { name: "Sep", value: 60 },
 ];
 
-const properties = [
-  {
-    title: "New Booking",
-    icon: "/icons/mail-list.svg",
-    link: "/",
-    value: 69,
-  },
-  {
-    title: "Property Booked",
-    icon: "/icons/user-check.svg",
-    link: "/",
-    value: 30,
-  },
-  {
-    title: "Property Interest",
-    icon: "/icons/user-key.svg",
-    link: "/",
-    value: 10,
-  },
-];
+const STATUS_COLORS: Record<string, string> = {
+  Pending: "bg-yellow-300 text-yellow-700",
+  Confirmed: "bg-purple-300 text-purple-700",
+  Completed: "bg-green-300 text-green-700",
+  Canceled: "bg-red-300 text-red-700",
+};
 
 const Pagination = ({ setPage, page, totalPage }: PaginationProps) => {
   const updatePage = (newPage: number) => {
@@ -68,17 +58,27 @@ const Pagination = ({ setPage, page, totalPage }: PaginationProps) => {
 };
 
 export const MainPage = () => {
-  const [currentPageBooking, setCurrentPageBooking] = React.useState<number>(1);
+  const [currentPageBookingVilla, setCurrentPageBookingVilla] = React.useState<number>(1);
+  const [currentPageBookingActivity, setCurrentPageBookingActivity] = React.useState<number>(1);
   const [currentPageReview, setCurrentPageReview] = React.useState<number>(1);
 
-  const { data: respBooking, isError: isErrorBooking } = useGetApi<Payload<Data<Booking[]>>>({
-    key: ["get-bookings", currentPageBooking],
+  const { data: respBookingVilla, isError: isErrorBookingVilla } = useGetApi<Payload<Data<Booking[]>>>({
+    key: ["get-bookings", currentPageBookingVilla],
     url: "bookings/villas",
-    params: { page: currentPageBooking, limit: "5" },
+    params: { page: currentPageBookingVilla, limit: "5" },
   });
 
-  const bookings = respBooking?.data.data || [];
-  const totalPageBooking = respBooking?.data.meta.totalPages || 1;
+  const bookingsVilla = respBookingVilla?.data.data || [];
+  const totalPageBookingVilla = respBookingVilla?.data.meta.totalPages || 1;
+
+  const { data: respBookingActivity, isError: isErrorBookingActivity } = useGetApi<Payload<Data<Booking[]>>>({
+    key: ["get-activities", currentPageBookingActivity],
+    url: "bookings/activities",
+    params: { page: currentPageBookingActivity, limit: "5" },
+  });
+
+  const bookingsActivity = respBookingActivity?.data.data || [];
+  const totalPageBookingActivity = respBookingActivity?.data.meta.totalPages || 1;
 
   const { data: respReviews, isError: isErrorReview } = useGetApi<Payload<Data<Review[]>>>({
     key: ["get-reviews", currentPageReview],
@@ -105,20 +105,39 @@ export const MainPage = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
-        {properties.map((item, idx) => (
-          <div key={idx} className="flex items-center justify-between p-4 rounded-lg shadow bg-light">
-            <div className="space-y-4 text-dark">
-              <h5 className="text-xl">{item.title}</h5>
-              <span className="block text-4xl font-bold">{item.value}</span>
-              <Link to={item.link} className="flex items-center gap-1 text-xs w-max">
-                See All <IoIosArrowForward />
-              </Link>
-            </div>
-            <div className="flex items-center justify-center rounded-full bg-tertiary size-20">
-              <img src={item.icon} alt={item.title} className="size-12" />
-            </div>
+        <div className="flex items-center justify-between p-4 rounded-lg shadow bg-light">
+          <div className="space-y-4 text-dark">
+            <h5 className="text-xl">New Rent Villa Today</h5>
+            <span className="block text-4xl font-bold">0</span>
+            <Link to="/dashboard/management/rent" className="flex items-center gap-1 text-xs w-max">
+              See All <IoIosArrowForward />
+            </Link>
           </div>
-        ))}
+          <div className="flex items-center justify-center rounded-full bg-tertiary size-20">
+            <img src="/icons/online-booking.png" alt="New Rent Villa Today" className="size-12" />
+          </div>
+        </div>
+        <div className="flex items-center justify-between p-4 rounded-lg shadow bg-light">
+          <div className="space-y-4 text-dark">
+            <h5 className="text-xl">New Order Activity Today</h5>
+            <span className="block text-4xl font-bold">0</span>
+            <Link to="/dashboard/management/order" className="flex items-center gap-1 text-xs w-max">
+              See All <IoIosArrowForward />
+            </Link>
+          </div>
+          <div className="flex items-center justify-center rounded-full bg-tertiary size-20">
+            <img src="/icons/checklist.png" alt="New Order Activity Today" className="size-12" />
+          </div>
+        </div>
+        <div className="flex items-center justify-between p-4 rounded-lg shadow bg-light">
+          <div className="space-y-4 text-dark">
+            <h5 className="text-xl">Total Review Today</h5>
+            <span className="block text-4xl font-bold">0</span>
+          </div>
+          <div className="flex items-center justify-center rounded-full bg-tertiary size-20">
+            <img src="/icons/scale.png" alt="Total Review Today" className="size-12" />
+          </div>
+        </div>
       </div>
 
       {/* Main Content Grid */}
@@ -141,17 +160,17 @@ export const MainPage = () => {
         </div>
 
         {/* Recent Bookings */}
-        <div className="p-4 rounded-lg shadow bg-light min-h-400">
+        <div className="p-6 rounded-lg shadow bg-light min-h-400">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Recent Booking Home & Villa</h2>
-            <Pagination page={currentPageBooking} setPage={setCurrentPageBooking} totalPage={totalPageBooking} />
+            <h2 className="text-lg font-semibold">Recent Rent Home & Villa</h2>
+            <Pagination page={currentPageBookingVilla} setPage={setCurrentPageBookingVilla} totalPage={totalPageBookingVilla} />
           </div>
-          {isErrorBooking && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
-          {!isErrorBooking && bookings.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has booked yet</p>}
+          {isErrorBookingVilla && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
+          {!isErrorBookingVilla && bookingsVilla.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has booked yet</p>}
           <div className="space-y-2">
-            {bookings.map((booking) => (
+            {bookingsVilla.map((booking) => (
               <div key={booking.id} className="flex items-center justify-between py-2 text-sm">
-                <div>
+                <div className="space-y-1">
                   <p className="font-bold">{booking.customer.name}</p>
                   <p className="text-dark">{convertDate(booking.checkInDate)}</p>
                 </div>
@@ -162,6 +181,50 @@ export const MainPage = () => {
         </div>
 
         {/*  Customer Reviews */}
+        <div className="p-6 shadow bg-light rounded-xl min-h-400">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Recent Order Activity</h2>
+            <Pagination page={currentPageBookingActivity} setPage={setCurrentPageBookingActivity} totalPage={totalPageBookingActivity} />
+          </div>
+          {isErrorBookingActivity && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
+          {!isErrorBookingActivity && bookingsActivity.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has order yet</p>}
+          <div className="space-y-2">
+            {bookingsActivity.map((booking) => (
+              <div key={booking.id} className="flex items-center justify-between py-2 text-sm">
+                <div className="space-y-1">
+                  <p className="font-bold">{booking.customer.name}</p>
+                  <p className="text-dark">{convertDate(booking.bookingDate)}</p>
+                </div>
+                <StatusBadge status={booking.status} colors={STATUS_COLORS} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Best Sellers Section */}
+        <div className="col-span-2 min-h-400 p-6 shadow bg-light rounded-xl">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Best Sellers</h2>
+            <span className="flex items-center gap-1 px-3 py-1 border rounded-lg">
+              <FaCalendar /> Yearly
+            </span>
+          </div>
+          <ul>
+            {Array(5)
+              .fill("Uma Santai Villa, Bali, Indonesia")
+              .map((_, index) => (
+                <li key={index} className="flex items-center justify-between py-2">
+                  <div>
+                    <p className="font-medium">Uma Santai Villa</p>
+                    <p className="text-sm text-dark">Bali, Indonesia</p>
+                  </div>
+                  <Button className="btn-primary">5 Bookings →</Button>
+                </li>
+              ))}
+          </ul>
+        </div>
+
+        {/* Customer Review Section */}
         <div className="p-6 shadow bg-light rounded-xl min-h-400">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Customer Reviews</h2>
@@ -180,53 +243,6 @@ export const MainPage = () => {
               </li>
             ))}
           </ul>
-        </div>
-
-        {/* Best Sellers Section */}
-        <div className="col-span-2 p-6 shadow bg-light rounded-xl">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Best Sellers</h2>
-            <span className="flex items-center gap-1 px-3 py-1 border rounded-lg">
-              <FaCalendar /> Yearly
-            </span>
-          </div>
-          <ul>
-            {Array(4)
-              .fill("Uma Santai Villa, Bali, Indonesia")
-              .map((_, index) => (
-                <li key={index} className="flex items-center justify-between py-2">
-                  <div>
-                    <p className="font-medium">Uma Santai Villa</p>
-                    <p className="text-sm text-dark">Bali, Indonesia</p>
-                  </div>
-                  <Button className="btn-primary">5 Bookings →</Button>
-                </li>
-              ))}
-          </ul>
-        </div>
-
-        {/* Financial Reports Section */}
-        <div className="p-6 shadow bg-light rounded-xl">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Financial Reports</h2>
-            <span className="flex items-center gap-1 px-3 py-1 border rounded-lg">
-              <FaCalendar /> Monthly
-            </span>
-          </div>
-          <ul className="mb-2">
-            {["April", "March", "February", "January"].map((month, index) => (
-              <li key={index} className="flex items-center justify-between py-2">
-                <div>
-                  <p className="font-medium">{month}</p>
-                  <p className="text-sm text-dark">2025</p>
-                </div>
-                <Button className="flex items-center gap-1 btn-primary">
-                  Download <HiDownload />
-                </Button>
-              </li>
-            ))}
-          </ul>
-          <Button className="w-full btn-primary">Download All</Button>
         </div>
       </div>
     </Layout>

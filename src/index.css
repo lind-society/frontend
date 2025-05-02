@@ -92,7 +92,7 @@ input[type="number"]::-webkit-outer-spin-button {
     @apply bg-light border text-primary border-dark/30 hover:bg-primary hover:text-light;
   }
   .btn-primary {
-    @apply text-light bg-primary hover:bg-primary/80;
+    @apply text-light bg-primary hover:bg-secondary;
   }
   .btn-green {
     @apply text-light bg-green-600 hover:bg-green-700;

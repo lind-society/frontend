@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router-dom";
 
-import { useGetApi, useSearchPagination, useUpdateApi } from "../../../../hooks";
+import { useGetApi, useSearchPagination, useUpdateApi } from "../../../../../hooks";
 
-import { DataTable, Layout, SearchBox, StatusBadge } from "../../../../components/ui";
-import { Pagination } from "../../../../components";
+import { DataTable, Layout, SearchBox, StatusBadge } from "../../../../../components/ui";
+import { Img, Pagination } from "../../../../../components";
 
 import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
 import { FaCalendar } from "react-icons/fa";
 
-import { Booking, Data, Payload } from "../../../../types";
+import { Booking, Data, Payload } from "../../../../../types";
 
 interface BookingsTableProps {
   bookings: Booking[];
@@ -21,6 +21,11 @@ interface BookingsTableProps {
 
 const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: BookingsTableProps) => {
   const columns = [
+    {
+      key: "villa.name" as keyof Booking,
+      header: "Image",
+      render: (booking: Booking) => <Img src={booking.villa?.photos[0] || "/images/modern-villa-background.webp"} alt={booking.villa?.name} className="size-14" />,
+    },
     {
       key: "villa.name" as keyof Booking,
       header: "Villa",
@@ -82,7 +87,7 @@ export const RentPage = () => {
     isPending,
     error,
     refetch,
-  } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings", searchQuery, currentPage], url: "bookings/villas", params: { search: searchQuery, page: currentPage } });
+  } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings-villas", searchQuery, currentPage], url: "bookings/villas", params: { search: searchQuery, page: currentPage } });
 
   const { mutate: editRent } = useUpdateApi({ key: ["edit-booking"], url: "/bookings/villas" });
 
@@ -118,7 +123,7 @@ export const RentPage = () => {
     <Layout>
       {/* Header */}
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="head-title">Villa & Home Management</h1>
+        <h1 className="head-title">Rent Villa & Home Management</h1>
 
         <span className="flex items-center gap-2 px-4 py-2 rounded bg-light">
           <FaCalendar /> {formatted}
