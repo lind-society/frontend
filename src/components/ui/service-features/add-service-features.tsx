@@ -47,37 +47,6 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
 
   const otherFeatures = [...mainFeatures, ...optionalFeatures].filter((feature) => !features.some((item) => item.name === feature.name));
 
-  React.useEffect(() => {
-    if (!onChange) return;
-
-    const hasValidFeature = features.some((feature) => feature.items.some((item) => item.title.trim() !== ""));
-
-    if (hasValidFeature) {
-      const dataToSave = {
-        features: features.flatMap((feature) =>
-          feature.items
-            .filter((item) => item.title.trim() !== "")
-            .map((item) => ({
-              name: item.title,
-              icon: feature.icon,
-              type: feature.name,
-              free: item.free,
-              price: item.free ? 0 : +item.price,
-              discountType: "percentage",
-              discount: null,
-              currencyId: item.currency?.value || baseCurrency,
-              currency: { code: item.currency?.label || "IDR", id: item.currency?.value || baseCurrency },
-            }))
-        ) as Features[],
-      };
-
-      setData(dataToSave);
-      onChange(false);
-    } else {
-      onChange(true);
-    }
-  }, [features]);
-
   const updateFeatureIcon = (key: string | null, e: React.MouseEvent) => {
     const url = (e.target as HTMLImageElement).src;
     setFeatures((prevFeatures) => prevFeatures.map((feature) => (feature.id === idIcon ? { ...feature, icon: { url, key: key ?? "" } } : feature)));
@@ -196,6 +165,37 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
       )
     );
   };
+
+  React.useEffect(() => {
+    if (!onChange) return;
+
+    const hasValidFeature = features.some((feature) => feature.items.some((item) => item.title.trim() !== ""));
+
+    if (hasValidFeature) {
+      const dataToSave = {
+        features: features.flatMap((feature) =>
+          feature.items
+            .filter((item) => item.title.trim() !== "")
+            .map((item) => ({
+              name: item.title,
+              icon: feature.icon,
+              type: feature.name,
+              free: item.free,
+              price: item.free ? 0 : +item.price,
+              discountType: "percentage",
+              discount: null,
+              currencyId: item.currency?.value || baseCurrency,
+              currency: { code: item.currency?.label || "IDR", id: item.currency?.value || baseCurrency },
+            }))
+        ) as Features[],
+      };
+
+      setData(dataToSave);
+      onChange(false);
+    } else {
+      onChange(true);
+    }
+  }, [features]);
 
   return (
     <>

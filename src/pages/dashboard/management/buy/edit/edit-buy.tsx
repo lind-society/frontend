@@ -14,10 +14,12 @@ import { deleteKeysObject } from "../../../../../utils";
 
 import { Payload, Property } from "../../../../../types";
 
-const tabs = ["General", "Media", "Location", "Key Features", "Service & Features"];
+type TabName = "general" | "media" | "location" | "key-features" | "service-features";
+
+const tabs: TabName[] = ["general", "media", "location", "key-features", "service-features"];
 
 export const EditBuyPage = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -31,8 +33,9 @@ export const EditBuyPage = () => {
   const { setData } = useStore();
   const { data } = useEdit();
 
-  const [activeTab, setActiveTab] = React.useState<string>(() => {
-    return sessionStorage.getItem("activeTab") || "General";
+  const [activeTab, setActiveTab] = React.useState<TabName>(() => {
+    const hashTab = hash.replace("#", "");
+    return tabs.includes(hashTab as TabName) ? (hashTab as TabName) : "general";
   });
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState<boolean>(false);
@@ -48,13 +51,9 @@ export const EditBuyPage = () => {
 
   React.useEffect(() => {
     if (pathname === `/dashboard/management/buy/edit/${id}`) {
-      sessionStorage.setItem("activeTab", activeTab);
+      navigate(`${pathname}#${activeTab}`, { replace: true });
     }
-
-    return () => {
-      sessionStorage.removeItem("activeTab");
-    };
-  }, [pathname, activeTab]);
+  }, [pathname, activeTab, navigate, id]);
 
   React.useEffect(() => {
     if (respProperty) {
@@ -69,7 +68,7 @@ export const EditBuyPage = () => {
     }
   }, [respProperty]);
 
-  const handleNavigateAway = (tab: string) => {
+  const handleNavigateAway = (tab: TabName) => {
     if (hasUnsavedChanges) {
       const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
       if (!confirmLeave) {
@@ -127,14 +126,14 @@ export const EditBuyPage = () => {
           </div>
         ) : (
           <>
-            {activeTab === "General" && (
+            {activeTab === "general" && (
               <GeneralTab
                 onChange={(hasChanges: boolean) => {
                   setHasUnsavedChanges(hasChanges);
                 }}
               />
             )}
-            {activeTab === "Media" && (
+            {activeTab === "media" && (
               <EditMediaTab
                 persistedDataKey="get-property"
                 editDataKey="edit-property"
@@ -144,7 +143,7 @@ export const EditBuyPage = () => {
                 }}
               />
             )}
-            {activeTab === "Location" && (
+            {activeTab === "location" && (
               <EditLocationTab
                 persistedDataKey="get-property"
                 editDataKey="edit-property"
@@ -153,7 +152,7 @@ export const EditBuyPage = () => {
                 }}
               />
             )}
-            {activeTab === "Key Features" && (
+            {activeTab === "key-features" && (
               <EditKeyFeaturesTab
                 persistedDataKey="get-property"
                 editDataKey="edit-property"
@@ -162,7 +161,7 @@ export const EditBuyPage = () => {
                 }}
               />
             )}
-            {activeTab === "Service & Features" && (
+            {activeTab === "service-features" && (
               <EditServiceFeaturesTab
                 persistedDataKey="get-property"
                 editDataKey="edit-property"

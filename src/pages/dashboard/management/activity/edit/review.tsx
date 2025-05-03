@@ -28,17 +28,12 @@ const Table = ({ reviews, onCancel, isLoading, error }: ReviewsTableProps) => {
     {
       key: "villa.country" as keyof Review,
       header: "Country",
-      render: (review: Review) => review.villa.country,
+      render: (review: Review) => review.activity.country,
     },
     {
-      key: "activityBooking.checkInDate" as keyof Review,
-      header: "Check In",
-      render: (review: Review) => convertDate(review.activityBooking.checkInDate),
-    },
-    {
-      key: "activityBooking.checkOutDate" as keyof Review,
-      header: "Check Out",
-      render: (review: Review) => convertDate(review.activityBooking.checkOutDate),
+      key: "activityBooking.bookingDate" as keyof Review,
+      header: "Booking Date",
+      render: (review: Review) => convertDate(review.activityBooking.bookingDate),
     },
     {
       key: "rating" as keyof Review,
@@ -48,6 +43,7 @@ const Table = ({ reviews, onCancel, isLoading, error }: ReviewsTableProps) => {
     {
       key: "message" as keyof Review,
       header: "Message",
+      className: "max-w-96 w-full py-3 px-4 overflow-hidden",
     },
     {
       key: "actions",

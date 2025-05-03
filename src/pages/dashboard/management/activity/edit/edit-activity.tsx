@@ -19,14 +19,16 @@ import { deleteKeysObject } from "../../../../../utils";
 import { OrderManagementTab } from "./order-management";
 import { EditMediaTab } from "./media";
 
-const tabs = ["Order Management", "General", "Media", "Location", "Review"];
+type TabName = "order-management" | "general" | "media" | "location" | "review";
+
+const tabs: TabName[] = ["order-management", "general", "media", "location", "review"];
 
 export const EditActivityPage = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { mutate: editActivity, isPending } = useUpdateApi<Partial<Activity>>({ key: ["editing-activity"], url: "/activities", redirectPath: `/dashboard/management/activity/edit/${id}` });
+  const { mutate: editActivity, isPending } = useUpdateApi<Partial<Activity>>({ key: ["editing-activity"], url: "/activities", redirectPath: "/dashboard/management/activity" });
 
   const { data: respActivity, isLoading } = useGetApi<Payload<Activity>>({ url: `activities/${id}`, key: ["get-activity", id] });
 
@@ -36,8 +38,9 @@ export const EditActivityPage = () => {
   const { setData } = useStore();
   const { data } = useEdit();
 
-  const [activeTab, setActiveTab] = React.useState<string>(() => {
-    return sessionStorage.getItem("activeTab") || "Order Management";
+  const [activeTab, setActiveTab] = React.useState<TabName>(() => {
+    const hashTab = hash.replace("#", "");
+    return tabs.includes(hashTab as TabName) ? (hashTab as TabName) : "order-management";
   });
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState<boolean>(false);
@@ -53,13 +56,9 @@ export const EditActivityPage = () => {
 
   React.useEffect(() => {
     if (pathname === `/dashboard/management/activity/edit/${id}`) {
-      sessionStorage.setItem("activeTab", activeTab);
+      navigate(`${pathname}#${activeTab}`, { replace: true });
     }
-
-    return () => {
-      sessionStorage.removeItem("activeTab");
-    };
-  }, [pathname, activeTab]);
+  }, [pathname, activeTab, navigate, id]);
 
   React.useEffect(() => {
     if (respActivity) {
@@ -71,7 +70,7 @@ export const EditActivityPage = () => {
     }
   }, [respActivity]);
 
-  const handleNavigateAway = (tab: string) => {
+  const handleNavigateAway = (tab: TabName) => {
     if (hasUnsavedChanges) {
       const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
       if (!confirmLeave) {
@@ -123,29 +122,29 @@ export const EditActivityPage = () => {
       </div>
 
       <div className="relative p-8 border rounded-b bg-light border-dark/30 min-h-600">
-        {activeTab === "Order Management" && <OrderManagementTab />}
-        {activeTab === "Review" && <ReviewTab />}
+        {activeTab === "order-management" && <OrderManagementTab />}
+        {activeTab === "review" && <ReviewTab />}
         {isLoading || isWaiting ? (
           <div className="flex items-center justify-center min-h-400">
             <div className="loader size-10 after:size-10"></div>
           </div>
         ) : (
           <>
-            {activeTab === "General" && (
+            {activeTab === "general" && (
               <GeneralTab
                 onChange={(hasChanges: boolean) => {
                   setHasUnsavedChanges(hasChanges);
                 }}
               />
             )}
-            {activeTab === "Media" && (
+            {activeTab === "media" && (
               <EditMediaTab
                 onChange={(hasChanges: boolean) => {
                   setHasUnsavedChanges(hasChanges);
                 }}
               />
             )}
-            {activeTab === "Location" && (
+            {activeTab === "location" && (
               <EditLocationTab
                 persistedDataKey="get-activity"
                 editDataKey="edit-activity"

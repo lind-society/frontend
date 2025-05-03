@@ -48,6 +48,7 @@ const Table = ({ reviews, onCancel, isLoading, error }: ReviewsTableProps) => {
     {
       key: "message" as keyof Review,
       header: "Message",
+      className: "max-w-96 w-full py-3 px-4 overflow-hidden",
     },
     {
       key: "actions",

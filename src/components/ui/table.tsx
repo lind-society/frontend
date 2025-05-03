@@ -53,7 +53,7 @@ export const DataTable = <T,>({ data, columns, keyExtractor, isLoading = false, 
 
   return (
     <>
-      <table className="min-w-full bg-light whitespace-nowrap">
+      <table className="min-w-full bg-light">
         <TableHeader columns={columns} />
         <tbody>
           {data.map((item) => {
@@ -63,7 +63,7 @@ export const DataTable = <T,>({ data, columns, keyExtractor, isLoading = false, 
                   const cellContent = column.render ? column.render(item) : typeof column.key === "string" ? (item[column.key as keyof T] as React.ReactNode) : (item[column.key] as React.ReactNode);
 
                   return (
-                    <td key={columnIndex} className={column.className || "px-4 py-3.5"}>
+                    <td key={columnIndex} className={column.className || "px-4 py-3.5 whitespace-nowrap"}>
                       {cellContent}
                     </td>
                   );

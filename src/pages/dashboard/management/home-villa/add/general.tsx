@@ -56,9 +56,9 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     secondaryName: data.secondaryName || "",
     highlight: data.highlight || "",
     availability: {
-      daily: data.availability?.daily || true,
-      monthly: data.availability?.monthly || false,
-      yearly: data.availability?.yearly || false,
+      daily: data.availability?.daily ?? true,
+      monthly: data.availability?.monthly ?? false,
+      yearly: data.availability?.yearly ?? false,
     },
     dailyPrice: String(data.dailyPrice || ""),
     lowSeasonDailyPrice: String(data.lowSeasonDailyPrice || ""),

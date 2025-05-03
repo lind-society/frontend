@@ -47,11 +47,11 @@ const Table = ({ bookings, isLoading, error }: BookingsTableProps) => {
       header: "Phone",
       render: (booking: Booking) => booking.customer.phoneNumber,
     },
-    // {
-    //   key: "activity.category.name" as keyof Booking,
-    //   header: "Category",
-    //   render: (booking: Booking) => booking.activity.category.name,
-    // },
+    {
+      key: "activity.category.name" as keyof Booking,
+      header: "Category",
+      render: (booking: Booking) => booking.activity.category.name,
+    },
     {
       key: "status" as keyof Booking,
       header: "Status",

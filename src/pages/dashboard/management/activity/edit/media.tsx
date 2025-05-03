@@ -43,24 +43,6 @@ export const EditMediaTab: React.FC<{ onChange?: (hasChanges: boolean) => void }
     videos: data.videos || [],
   });
 
-  React.useEffect(() => {
-    if (!onChange) return;
-
-    const isComplete = formState.photos.length > 0;
-
-    if (isComplete) {
-      const dataToSave = {
-        photos: formState.photos.filter((photo) => photo !== ""),
-        videos: formState.videos.filter((video) => video !== ""),
-      };
-
-      setData(dataToSave);
-      onChange(false);
-    } else {
-      onChange(true);
-    }
-  }, [formState]);
-
   const updateFormState = (updates: Partial<FormStateType>) => {
     setFormState((prev) => {
       const newState = { ...prev, ...updates };

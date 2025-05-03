@@ -48,23 +48,23 @@ const CardContent = ({ isLoading, activities, openDeleteModal }: CardContentProp
             <Img src={activity.photos && activity.photos.length > 0 ? activity.photos[0] : defaultImage} alt={activity.name} className="object-cover w-full h-60" />
           </div>
           <div className="text-primary bg-light">
-            <div className="flex items-center gap-2 px-4 py-2 border-b border-dark/30">
+            <div className="flex items-center justify-between gap-2 px-4 py-2 text-sm border-b border-dark/30">
               <p className="font-medium line-clamp-1">{`${capitalize(activity.state)} - ${capitalize(activity.country)}`}</p>
-              <p className="px-4 py-1 text-sm rounded bg-primary text-light">{activity.category.name}</p>
+              <p className="px-4 py-1 rounded bg-primary text-light">{activity.category.name}</p>
             </div>
             <div className="p-4 space-y-2">
               <div className="grid grid-cols-2 gap-4">
-                <Link to={`/dashboard/management/activity/edit/${activity.id}`} className="block text-xl">
-                  <h2 className="h-20 font-semibold line-clamp-3">{activity.name}</h2>
+                <Link to={`/dashboard/management/activity/edit/${activity.id}`} className="block">
+                  <h2 className="h-12 font-semibold line-clamp-2">{activity.name}</h2>
                 </Link>
                 <div className="font-bold text-end">
-                  <p className="text-lg font-bold whitespace-nowrap">
+                  <p className="font-bold whitespace-nowrap">
                     {activity.currency.code} {activity.price}
                   </p>
-                  <p className="text-sm font-light">/session</p>
+                  <p className="text-xs font-light">/session</p>
                 </div>
               </div>
-              <p className="text-sm text-justify line-clamp-6">{activity.highlight}</p>
+              <p className="text-xs text-justify line-clamp-6">{activity.highlight}</p>
             </div>
           </div>
         </div>

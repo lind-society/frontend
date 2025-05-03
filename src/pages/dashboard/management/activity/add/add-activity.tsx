@@ -18,40 +18,45 @@ import { deleteKeysObject } from "../../../../../utils";
 import { Activity } from "../../../../../types";
 import { AddMediaTab } from "./media";
 
-type TabName = "General" | "Media" | "Location";
+type TabName = "general" | "media" | "location";
 
-const tabs: TabName[] = ["General", "Media", "Location"];
+const tabs: TabName[] = ["general", "media", "location"];
 
 const getInitialTabValidationState = (): Record<TabName, boolean> => ({
-  General: JSON.parse(sessionStorage.getItem("General") || "true"),
-  Media: JSON.parse(sessionStorage.getItem("Media") || "true"),
-  Location: JSON.parse(sessionStorage.getItem("Location") || "true"),
+  general: JSON.parse(sessionStorage.getItem("general") || "true"),
+  media: JSON.parse(sessionStorage.getItem("media") || "true"),
+  location: JSON.parse(sessionStorage.getItem("location") || "true"),
 });
 
 export const AddActivityPage = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const navigate = useNavigate();
 
-  const { mutate: addActivity, isPending } = useCreateApi<Partial<Activity>>({ key: ["add-activity"], url: "/activities", redirectPath: "/dashboard/management/activity/add" });
+  const { mutate: addActivity, isPending } = useCreateApi<Partial<Activity>>({ key: ["add-activity"], url: "/activities", redirectPath: "/dashboard/management/activity" });
   const useStore = usePersistentData<Partial<Activity>>("add-activity");
   const { data } = useStore();
 
   const [activeTab, setActiveTab] = React.useState<TabName>(() => {
-    const storedTab = sessionStorage.getItem("activeTab");
-    return (storedTab as TabName) || "General";
+    const hashTab = hash.replace("#", "");
+    return tabs.includes(hashTab as TabName) ? (hashTab as TabName) : "general";
   });
 
   const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
+  const [isWaiting, setIsWaiting] = React.useState<boolean>(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsWaiting(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   React.useEffect(() => {
     if (pathname === "/dashboard/management/activity/add") {
-      sessionStorage.setItem("activeTab", activeTab);
+      navigate(`${pathname}#${activeTab}`, { replace: true });
     }
-
-    return () => {
-      sessionStorage.removeItem("activeTab");
-    };
-  }, [activeTab, pathname]);
+  }, [activeTab, pathname, navigate]);
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -103,7 +108,7 @@ export const AddActivityPage = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          {!tabValidationState["General"] && !tabValidationState["Location"] && !tabValidationState["Media"] && (
+          {!tabValidationState["general"] && !tabValidationState["location"] && !tabValidationState["media"] && (
             <Button onClick={handlePublish} className="btn-primary">
               {isPending ? (
                 <div className="loader size-4 after:size-4"></div>
@@ -130,46 +135,54 @@ export const AddActivityPage = () => {
       </div>
 
       <div className="p-8 border rounded-b bg-light border-dark/30">
-        {activeTab === "General" && (
+        {isWaiting ? (
+          <div className="flex items-center justify-center min-h-400">
+            <div className="loader size-10 after:size-10"></div>
+          </div>
+        ) : (
           <>
-            <GeneralTab
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("General", hasChanges);
-              }}
-            />
-            {!tabValidationState["General"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
+            {activeTab === "general" && (
+              <>
+                <GeneralTab
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("general", hasChanges);
+                  }}
+                />
+                {!tabValidationState["general"] && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                      Next <GrLinkNext />
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
-          </>
-        )}
-        {activeTab === "Media" && (
-          <>
-            <AddMediaTab
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("Media", hasChanges);
-              }}
-            />
-            {!tabValidationState["Media"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
+            {activeTab === "media" && (
+              <>
+                <AddMediaTab
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("media", hasChanges);
+                  }}
+                />
+                {!tabValidationState["media"] && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                      Next <GrLinkNext />
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
-          </>
-        )}
-        {activeTab === "Location" && (
-          <>
-            <AddLocationTab
-              persistedDataKey="add-activity"
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("Location", hasChanges);
-              }}
-            />
+            {activeTab === "location" && (
+              <>
+                <AddLocationTab
+                  persistedDataKey="add-activity"
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("location", hasChanges);
+                  }}
+                />
+              </>
+            )}
           </>
         )}
       </div>

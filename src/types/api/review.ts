@@ -6,12 +6,14 @@ export interface Review {
   id: string;
   rating: number;
   message: string;
-  bookingId: string;
+  activityBookingId: string;
+  villaBookingId: string;
+  activityId: string;
   villaId: string;
-  villa: Villa;
-  activity: Activity;
-  villaBooking: Booking;
   activityBooking: Booking;
+  villaBooking: Booking;
+  activity: Activity;
+  villa: Villa;
   createdAt: string;
   updatedAt: string;
 }

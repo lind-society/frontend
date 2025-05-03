@@ -107,35 +107,38 @@ export const MainPage = () => {
       <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
         <div className="flex items-center justify-between p-4 rounded-lg shadow bg-light">
           <div className="space-y-4 text-dark">
-            <h5 className="text-xl">New Rent Villa Today</h5>
-            <span className="block text-4xl font-bold">0</span>
+            <h5 className="text-xl">Total Rent Villa</h5>
+            <span className="block text-4xl font-bold">{respBookingVilla?.data.meta.totalItems || 0}</span>
             <Link to="/dashboard/management/rent" className="flex items-center gap-1 text-xs w-max">
               See All <IoIosArrowForward />
             </Link>
           </div>
           <div className="flex items-center justify-center rounded-full bg-tertiary size-20">
-            <img src="/icons/online-booking.png" alt="New Rent Villa Today" className="size-12" />
+            <img src="/icons/online-booking.png" alt="online-booking" className="size-12" />
           </div>
         </div>
         <div className="flex items-center justify-between p-4 rounded-lg shadow bg-light">
           <div className="space-y-4 text-dark">
-            <h5 className="text-xl">New Order Activity Today</h5>
-            <span className="block text-4xl font-bold">0</span>
+            <h5 className="text-xl">Total Order Activity</h5>
+            <span className="block text-4xl font-bold">{respBookingActivity?.data.meta.totalItems || 0}</span>
             <Link to="/dashboard/management/order" className="flex items-center gap-1 text-xs w-max">
               See All <IoIosArrowForward />
             </Link>
           </div>
           <div className="flex items-center justify-center rounded-full bg-tertiary size-20">
-            <img src="/icons/checklist.png" alt="New Order Activity Today" className="size-12" />
+            <img src="/icons/checklist.png" alt="checklist" className="size-12" />
           </div>
         </div>
         <div className="flex items-center justify-between p-4 rounded-lg shadow bg-light">
           <div className="space-y-4 text-dark">
-            <h5 className="text-xl">Total Review Today</h5>
-            <span className="block text-4xl font-bold">0</span>
+            <h5 className="text-xl">Total Review</h5>
+            <span className="block text-4xl font-bold">{respReviews?.data.meta.totalItems || 0}</span>
+            <Link to="/dashboard/management/review" className="flex items-center gap-1 text-xs w-max">
+              See All <IoIosArrowForward />
+            </Link>
           </div>
           <div className="flex items-center justify-center rounded-full bg-tertiary size-20">
-            <img src="/icons/scale.png" alt="Total Review Today" className="size-12" />
+            <img src="/icons/scale.png" alt="scale" className="size-12" />
           </div>
         </div>
       </div>
@@ -150,7 +153,7 @@ export const MainPage = () => {
               <FaCalendar /> Monthly
             </span>
           </div>
-          <ResponsiveContainer width="100%" height={720}>
+          <ResponsiveContainer width="100%" height={800}>
             <BarChart data={data}>
               <XAxis dataKey="name" />
               <YAxis />
@@ -202,7 +205,7 @@ export const MainPage = () => {
         </div>
 
         {/* Best Sellers Section */}
-        <div className="col-span-2 min-h-400 p-6 shadow bg-light rounded-xl">
+        <div className="col-span-2 p-6 shadow min-h-400 bg-light rounded-xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Best Sellers</h2>
             <span className="flex items-center gap-1 px-3 py-1 border rounded-lg">
@@ -236,8 +239,10 @@ export const MainPage = () => {
             {reviews.map((review, index) => (
               <li key={index} className="flex items-center justify-between border-b last:border-none">
                 <div>
-                  <p className="font-medium">{review.villaBooking.customer.name}</p>
-                  <p className="text-sm text-dark">{review.villa.name}</p>
+                  <p className="font-medium">
+                    {review?.villaBooking?.customer?.name || review?.activityBooking?.customer?.name} <strong>[{review.villaId ? "VILLA" : "ACTIVITY"}]</strong>
+                  </p>
+                  <p className="text-sm text-dark">{review?.villa?.name || review?.activity?.name}</p>
                 </div>
                 <div className="flex text-yellow-500">{[...Array(5)].map((_, i) => (i < review.rating ? <FaStar key={i} /> : <FaRegStar key={i} />))}</div>
               </li>

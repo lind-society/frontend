@@ -17,16 +17,16 @@ import { deleteKeysObject } from "../../../../../utils";
 
 import { Property } from "../../../../../types";
 
-type TabName = "General" | "Media" | "Location" | "Key Features" | "Service & Features";
+type TabName = "general" | "media" | "location" | "key-features" | "service-features";
 
-const tabs: TabName[] = ["General", "Media", "Location", "Key Features", "Service & Features"];
+const tabs: TabName[] = ["general", "media", "location", "key-features", "service-features"];
 
 const getInitialTabValidationState = (): Record<TabName, boolean> => ({
-  General: JSON.parse(sessionStorage.getItem("General") || "true"),
-  Media: JSON.parse(sessionStorage.getItem("Media") || "true"),
-  Location: JSON.parse(sessionStorage.getItem("Location") || "true"),
-  "Key Features": JSON.parse(sessionStorage.getItem("Key Features") || "true"),
-  "Service & Features": JSON.parse(sessionStorage.getItem("Service & Features") || "true"),
+  general: JSON.parse(sessionStorage.getItem("general") || "true"),
+  media: JSON.parse(sessionStorage.getItem("media") || "true"),
+  location: JSON.parse(sessionStorage.getItem("location") || "true"),
+  "key-features": JSON.parse(sessionStorage.getItem("key-features") || "true"),
+  "service-features": JSON.parse(sessionStorage.getItem("service-features") || "true"),
 });
 
 export const AddBuyPage = () => {
@@ -45,17 +45,21 @@ export const AddBuyPage = () => {
   });
 
   const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
+  const [isWaiting, setIsWaiting] = React.useState<boolean>(true);
 
   React.useEffect(() => {
-    // Set active tab in session storage when on the add property page
-    if (pathname === "/dashboard/management/buy/add") {
-      sessionStorage.setItem("activeTab", activeTab);
-    }
+    const timer = setTimeout(() => {
+      setIsWaiting(false);
+    }, 1000);
 
-    return () => {
-      sessionStorage.removeItem("activeTab");
-    };
-  }, [activeTab, pathname]);
+    return () => clearTimeout(timer);
+  }, []);
+
+  React.useEffect(() => {
+    if (pathname === "/dashboard/management/buy/add") {
+      navigate(`${pathname}#${activeTab}`, { replace: true });
+    }
+  }, [activeTab, pathname, navigate]);
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -107,7 +111,7 @@ export const AddBuyPage = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          {!tabValidationState["General"] && !tabValidationState["Key Features"] && !tabValidationState["Location"] && !tabValidationState["Media"] && !tabValidationState["Service & Features"] && (
+          {!tabValidationState["general"] && !tabValidationState["key-features"] && !tabValidationState["location"] && !tabValidationState["media"] && !tabValidationState["service-features"] && (
             <Button onClick={handlePublish} className="btn-primary">
               {isPending ? (
                 <div className="loader size-4 after:size-4"></div>
@@ -134,81 +138,89 @@ export const AddBuyPage = () => {
       </div>
 
       <div className="p-8 border rounded-b bg-light border-dark/30">
-        {activeTab === "General" && (
+        {isWaiting ? (
+          <div className="flex items-center justify-center min-h-400">
+            <div className="loader size-10 after:size-10"></div>
+          </div>
+        ) : (
           <>
-            <GeneralTab
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("General", hasChanges);
-              }}
-            />
-            {!tabValidationState["General"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
+            {activeTab === "general" && (
+              <>
+                <GeneralTab
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("general", hasChanges);
+                  }}
+                />
+                {!tabValidationState["general"] && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                      Next <GrLinkNext />
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            {activeTab === "media" && (
+              <>
+                <AddMediaTab
+                  persistedDataKey="add-property"
+                  type="property"
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("media", hasChanges);
+                  }}
+                />
+                {!tabValidationState["media"] && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                      Next <GrLinkNext />
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            {activeTab === "location" && (
+              <>
+                <AddLocationTab
+                  persistedDataKey="add-property"
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("location", hasChanges);
+                  }}
+                />
+                {!tabValidationState["location"] && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                      Next <GrLinkNext />
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            {activeTab === "key-features" && (
+              <>
+                <AddKeyFeaturesTab
+                  persistedDataKey="add-property"
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("key-features", hasChanges);
+                  }}
+                />
+                {!tabValidationState["key-features"] && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                      Next <GrLinkNext />
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            {activeTab === "service-features" && (
+              <AddServiceFeaturesTab
+                persistedDataKey="add-property"
+                onChange={(hasChanges: boolean) => {
+                  updateTabValidation("service-features", hasChanges);
+                }}
+              />
             )}
           </>
-        )}
-        {activeTab === "Media" && (
-          <>
-            <AddMediaTab
-              persistedDataKey="add-property"
-              type="property"
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("Media", hasChanges);
-              }}
-            />
-            {!tabValidationState["Media"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-        {activeTab === "Location" && (
-          <>
-            <AddLocationTab
-              persistedDataKey="add-property"
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("Location", hasChanges);
-              }}
-            />
-            {!tabValidationState["Location"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-        {activeTab === "Key Features" && (
-          <>
-            <AddKeyFeaturesTab
-              persistedDataKey="add-property"
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("Key Features", hasChanges);
-              }}
-            />
-            {!tabValidationState["Key Features"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-        {activeTab === "Service & Features" && (
-          <AddServiceFeaturesTab
-            persistedDataKey="add-property"
-            onChange={(hasChanges: boolean) => {
-              updateTabValidation("Service & Features", hasChanges);
-            }}
-          />
         )}
       </div>
     </Layout>

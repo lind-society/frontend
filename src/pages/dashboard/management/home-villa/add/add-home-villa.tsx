@@ -14,47 +14,53 @@ import { VillaPoliciesTab } from "./villa-policies";
 import { FaArrowLeft, FaUpload } from "react-icons/fa";
 import { GrLinkNext } from "react-icons/gr";
 
-import { deleteKeysObject } from "../../../../../utils";
+import { deleteKeysObject, formatTitleCase } from "../../../../../utils";
 
 import { Villa } from "../../../../../types";
 
-type TabName = "General" | "Media" | "Location" | "Key Features" | "Service & Features" | "Villa Policies";
+type TabName = "general" | "media" | "location" | "key-features" | "service-features" | "villa-policies";
 
-const tabs: TabName[] = ["General", "Media", "Location", "Key Features", "Service & Features", "Villa Policies"];
+const tabs: TabName[] = ["general", "media", "location", "key-features", "service-features", "villa-policies"];
 
 const getInitialTabValidationState = (): Record<TabName, boolean> => ({
-  General: JSON.parse(sessionStorage.getItem("General") || "true"),
-  Media: JSON.parse(sessionStorage.getItem("Media") || "true"),
-  Location: JSON.parse(sessionStorage.getItem("Location") || "true"),
-  "Key Features": JSON.parse(sessionStorage.getItem("Key Features") || "true"),
-  "Service & Features": JSON.parse(sessionStorage.getItem("Service & Features") || "true"),
-  "Villa Policies": JSON.parse(sessionStorage.getItem("Villa Policies") || "true"),
+  general: JSON.parse(sessionStorage.getItem("general") || "true"),
+  media: JSON.parse(sessionStorage.getItem("media") || "true"),
+  location: JSON.parse(sessionStorage.getItem("location") || "true"),
+  "key-features": JSON.parse(sessionStorage.getItem("key-features") || "true"),
+  "service-features": JSON.parse(sessionStorage.getItem("service-features") || "true"),
+  "villa-policies": JSON.parse(sessionStorage.getItem("villa-policies") || "true"),
 });
 
 export const AddHomeVillaPage = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const navigate = useNavigate();
 
-  const { mutate: addVillas, isPending } = useCreateApi<Partial<Villa>>({ key: ["add-villa"], url: "/villas", redirectPath: "/dashboard/management/home-villa/add" });
+  const { mutate: addVillas, isPending } = useCreateApi<Partial<Villa>>({ key: ["add-villa"], url: "/villas", redirectPath: "/dashboard/management/home-villa" });
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { data } = useStore();
 
   const [activeTab, setActiveTab] = React.useState<TabName>(() => {
-    const storedTab = sessionStorage.getItem("activeTab");
-    return (storedTab as TabName) || "General";
+    // Get tab from URL hash if available
+    const hashTab = hash.replace("#", "");
+    return tabs.includes(hashTab as TabName) ? (hashTab as TabName) : "general";
   });
 
   const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
+  const [isWaiting, setIsWaiting] = React.useState<boolean>(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsWaiting(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   React.useEffect(() => {
     if (pathname === "/dashboard/management/home-villa/add") {
-      sessionStorage.setItem("activeTab", activeTab);
+      navigate(`${pathname}#${activeTab}`, { replace: true });
     }
-
-    return () => {
-      sessionStorage.removeItem("activeTab");
-    };
-  }, [activeTab, pathname]);
+  }, [activeTab, pathname, navigate]);
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -106,12 +112,12 @@ export const AddHomeVillaPage = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          {!tabValidationState["General"] &&
-            !tabValidationState["Key Features"] &&
-            !tabValidationState["Location"] &&
-            !tabValidationState["Media"] &&
-            !tabValidationState["Service & Features"] &&
-            !tabValidationState["Villa Policies"] && (
+          {!tabValidationState["general"] &&
+            !tabValidationState["key-features"] &&
+            !tabValidationState["location"] &&
+            !tabValidationState["media"] &&
+            !tabValidationState["service-features"] &&
+            !tabValidationState["villa-policies"] && (
               <Button onClick={handlePublish} className="btn-primary">
                 {isPending ? (
                   <div className="loader size-4 after:size-4"></div>
@@ -132,103 +138,111 @@ export const AddHomeVillaPage = () => {
             className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
             onClick={() => handleNavigateAway(tab)}
           >
-            {tab}
+            {formatTitleCase(tab)}
           </button>
         ))}
       </div>
 
       <div className="p-8 border rounded-b bg-light border-dark/30">
-        {activeTab === "General" && (
+        {isWaiting ? (
+          <div className="flex items-center justify-center min-h-400">
+            <div className="loader size-10 after:size-10"></div>
+          </div>
+        ) : (
           <>
-            <GeneralTab
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("General", hasChanges);
-              }}
-            />
-            {!tabValidationState["General"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
+            {activeTab === "general" && (
+              <>
+                <GeneralTab
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("general", hasChanges);
+                  }}
+                />
+                {!tabValidationState["general"] && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                      Next <GrLinkNext />
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            {activeTab === "media" && (
+              <>
+                <AddMediaTab
+                  persistedDataKey="add-villa"
+                  type="villa"
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("media", hasChanges);
+                  }}
+                />
+                {!tabValidationState["media"] && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                      Next <GrLinkNext />
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            {activeTab === "location" && (
+              <>
+                <AddLocationTab
+                  persistedDataKey="add-villa"
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("location", hasChanges);
+                  }}
+                />
+                {!tabValidationState["location"] && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                      Next <GrLinkNext />
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            {activeTab === "key-features" && (
+              <>
+                <AddKeyFeaturesTab
+                  persistedDataKey="add-villa"
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("key-features", hasChanges);
+                  }}
+                />
+                {!tabValidationState["key-features"] && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                      Next <GrLinkNext />
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            {activeTab === "service-features" && (
+              <>
+                <AddServiceFeaturesTab
+                  persistedDataKey="add-villa"
+                  onChange={(hasChanges: boolean) => {
+                    updateTabValidation("service-features", hasChanges);
+                  }}
+                />
+                {!tabValidationState["service-features"] && (
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
+                      Next <GrLinkNext />
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            {activeTab === "villa-policies" && (
+              <VillaPoliciesTab
+                onChange={(hasChanges: boolean) => {
+                  updateTabValidation("villa-policies", hasChanges);
+                }}
+              />
             )}
           </>
-        )}
-        {activeTab === "Media" && (
-          <>
-            <AddMediaTab
-              persistedDataKey="add-villa"
-              type="villa"
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("Media", hasChanges);
-              }}
-            />
-            {!tabValidationState["Media"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-        {activeTab === "Location" && (
-          <>
-            <AddLocationTab
-              persistedDataKey="add-villa"
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("Location", hasChanges);
-              }}
-            />
-            {!tabValidationState["Location"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-        {activeTab === "Key Features" && (
-          <>
-            <AddKeyFeaturesTab
-              persistedDataKey="add-villa"
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("Key Features", hasChanges);
-              }}
-            />
-            {!tabValidationState["Key Features"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-        {activeTab === "Service & Features" && (
-          <>
-            <AddServiceFeaturesTab
-              persistedDataKey="add-villa"
-              onChange={(hasChanges: boolean) => {
-                updateTabValidation("Service & Features", hasChanges);
-              }}
-            />
-            {!tabValidationState["Service & Features"] && (
-              <div className="flex justify-end mt-4">
-                <Button onClick={() => goToNextTab()} className="flex items-center gap-2 btn-primary">
-                  Next <GrLinkNext />
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-        {activeTab === "Villa Policies" && (
-          <VillaPoliciesTab
-            onChange={(hasChanges: boolean) => {
-              updateTabValidation("Villa Policies", hasChanges);
-            }}
-          />
         )}
       </div>
     </Layout>

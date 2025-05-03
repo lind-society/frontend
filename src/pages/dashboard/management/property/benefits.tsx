@@ -13,7 +13,7 @@ export const BenefitsTab = () => {
   const [formState, setFormState] = React.useState<Benefit[]>([]);
   const [isEditing, setIsEditing] = React.useState<Record<string, boolean>>({});
 
-  const { data: respBenefits, isLoading } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "100" } });
+  const { data: respBenefits, isLoading, refetch } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "100" } });
   const { mutate: createBenefit, isPending: isCreating } = useCreateApi<Partial<Benefit>>({ key: ["add-benefit"], url: "/package-benefits" });
   const { mutate: updateBenefit, isPending: isUpdating } = useUpdateApi<Partial<Benefit>>({ key: ["update-benefit"], url: "/package-benefits" });
   const { mutate: deleteBenefit, isPending: isDeleting } = useDeleteApi({ key: ["delete-benefit"], url: "/package-benefits" });
@@ -51,6 +51,10 @@ export const BenefitsTab = () => {
     }
 
     deleteBenefit(id);
+
+    setTimeout(() => {
+      refetch();
+    }, 500);
   };
 
   const handleBenefitChange = (id: string, value: string) => {
