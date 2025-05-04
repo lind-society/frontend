@@ -5,6 +5,8 @@ export * from "./auth/login";
 
 export * from "./dashboard/main";
 
+export * from "./dashboard/review";
+
 export * from "./dashboard/management/home-villa/home-villa";
 export * from "./dashboard/management/home-villa/add/add-home-villa";
 export * from "./dashboard/management/home-villa/edit/edit-home-villa";

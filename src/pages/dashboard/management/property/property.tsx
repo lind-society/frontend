@@ -1,31 +1,43 @@
 import * as React from "react";
 
+import { useLocation, useNavigate } from "react-router-dom";
+
 import { Layout } from "../../../../components/ui";
 
 import { PackageTab } from "./package";
 import { BenefitsTab } from "./benefits";
 
 import { FaCalendar } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
 
-const tabs = ["Packages", "Benefits"];
+import { formatTitleCase } from "../../../../utils";
+
+type TabName = "package" | "benefit";
+const tabs: TabName[] = ["package", "benefit"];
 
 export const PropertyPage = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
+  const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = React.useState<string>(() => {
-    return sessionStorage.getItem("activeTab") || "Packages";
+  const [activeTab, setActiveTab] = React.useState<TabName>(() => {
+    const hashTab = hash.replace("#", "");
+    return tabs.includes(hashTab as TabName) ? (hashTab as TabName) : "package";
   });
+
+  const [isWaiting, setIsWaiting] = React.useState<boolean>(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsWaiting(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   React.useEffect(() => {
     if (pathname === "/dashboard/management/property") {
-      sessionStorage.setItem("activeTab", activeTab);
+      navigate(`${pathname}#${activeTab}`, { replace: true });
     }
-
-    return () => {
-      sessionStorage.removeItem("activeTab");
-    };
-  }, [activeTab, pathname]);
+  }, [activeTab, pathname, navigate]);
 
   const formatted = new Intl.DateTimeFormat("en-US", {
     dateStyle: "full",
@@ -46,14 +58,22 @@ export const PropertyPage = () => {
       <div className="flex">
         {tabs.map((tab) => (
           <button key={tab} className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`} onClick={() => setActiveTab(tab)}>
-            {tab}
+            {formatTitleCase(tab)}
           </button>
         ))}
       </div>
 
       <div className="p-8 border rounded-b bg-light border-dark/30">
-        {activeTab === "Packages" && <PackageTab />}
-        {activeTab === "Benefits" && <BenefitsTab />}
+        {isWaiting ? (
+          <div className="flex items-center justify-center min-h-400">
+            <div className="loader size-10 after:size-10"></div>
+          </div>
+        ) : (
+          <>
+            {activeTab === "package" && <PackageTab />}
+            {activeTab === "benefit" && <BenefitsTab />}
+          </>
+        )}
       </div>
     </Layout>
   );

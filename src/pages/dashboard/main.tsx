@@ -11,7 +11,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FaCalendar, FaRegStar, FaStar } from "react-icons/fa";
 
-import { convertDate } from "../../utils";
+import { convertDate, getTodayTime } from "../../utils";
 
 import { Booking, Data, PaginationProps, Payload, Review } from "../../types";
 
@@ -62,9 +62,11 @@ export const MainPage = () => {
   const [currentPageBookingActivity, setCurrentPageBookingActivity] = React.useState<number>(1);
   const [currentPageReview, setCurrentPageReview] = React.useState<number>(1);
 
+  const today = getTodayTime();
+
   const { data: respBookingVilla, isError: isErrorBookingVilla } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings", currentPageBookingVilla],
-    url: "bookings/villas",
+    url: `bookings/villas?filter.createdAt=$gte:${today}T:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
     params: { page: currentPageBookingVilla, limit: "5" },
   });
 
@@ -73,7 +75,7 @@ export const MainPage = () => {
 
   const { data: respBookingActivity, isError: isErrorBookingActivity } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-activities", currentPageBookingActivity],
-    url: "bookings/activities",
+    url: `bookings/activities?filter.createdAt=$gte:${today}T:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
     params: { page: currentPageBookingActivity, limit: "5" },
   });
 
@@ -82,7 +84,7 @@ export const MainPage = () => {
 
   const { data: respReviews, isError: isErrorReview } = useGetApi<Payload<Data<Review[]>>>({
     key: ["get-reviews", currentPageReview],
-    url: "reviews",
+    url: `reviews?filter.createdAt=$gte:${today}T:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
     params: { page: currentPageReview, limit: "5" },
   });
 

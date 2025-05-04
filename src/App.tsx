@@ -23,6 +23,7 @@ import {
   PropertyPage,
   RentPage,
   OrderPage,
+  ReviewPage,
 } from "./pages";
 
 import { ProtectedRoute } from "./routes/protected-route";
@@ -66,6 +67,7 @@ const App = () => {
           <Route path="/dashboard/management/property" element={<PropertyPage />} />
           <Route path="/dashboard/management/property/package/add" element={<AddPackagePage />} />
           <Route path="/dashboard/management/property/package/edit/:id" element={<EditPackagePage />} />
+          <Route path="/dashboard/management/review" element={<ReviewPage />} />
         </Route>
 
         <Route path="/api-test" element={<APITest />} />
