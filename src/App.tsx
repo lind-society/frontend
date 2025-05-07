@@ -51,9 +51,11 @@ const App = () => {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard/main" element={<MainPage />} />
+          <Route path="/dashboard/review" element={<ReviewPage />} />
           <Route path="/dashboard/management/home-villa" element={<HomeVillaPage />} />
           <Route path="/dashboard/management/home-villa/add" element={<AddHomeVillaPage />} />
           <Route path="/dashboard/management/home-villa/edit/:id" element={<EditHomeVillaPage />} />
+          {/* <Route path="/dashboard/management/price-rule-villa" element={<PriceRulePage />} /> */}
           <Route path="/dashboard/management/activity" element={<ActivityPage />} />
           <Route path="/dashboard/management/activity/add" element={<AddActivityPage />} />
           <Route path="/dashboard/management/activity/edit/:id" element={<EditActivityPage />} />
@@ -67,7 +69,6 @@ const App = () => {
           <Route path="/dashboard/management/property" element={<PropertyPage />} />
           <Route path="/dashboard/management/property/package/add" element={<AddPackagePage />} />
           <Route path="/dashboard/management/property/package/edit/:id" element={<EditPackagePage />} />
-          <Route path="/dashboard/management/review" element={<ReviewPage />} />
         </Route>
 
         <Route path="/api-test" element={<APITest />} />

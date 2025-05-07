@@ -13,7 +13,7 @@ import { FaCalendar, FaRegStar, FaStar } from "react-icons/fa";
 
 import { convertDate, getTodayTime } from "../../utils";
 
-import { Booking, Data, PaginationProps, Payload, Review } from "../../types";
+import { Booking, Data, PaginationProps, Payload, Review, VillaBestSeller } from "../../types";
 
 const data = [
   { name: "Jan", value: 100 },
@@ -64,6 +64,11 @@ export const MainPage = () => {
 
   const today = getTodayTime();
 
+  const { data: respVillasBestSeller, isError: isErrorVillasBestSeller } = useGetApi<Payload<Data<VillaBestSeller[]>>>({
+    key: ["get-villas-best-seller"],
+    url: "villas/best-seller",
+  });
+
   const { data: respBookingVilla, isError: isErrorBookingVilla } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings", currentPageBookingVilla],
     url: `bookings/villas?filter.createdAt=$gte:${today}T:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
@@ -105,11 +110,10 @@ export const MainPage = () => {
         </span>
       </header>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
         <div className="flex items-center justify-between p-4 rounded-lg shadow bg-light">
           <div className="space-y-4 text-dark">
-            <h5 className="text-xl">Total Rent Villa</h5>
+            <h5 className="text-xl">Rent Villa Today</h5>
             <span className="block text-4xl font-bold">{respBookingVilla?.data.meta.totalItems || 0}</span>
             <Link to="/dashboard/management/rent" className="flex items-center gap-1 text-xs w-max">
               See All <IoIosArrowForward />
@@ -121,7 +125,7 @@ export const MainPage = () => {
         </div>
         <div className="flex items-center justify-between p-4 rounded-lg shadow bg-light">
           <div className="space-y-4 text-dark">
-            <h5 className="text-xl">Total Order Activity</h5>
+            <h5 className="text-xl">Order Activity Today</h5>
             <span className="block text-4xl font-bold">{respBookingActivity?.data.meta.totalItems || 0}</span>
             <Link to="/dashboard/management/order" className="flex items-center gap-1 text-xs w-max">
               See All <IoIosArrowForward />
@@ -133,9 +137,9 @@ export const MainPage = () => {
         </div>
         <div className="flex items-center justify-between p-4 rounded-lg shadow bg-light">
           <div className="space-y-4 text-dark">
-            <h5 className="text-xl">Total Review</h5>
+            <h5 className="text-xl">Total Review today</h5>
             <span className="block text-4xl font-bold">{respReviews?.data.meta.totalItems || 0}</span>
-            <Link to="/dashboard/management/review" className="flex items-center gap-1 text-xs w-max">
+            <Link to="/dashboard/review" className="flex items-center gap-1 text-xs w-max">
               See All <IoIosArrowForward />
             </Link>
           </div>
@@ -145,15 +149,10 @@ export const MainPage = () => {
         </div>
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {/* Booking Statistics */}
-        <div className="p-4 rounded-lg shadow bg-light md:col-span-2 md:row-span-2">
+        <div className="p-6 rounded-lg shadow bg-light md:col-span-2 md:row-span-2">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold">Booking Statistics</h2>
-            <span className="flex items-center gap-1 px-3 py-1 border rounded-lg">
-              <FaCalendar /> Monthly
-            </span>
+            <h2 className="text-xl font-bold">Booking Statistics</h2>
           </div>
           <ResponsiveContainer width="100%" height={800}>
             <BarChart data={data}>
@@ -164,10 +163,9 @@ export const MainPage = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* Recent Bookings */}
         <div className="p-6 rounded-lg shadow bg-light min-h-400">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Recent Rent Home & Villa</h2>
+            <h2 className="text-xl font-bold">Recent Rent Home & Villa</h2>
             <Pagination page={currentPageBookingVilla} setPage={setCurrentPageBookingVilla} totalPage={totalPageBookingVilla} />
           </div>
           {isErrorBookingVilla && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
@@ -185,59 +183,53 @@ export const MainPage = () => {
           </div>
         </div>
 
-        {/*  Customer Reviews */}
         <div className="p-6 shadow bg-light rounded-xl min-h-400">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Recent Order Activity</h2>
+            <h2 className="text-xl font-bold">Recent Order Activity</h2>
             <Pagination page={currentPageBookingActivity} setPage={setCurrentPageBookingActivity} totalPage={totalPageBookingActivity} />
           </div>
           {isErrorBookingActivity && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
           {!isErrorBookingActivity && bookingsActivity.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has order yet</p>}
-          <div className="space-y-2">
+          <ul className="space-y-2">
             {bookingsActivity.map((booking) => (
-              <div key={booking.id} className="flex items-center justify-between py-2 text-sm">
+              <li key={booking.id} className="flex items-center justify-between py-2 text-sm">
                 <div className="space-y-1">
                   <p className="font-bold">{booking.customer.name}</p>
                   <p className="text-dark">{convertDate(booking.bookingDate)}</p>
                 </div>
                 <StatusBadge status={booking.status} colors={STATUS_COLORS} />
-              </div>
+              </li>
             ))}
-          </div>
-        </div>
-
-        {/* Best Sellers Section */}
-        <div className="col-span-2 p-6 shadow min-h-400 bg-light rounded-xl">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Best Sellers</h2>
-            <span className="flex items-center gap-1 px-3 py-1 border rounded-lg">
-              <FaCalendar /> Yearly
-            </span>
-          </div>
-          <ul>
-            {Array(5)
-              .fill("Uma Santai Villa, Bali, Indonesia")
-              .map((_, index) => (
-                <li key={index} className="flex items-center justify-between py-2">
-                  <div>
-                    <p className="font-medium">Uma Santai Villa</p>
-                    <p className="text-sm text-dark">Bali, Indonesia</p>
-                  </div>
-                  <Button className="btn-primary">5 Bookings →</Button>
-                </li>
-              ))}
           </ul>
         </div>
 
-        {/* Customer Review Section */}
+        <div className="col-span-2 p-6 shadow min-h-400 bg-light rounded-xl">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold">Best Sellers</h2>
+          </div>
+          {isErrorVillasBestSeller && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
+          {!isErrorVillasBestSeller && respVillasBestSeller?.data.data.length! < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has booking yet</p>}
+          <ul className="space-y-4">
+            {respVillasBestSeller?.data.data.map((villa) => (
+              <li key={villa.id} className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="font-medium">{villa.name}</p>
+                  <p className="text-sm text-dark">Bali, Indonesia</p>
+                </div>
+                <Button className="btn-primary">{villa.bookingCount} Bookings →</Button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         <div className="p-6 shadow bg-light rounded-xl min-h-400">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Customer Reviews</h2>
+            <h2 className="text-xl font-bold">Customer Reviews</h2>
             <Pagination page={currentPageReview} setPage={setCurrentPageReview} totalPage={totalPageReviews} />
           </div>
+          {isErrorReview && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
+          {!isErrorReview && reviews.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No customer review</p>}
           <ul className="space-y-4">
-            {isErrorReview && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
-            {!isErrorReview && reviews.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No customer review</p>}
             {reviews.map((review, index) => (
               <li key={index} className="flex items-center justify-between border-b last:border-none">
                 <div>
