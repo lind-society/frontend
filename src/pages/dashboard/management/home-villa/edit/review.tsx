@@ -33,12 +33,12 @@ const Table = ({ reviews, onCancel, isLoading, error }: ReviewsTableProps) => {
     {
       key: "villaBooking.checkInDate" as keyof Review,
       header: "Check In",
-      render: (review: Review) => convertDate(review.villaBooking.checkInDate),
+      render: (review: Review) => convertDate(review.villaBooking.checkInDate!),
     },
     {
       key: "villaBooking.checkOutDate" as keyof Review,
       header: "Check Out",
-      render: (review: Review) => convertDate(review.villaBooking.checkOutDate),
+      render: (review: Review) => convertDate(review.villaBooking.checkOutDate!),
     },
     {
       key: "rating" as keyof Review,

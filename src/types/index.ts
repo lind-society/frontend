@@ -22,3 +22,4 @@ export * from "./api/global";
 export * from "./api/auth";
 export * from "./api/package";
 export * from "./api/activity";
+export * from "./api/price-rule";

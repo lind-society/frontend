@@ -32,6 +32,4 @@ export interface Booking {
   villa: Villa;
   activity: Activity;
   review: Review;
-  // activity: null; // TODO add activity type
-  // payments: any[]; // TODO add payments type
 }

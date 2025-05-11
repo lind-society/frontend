@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useGetApi, useGetApiWithAuth, useUpdateApi } from "../../../../../hooks";
 
 import Select from "react-select";
+import DatePicker from "react-datepicker";
 
 import { Layout } from "../../../../../components/ui";
 import { Button, NumberInput } from "../../../../../components";
@@ -22,13 +23,12 @@ export const EditRentPage = () => {
   const [email, setEmail] = React.useState<string>("");
   const [name, setName] = React.useState<string>("");
   const [phoneNumber, setPhoneNumber] = React.useState<string>("");
-  const [phoneCountryCode, setPhoneCountryCode] = React.useState<OptionType | null>(null);
-
   const [totalAmount, setTotalAmount] = React.useState<string>("");
   const [totalGuest, setTotalGuest] = React.useState<string>("");
   const [status, setStatus] = React.useState<string>("");
-  const [checkInDate, setCheckInDate] = React.useState<string>("");
-  const [checkOutDate, setCheckOutDate] = React.useState<string>("");
+  const [checkInDate, setCheckInDate] = React.useState<Date | null>(null);
+  const [checkOutDate, setCheckOutDate] = React.useState<Date | null>(null);
+  const [phoneCountryCode, setPhoneCountryCode] = React.useState<OptionType | null>(null);
   const [currency, setCurrency] = React.useState<OptionType | null>(null);
 
   const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
@@ -48,8 +48,8 @@ export const EditRentPage = () => {
       totalAmount: Number(totalAmount),
       totalGuest: Number(totalGuest),
       status,
-      checkInDate,
-      checkOutDate,
+      checkInDate: checkInDate?.toDateString(),
+      checkOutDate: checkOutDate?.toDateString(),
       currencyId: currency?.value || "",
     };
     editBooking({ id: id || "", updatedItem: dataToSave });
@@ -64,13 +64,12 @@ export const EditRentPage = () => {
       setName(customer.name);
       setEmail(customer.email);
       setPhoneNumber(customer.phoneNumber);
-      setPhoneCountryCode({ value: findPhoneCode?.dial_code || "", label: `${findPhoneCode?.name} (${findPhoneCode?.dial_code})` });
-
       setTotalAmount(String(respBooking.data.totalAmount));
       setTotalGuest(String(respBooking.data.totalGuest));
       setStatus(respBooking.data.status);
-      setCheckInDate(respBooking.data.checkInDate.split("T")[0]);
-      setCheckOutDate(respBooking.data.checkOutDate.split("T")[0]);
+      setCheckInDate(new Date(respBooking.data.checkInDate));
+      setCheckOutDate(new Date(respBooking.data.checkOutDate));
+      setPhoneCountryCode({ value: findPhoneCode?.dial_code || "", label: `${findPhoneCode?.name} (${findPhoneCode?.dial_code})` });
       setCurrency({ value: findCurrency?.id || "", label: findCurrency?.code || "" });
     }
   }, [respBooking, currencies, phoneCodes]);
@@ -93,18 +92,18 @@ export const EditRentPage = () => {
         <form className="mt-6 space-y-8" onSubmit={handleSubmit}>
           {/* Property name */}
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Property name</label>
+            <span className="block whitespace-nowrap min-w-60">Property name</span>
             <input type="text" className="input-text" placeholder="Urna Santal Villa" value={respBooking?.data.villa.name || ""} readOnly />
           </div>
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Secondary property name</label>
+            <span className="block whitespace-nowrap min-w-60">Secondary property name</span>
             <input type="text" className="input-text" placeholder="Urna Cangau" value={respBooking?.data.villa.secondaryName || ""} readOnly />
           </div>
 
           {/* Rent */}
           <div className="flex items-center gap-8">
             <div className="flex items-center w-full">
-              <label className="block whitespace-nowrap min-w-60">Status</label>
+              <span className="block whitespace-nowrap min-w-60">Status</span>
               <select className="w-full input-select" value={status} onChange={(e) => setStatus(e.target.value)}>
                 {statusBookings.map((status, index) => (
                   <option key={index} value={status}>
@@ -115,13 +114,25 @@ export const EditRentPage = () => {
             </div>
 
             <div className="flex items-center w-full max-w-lg gap-12">
-              <div className="relative w-full">
-                <label className="block text-sm">Check In</label>
-                <input type="date" className="text-sm appearance-none" value={checkInDate} onChange={(e) => setCheckInDate(e.target.value)} />
+              <div className="relative flex items-center w-full gap-4">
+                <span className="whitespace-nowrap">Check In</span>
+                <div className="w-full datepicker-container">
+                  <DatePicker dateFormat="dd/MM/yyyy" selected={checkInDate} toggleCalendarOnIconClick closeOnScroll onChange={(date) => setCheckInDate(date)} showIcon className="!pl-8 input-text" />
+                </div>
               </div>
-              <div className="relative w-full">
-                <label className="block text-sm">Check Out</label>
-                <input type="date" className="text-sm appearance-none" value={checkOutDate} onChange={(e) => setCheckOutDate(e.target.value)} />
+              <div className="relative flex items-center w-full gap-4">
+                <span className="whitespace-nowrap">Check Out</span>
+                <div className="w-full datepicker-container">
+                  <DatePicker
+                    dateFormat="dd/MM/yyyy"
+                    selected={checkOutDate}
+                    toggleCalendarOnIconClick
+                    closeOnScroll
+                    onChange={(date) => setCheckOutDate(date)}
+                    showIcon
+                    className="!pl-8 input-text"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -129,7 +140,7 @@ export const EditRentPage = () => {
           {/* price */}
           <div className="flex items-center gap-2">
             <div className="flex items-center w-full">
-              <label className="block whitespace-nowrap min-w-60">Price</label>
+              <span className="block whitespace-nowrap min-w-60">Price</span>
               <Select
                 className="w-full text-sm"
                 options={currencies?.data.data.map((currency) => ({ value: currency.id, label: currency.code }))}
@@ -156,18 +167,18 @@ export const EditRentPage = () => {
 
           {/* Identity email, name */}
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Email</label>
+            <span className="block whitespace-nowrap min-w-60">Email</span>
             <input type="text" className="input-text" placeholder="johndoe.10@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="flex items-center">
-            <label className="block whitespace-nowrap min-w-60">Name</label>
+            <span className="block whitespace-nowrap min-w-60">Name</span>
             <input type="text" className="input-text" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
           {/* price */}
           <div className="flex items-center gap-2">
             <div className="flex items-center w-full">
-              <label className="block whitespace-nowrap min-w-60">Phone Number</label>
+              <span className="block whitespace-nowrap min-w-60">Phone Number</span>
               <Select
                 className="w-full text-sm"
                 options={phoneCodes?.map((phone) => ({ value: phone.dial_code, label: `${phone.name} (${phone.dial_code})` }))}
@@ -192,7 +203,7 @@ export const EditRentPage = () => {
 
           {/* guest */}
           <div className="flex items-center w-full">
-            <label className="block whitespace-nowrap min-w-60">Guest</label>
+            <span className="block whitespace-nowrap min-w-60">Guest</span>
             <select className="w-full input-select" value={totalGuest} onChange={(e) => setTotalGuest(e.target.value)}>
               {[...Array(10)].map((_, index) => (
                 <option key={index} value={index + 1}>

@@ -1,388 +1,416 @@
-import { useState, useEffect } from "react";
-import { FaCalendar, FaPlus, FaSave } from "react-icons/fa";
-import { Button } from "../../../../../components";
-import { Layout } from "../../../../../components/ui";
+import * as React from "react";
 
-// Types
-interface Villa {
-  id: string;
-  name: string;
+import DatePicker from "react-datepicker";
+
+import { Button, Modal, NumberInput } from "../../../../../components";
+import { Layout, SearchBox } from "../../../../../components/ui";
+
+import { FaPlus, FaRegEdit, FaTrash } from "react-icons/fa";
+import { Data, Payload, PriceRule, Villa } from "../../../../../types";
+import { useCreateApi, useDeleteApi, useGetApi, useGetApiWithAuth, useUpdateApi } from "../../../../../hooks";
+import { deleteKeysObject } from "../../../../../utils";
+import { IoCloseOutline } from "react-icons/io5";
+
+interface FormState extends Omit<PriceRule, "discount" | "startDate" | "endDate"> {
+  isEditingName: boolean;
+  isCustomApplied: boolean;
+  isOpenModal: boolean;
+  isEditable: boolean;
+  startDate: Date | null;
+  endDate: Date | null;
+  discount: string;
 }
 
-interface PriceRule {
-  id?: string;
-  name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  season: string;
-  isDiscount: boolean;
-  discount: number;
-  isActive: boolean;
-  villaIds: string[];
-}
-
-// Mock API functions
-const mockFetchVillas = (): Promise<Villa[]> => {
-  return Promise.resolve([
-    { id: "villa-1", name: "Luxury Villa 1" },
-    { id: "villa-2", name: "Seaside Villa 2" },
-    { id: "villa-3", name: "Garden Villa 3" },
-  ]);
-};
-
-const mockSavePriceRule = (priceRule: PriceRule): Promise<PriceRule> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        ...priceRule,
-        id: priceRule.id || `rule-${Math.random().toString(36).substring(2, 9)}`,
-      });
-    }, 800);
-  });
-};
-
-// Seasons options
 const SEASONS = ["Low Season", "Normal Season", "High Season", "Peak Season"];
 
 export const PriceRulePage = () => {
-  const [villas, setVillas] = useState<Villa[]>([]);
-  const [priceRules, setPriceRules] = useState<PriceRule[]>([]);
-  const [currentRule, setCurrentRule] = useState<PriceRule | null>(null);
-  const [isAddingRule, setIsAddingRule] = useState(false);
+  const [priceRules, setPriceRules] = React.useState<FormState[]>([]);
+  const [searchModalValue, setSearchModalValue] = React.useState<string>("");
+  const [searchQuery, setSearchQuery] = React.useState<string>("");
 
-  // Fetch villas on mount
-  useEffect(() => {
-    const fetchVillas = async () => {
-      try {
-        const villaData = await mockFetchVillas();
-        setVillas(villaData);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+  const today = new Date();
 
-    fetchVillas();
-  }, []);
+  const { data: respPriceRules, isLoading: loadingPriceRule } = useGetApiWithAuth<Payload<Data<PriceRule[]>>>({ key: ["villa-price-rules"], url: "/villa-price-rules" });
+  const { data: respVillas, isLoading: loadingVillas } = useGetApi<Payload<Data<Villa[]>>>({ key: ["get-villas-price-rule", searchQuery], url: `villas`, params: { search: searchQuery, limit: "5" } });
 
-  const handleAddNewRule = () => {
-    setCurrentRule({
-      name: "",
-      description: "",
-      startDate: new Date().toISOString().split("T")[0],
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+  const { mutate: createPriceRule, isPending: isCreating } = useCreateApi<Partial<PriceRule>>({
+    key: ["add-villa-price-rules"],
+    url: "/villa-price-rules",
+    redirectPath: "/dashboard/management/price-rule-villa",
+  });
+  const { mutate: updatePriceRule, isPending: isUpdating } = useUpdateApi<Partial<PriceRule>>({
+    key: ["update-villa-price-rules"],
+    url: "/villa-price-rules",
+    redirectPath: "/dashboard/management/price-rule-villa",
+  });
+  const { mutate: deletePriceRule } = useDeleteApi({ key: ["delete-villa-price-rules"], url: "/villa-price-rules", redirectPath: "/dashboard/management/price-rule-villa" });
+
+  const handleSearch = React.useCallback(() => {
+    setSearchQuery(searchModalValue);
+  }, [searchModalValue]);
+
+  const handleAddPriceRule = () => {
+    if (!window.confirm("Are you sure want to add price rule?")) return;
+    const newDataPriceRule = {
+      id: crypto.randomUUID(),
+      name: "Rules 1",
+      startDate: today.toISOString() || null,
+      endDate: today.toISOString() || null,
       season: SEASONS[0],
-      isDiscount: false,
-      discount: 0,
-      isActive: true,
-      villaIds: [],
-    });
-    setIsAddingRule(true);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    if (!currentRule) return;
-
-    const { name, value } = e.target;
-    let newValue: any = value;
-
-    if (name === "isDiscount" || name === "isActive") {
-      newValue = (e.target as HTMLInputElement).checked;
-    } else if (name === "discount") {
-      newValue = parseInt(value) || 0;
-    }
-
-    setCurrentRule({
-      ...currentRule,
-      [name]: newValue,
-    });
-  };
-
-  const handleVillaSelection = (villaId: string) => {
-    if (!currentRule) return;
-
-    const newVillaIds = currentRule.villaIds.includes(villaId) ? currentRule.villaIds.filter((id) => id !== villaId) : [...currentRule.villaIds, villaId];
-
-    setCurrentRule({
-      ...currentRule,
-      villaIds: newVillaIds,
-    });
-  };
-
-  const handleSaveRule = async () => {
-    if (!currentRule) return;
-
-    try {
-      if (!currentRule.name) {
-        return;
-      }
-
-      if (!currentRule.villaIds.length) {
-        return;
-      }
-
-      if (currentRule.isDiscount && (currentRule.discount <= 0 || currentRule.discount > 100)) {
-        return;
-      }
-
-      const savedRule = await mockSavePriceRule(currentRule);
-
-      // Add to existing rules or update
-      if (currentRule.id) {
-        setPriceRules((rules) => rules.map((r) => (r.id === currentRule.id ? savedRule : r)));
-      } else {
-        setPriceRules((rules) => [...rules, savedRule]);
-      }
-
-      setCurrentRule(null);
-      setIsAddingRule(false);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setCurrentRule(null);
-    setIsAddingRule(false);
-  };
-
-  // Fill with sample data for demonstration
-  useEffect(() => {
-    // Demo data matching the example from the backend
-    const demoRule: PriceRule = {
-      id: "demo-rule-1",
-      name: "High Season For Some Villa",
-      description: "Applying High Season Daily Price to Some Villa",
-      startDate: "2025-06-01",
-      endDate: "2025-06-30",
-      season: "Low Season",
       isDiscount: true,
-      discount: 10,
+      discount: "",
       isActive: true,
-      villaIds: ["villa-1"],
+      isEditingName: true,
+      isEditable: false,
+      isCustomApplied: false,
+      isOpenModal: false,
+      villaIds: [],
+      villas: [],
     };
+    const processData = deleteKeysObject(newDataPriceRule, ["id", "isEditingName", "isCustomApplied", "isOpenModal", "isEditable", "villas"]);
+    createPriceRule({ ...processData, discount: 0 });
+  };
 
-    setPriceRules([demoRule]);
-  }, []);
+  const handleEditPriceRule = (e: React.MouseEvent, ruleId: string) => {
+    e.preventDefault();
+    const priceRule = priceRules.find((item) => item.id === ruleId);
+    const processData = deleteKeysObject(priceRule, ["id", "isEditingName", "isCustomApplied", "isOpenModal", "isEditable", "createdAt", "updatedAt", "villas"]);
+
+    updatePriceRule({
+      id: priceRule?.id || "",
+      updatedItem: {
+        ...processData,
+        startDate: priceRule?.startDate?.toISOString() || null,
+        endDate: priceRule?.endDate?.toISOString() || null,
+        discount: +priceRule?.discount! || 0,
+      },
+    });
+  };
+
+  const handleDeletePriceRule = (e: React.MouseEvent, ruleId: string) => {
+    e.preventDefault();
+    deletePriceRule(ruleId);
+  };
+
+  const updateFieldPriceRule = (ruleId: string, key: keyof FormState, value: FormState[keyof FormState]) => {
+    setPriceRules((prevPriceRules) => prevPriceRules.map((priceRule) => (priceRule.id === ruleId ? { ...priceRule, [key]: value } : priceRule)));
+  };
+
+  const deleteFieldPriceRuleVillaIds = (ruleId: string, villaIdsIndex: number) => {
+    setPriceRules((prevPriceRules) =>
+      prevPriceRules.map((priceRule) =>
+        priceRule.id === ruleId
+          ? { ...priceRule, villaIds: priceRule.villaIds.filter((_, index) => index !== villaIdsIndex), villas: priceRule.villas.filter((_, index) => index !== villaIdsIndex) }
+          : priceRule
+      )
+    );
+  };
+
+  const handleEditToggle = (ruleId: string, action: "toggle" | "finish") => {
+    setPriceRules((prevPriceRules) =>
+      prevPriceRules.map((priceRule) =>
+        priceRule.id === ruleId
+          ? action === "toggle"
+            ? { ...priceRule, isEditingName: !priceRule.isEditingName }
+            : priceRule.name !== ""
+            ? { ...priceRule, isEditingName: false }
+            : priceRule
+          : priceRule
+      )
+    );
+  };
+
+  React.useEffect(() => {
+    if (respPriceRules) {
+      const priceRules = respPriceRules.data.data.map((priceRule) => ({
+        ...priceRule,
+        isEditingName: false,
+        isCustomApplied: false,
+        isEditable: false,
+        isOpenModal: false,
+        startDate: new Date(priceRule.startDate),
+        endDate: new Date(priceRule.endDate),
+        villaIds: priceRule.villas.map((item) => item.id),
+        discount: priceRule.discount.toString(),
+      }));
+      setPriceRules(priceRules);
+    }
+  }, [respPriceRules]);
 
   return (
     <Layout>
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="head-title">Villa & Home Management</h1>
 
-        <Button onClick={handleAddNewRule} className="flex items-center gap-2 btn-primary">
-          <FaPlus /> Add New Rules
+        <Button onClick={handleAddPriceRule} className="flex items-center gap-2 btn-primary">
+          {isCreating ? (
+            <div className="loader size-4 after:size-4"></div>
+          ) : (
+            <>
+              <FaPlus /> Add New Rules
+            </>
+          )}
         </Button>
       </header>
 
-      {/* Rule form */}
-      {isAddingRule && currentRule && (
-        <div className="p-6 mb-6 border border-gray-200 rounded-lg bg-gray-50">
-          <h2 className="pb-2 mb-4 text-xl font-semibold text-blue-700 border-b">Create New Price Rule</h2>
-
-          <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Rule Name</label>
-              <input
-                type="text"
-                name="name"
-                value={currentRule.name}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                placeholder="e.g. Summer High Season 2025"
-              />
+      {loadingPriceRule ? (
+        <div className="flex items-center justify-center min-h-400 bg-light">
+          <div className="loader size-16 after:size-16"></div>
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {priceRules.length === 0 ? (
+            <div className="relative p-8 border rounded-b bg-light border-dark/30">
+              <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has add price rules</p>
             </div>
+          ) : (
+            <div className="space-y-4">
+              {priceRules.map((priceRule) => {
+                const appliedVillas = respVillas?.data.data.filter((villa) => !priceRule.villas.some((item) => item.id === villa.id));
+                return (
+                  <div key={priceRule.id} className="relative p-6 border rounded-b bg-light border-dark/30">
+                    <div className={`absolute inset-0 bg-gray/30 ${priceRule.isActive ? "-z-1" : "z-5"}`}></div>
+                    <div className={`absolute inset-0 bg-gray/10 ${priceRule.isEditable ? "-z-1" : "z-5"}`}></div>
+                    <button className={`absolute top-0 right-0 p-2 bg-red-500 text-light rounded-es-2xl z-5`} onClick={(e) => handleDeletePriceRule(e, priceRule.id)}>
+                      <FaTrash size={14} />
+                    </button>
+                    <div className="flex items-center justify-between px-4 pb-2 border-b border-dark/30">
+                      {priceRule.isEditingName ? (
+                        <div className="flex items-center w-full gap-4 max-w-60">
+                          <input
+                            type="text"
+                            value={priceRule.name}
+                            onChange={(e) => updateFieldPriceRule(priceRule.id, "name", e.target.value)}
+                            onBlur={() => handleEditToggle(priceRule.id, "finish")}
+                            className="h-9 input-text"
+                            autoFocus
+                          />
+                          {priceRule.name === "" && <small className="text-red-600 whitespace-nowrap">rule title must be filled</small>}
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-4 h-9">
+                          <span className="font-semibold">{priceRule.name}</span>
+                          <button onClick={() => handleEditToggle(priceRule.id, "toggle")}>
+                            <FaRegEdit />
+                          </button>
+                        </div>
+                      )}
 
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Season</label>
-              <select name="season" value={currentRule.season} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md">
-                {SEASONS.map((season) => (
-                  <option key={season} value={season}>
-                    {season}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+                      <div className="z-10 flex items-center gap-8">
+                        <div className="flex items-center gap-4">
+                          <label htmlFor={`isEditable-${priceRule.id}`} className="text-sm font-medium cursor-pointer text-primary">
+                            Edit Price
+                          </label>
+                          <div className="relative inline-block w-10 align-middle select-none">
+                            <input
+                              type="checkbox"
+                              id={`isEditable-${priceRule.id}`}
+                              checked={priceRule.isEditable}
+                              onChange={(e) => updateFieldPriceRule(priceRule.id, "isEditable", e.target.checked)}
+                              className="hidden"
+                            />
+                            <label
+                              htmlFor={`isEditable-${priceRule.id}`}
+                              className={`flex items-center overflow-hidden h-5 rounded-full border border-dark/30 cursor-pointer ${priceRule.isEditable ? "bg-primary" : "bg-light"}`}
+                            >
+                              <span
+                                className={`block size-3 rounded-full shadow transform transition-transform duration-200 ease-in-out ${
+                                  priceRule.isEditable ? "translate-x-6 bg-light" : "translate-x-1 bg-primary"
+                                }`}
+                              ></span>
+                            </label>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <label htmlFor={`isActive-${priceRule.id}`} className="text-sm font-medium cursor-pointer text-primary">
+                            Activation
+                          </label>
+                          <div className="relative inline-block w-10 align-middle select-none">
+                            <input
+                              type="checkbox"
+                              id={`isActive-${priceRule.id}`}
+                              checked={priceRule.isActive}
+                              onChange={(e) => updateFieldPriceRule(priceRule.id, "isActive", e.target.checked)}
+                              className="hidden"
+                            />
+                            <label
+                              htmlFor={`isActive-${priceRule.id}`}
+                              className={`flex items-center overflow-hidden h-5 rounded-full border border-dark/30 cursor-pointer ${priceRule.isActive ? "bg-primary" : "bg-light"}`}
+                            >
+                              <span
+                                className={`block size-3 rounded-full shadow transform transition-transform duration-200 ease-in-out ${
+                                  priceRule.isActive ? "translate-x-6 bg-light" : "translate-x-1 bg-primary"
+                                }`}
+                              ></span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-          <div className="mb-4">
-            <label className="block mb-1 text-sm font-medium text-gray-700">Description</label>
-            <textarea
-              name="description"
-              value={currentRule.description}
-              onChange={handleInputChange}
-              rows={3}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="Describe the purpose of this price rule"
-            />
-          </div>
+                    <div className="grid grid-cols-1 gap-12 px-4 my-4 md:grid-cols-3">
+                      <div className="space-y-2">
+                        <span className="block font-semibold uppercase text-primary">Season *</span>
+                        <select className="w-full input-select" value={priceRule.season} onChange={(e) => updateFieldPriceRule(priceRule.id, "season", e.target.value)}>
+                          {SEASONS.map((status, index) => (
+                            <option key={index} value={status}>
+                              {status}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-          <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Start Date</label>
-              <div className="relative">
-                <input type="date" name="startDate" value={currentRule.startDate} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md" />
-                <FaCalendar className="absolute w-5 h-5 text-gray-400 right-3 top-2" />
-              </div>
-            </div>
+                      <div className="space-y-2">
+                        <span className="block font-semibold uppercase text-primary">Range Date *</span>
+                        <div className="flex items-center w-full gap-4">
+                          <div className="w-full datepicker-container">
+                            <DatePicker
+                              dateFormat="dd/MM/yyyy"
+                              selected={priceRule.startDate}
+                              toggleCalendarOnIconClick
+                              closeOnScroll
+                              onChange={(date) => updateFieldPriceRule(priceRule.id, "startDate", date)}
+                              showIcon
+                              className="datepicker-input"
+                            />
+                          </div>
+                          <span>-</span>
+                          <div className="w-full datepicker-container">
+                            <DatePicker
+                              dateFormat="dd/MM/yyyy"
+                              selected={priceRule.endDate}
+                              toggleCalendarOnIconClick
+                              closeOnScroll
+                              onChange={(date) => updateFieldPriceRule(priceRule.id, "endDate", date)}
+                              showIcon
+                              className="datepicker-input"
+                            />
+                          </div>
+                        </div>
+                      </div>
 
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">End Date</label>
-              <div className="relative">
-                <input type="date" name="endDate" value={currentRule.endDate} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md" />
-                <FaCalendar className="absolute w-5 h-5 text-gray-400 right-3 top-2" />
-              </div>
-            </div>
-          </div>
+                      <div className="w-full space-y-2">
+                        <div className="flex items-center w-full gap-4">
+                          <span className="block font-semibold uppercase text-primary">Discount *</span>
+                          <div className="relative inline-block align-middle select-none w-7">
+                            <input
+                              type="checkbox"
+                              id={`isDiscount-${priceRule.id}`}
+                              checked={priceRule.isDiscount}
+                              onChange={(e) => updateFieldPriceRule(priceRule.id, "isDiscount", e.target.checked)}
+                              className="hidden"
+                            />
+                            <label
+                              htmlFor={`isDiscount-${priceRule.id}`}
+                              className={`flex items-center overflow-hidden h-4 rounded-full border border-dark/30 cursor-pointer ${priceRule.isDiscount ? "bg-primary" : "bg-light"}`}
+                            >
+                              <span
+                                className={`block size-2 rounded-full shadow transform transition-transform duration-200 ease-in-out ${
+                                  priceRule.isDiscount ? "translate-x-4 bg-light" : "translate-x-1 bg-primary"
+                                }`}
+                              ></span>
+                            </label>
+                          </div>
+                        </div>
+                        <div className="flex items-center w-full gap-2">
+                          <NumberInput
+                            className="input-text placeholder:text-dark"
+                            value={priceRule.isDiscount ? "0" : priceRule.discount}
+                            onChange={(e) => {
+                              if (+e.target.value > 100 || +e.target.value < 0) return;
+                              updateFieldPriceRule(priceRule.id, "discount", e.target.value);
+                            }}
+                            placeholder="0"
+                            disabled={priceRule.isDiscount}
+                          />
+                          <p>%</p>
+                        </div>
+                      </div>
+                    </div>
 
-          <div className="mb-4">
-            <div className="flex items-center mb-2">
-              <input type="checkbox" id="isDiscount" name="isDiscount" checked={currentRule.isDiscount} onChange={handleInputChange} className="w-4 h-4 mr-2" />
-              <label htmlFor="isDiscount" className="text-sm font-medium text-gray-700">
-                Apply Discount
-              </label>
-            </div>
-
-            {currentRule.isDiscount && (
-              <div className="pl-6">
-                <label className="block mb-1 text-sm font-medium text-gray-700">Discount Percentage</label>
-                <div className="relative">
-                  <input type="number" name="discount" value={currentRule.discount} onChange={handleInputChange} min="0" max="100" className="w-32 p-2 pr-8 border border-gray-300 rounded-md" />
-                  <span className="absolute text-gray-500 right-3 top-2">%</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="mb-6">
-            <div className="flex items-center mb-2">
-              <div className="relative inline-block w-10 mr-2 align-middle select-none">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  name="isActive"
-                  checked={currentRule.isActive}
-                  onChange={handleInputChange}
-                  className="absolute block w-6 h-6 bg-white border-4 rounded-full opacity-0 appearance-none cursor-pointer"
-                />
-                <label htmlFor="isActive" className={`block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer ${currentRule.isActive ? "bg-green-400" : ""}`}>
-                  <span
-                    className={`block h-6 w-6 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out ${currentRule.isActive ? "translate-x-4" : "translate-x-0"}`}
-                  ></span>
-                </label>
-              </div>
-              <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-                Active
-              </label>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <h3 className="mb-3 text-lg font-medium text-blue-700">Select Villas</h3>
-            <div className="p-4 rounded-md bg-blue-50">
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {villas.map((villa) => (
-                  <div key={villa.id} className="flex items-center p-2 bg-white border border-blue-100 rounded">
-                    <input
-                      type="checkbox"
-                      id={`villa-${villa.id}`}
-                      checked={currentRule.villaIds.includes(villa.id)}
-                      onChange={() => handleVillaSelection(villa.id)}
-                      className="w-4 h-4 mr-2 accent-blue-600"
-                    />
-                    <label htmlFor={`villa-${villa.id}`} className="text-sm text-gray-700">
-                      {villa.name}
-                    </label>
+                    <div className="p-4 space-y-2 rounded bg-tertiary text-primary">
+                      <div className="flex">
+                        <span className="block font-semibold uppercase min-w-60">Applied to</span>
+                        <div className="flex items-center gap-8">
+                          {(["Yes", "Custom"] as const).map((status, index) => (
+                            <div key={index} className="flex items-center gap-2 ms-4">
+                              <label className="cursor-pointer" htmlFor={`${status + priceRule.id}`}>
+                                {status}
+                              </label>
+                              <input
+                                type="checkbox"
+                                id={`${status + priceRule.id}`}
+                                className="cursor-pointer accent-primary"
+                                checked={priceRule.isCustomApplied === (status === "Yes")}
+                                onChange={() => updateFieldPriceRule(priceRule.id, "isCustomApplied", status === "Yes")}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        {!priceRule.isCustomApplied && (
+                          <button onClick={() => updateFieldPriceRule(priceRule.id, "isOpenModal", true)} className="ml-4 font-medium text-blue-500">
+                            Edit
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {priceRule.villas.map((v, index) => (
+                          <div key={v.id} className="relative px-4 py-1.5 rounded bg-primary text-light text-sm">
+                            <button
+                              onClick={() => deleteFieldPriceRuleVillaIds(priceRule.id, index)}
+                              className="absolute flex items-center justify-center bg-red-500 rounded-full size-4 -top-1.5 -right-1.5 z-1 hover:bg-red-700"
+                            >
+                              <IoCloseOutline className="text-light" size={14} />
+                            </button>
+                            {v.name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className={`justify-end gap-4 mt-6 ${priceRule.isEditable ? "flex" : "hidden"}`}>
+                      <Button className="btn-primary" onClick={(e) => handleEditPriceRule(e, priceRule.id)}>
+                        {isUpdating ? <div className="loader size-4 after:size-4"></div> : "Save"}
+                      </Button>
+                    </div>
+                    <Modal isVisible={priceRule.isOpenModal} onClose={() => updateFieldPriceRule(priceRule.id, "isOpenModal", false)}>
+                      <div className="mt-8 space-y-4">
+                        <SearchBox value={searchModalValue} onChange={setSearchModalValue} onSearch={handleSearch} />
+                        {loadingVillas ? (
+                          <div className="flex items-center justify-center min-h-300">
+                            <div className="loader size-8 after:size-8"></div>
+                          </div>
+                        ) : (
+                          <>
+                            {appliedVillas?.length! < 1 ? (
+                              <p className="flex items-center justify-center text-center text-dark/50 min-h-300">Villa has been applied all</p>
+                            ) : (
+                              <div className={`mt-4 border-dark/30 ${appliedVillas?.length! > 0 && "border-t border-b"}`}>
+                                {appliedVillas?.map((villa) => (
+                                  <div key={villa.id} className={`flex items-center justify-between p-2 border-dark/30 ${appliedVillas?.length! > 0 && "[&:not(:last-child)]:border-b"}`}>
+                                    <div className="flex flex-col">
+                                      <small>
+                                        {villa.city}, {villa.state}, {villa.country}
+                                      </small>
+                                      <span>{villa.name}</span>
+                                    </div>
+                                    <Button onClick={() => updateFieldPriceRule(priceRule.id, "villas", [...(priceRule.villas ?? []), villa])} className="btn-outline">
+                                      <FaPlus />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </Modal>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          </div>
-
-          <div className="flex justify-end space-x-3">
-            <button onClick={handleCancelEdit} className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-              Cancel
-            </button>
-            <button onClick={handleSaveRule} className="flex items-center px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700">
-              <FaSave className="w-5 h-5 mr-2" />
-              Save Rule
-            </button>
-          </div>
+          )}
         </div>
       )}
-
-      {/* List of price rules */}
-      <div>
-        <h2 className="mb-3 text-xl font-semibold text-gray-700">Current Price Rules</h2>
-
-        {priceRules.length === 0 ? (
-          <div className="py-6 text-center text-gray-500 rounded-md bg-gray-50">No price rules have been created yet.</div>
-        ) : (
-          <div className="space-y-4">
-            {priceRules.map((rule) => (
-              <div key={rule.id} className="relative p-4 bg-white border rounded-md shadow-sm">
-                {/* Inactive overlay */}
-                {!rule.isActive && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-100 rounded-md bg-opacity-60">
-                    <span className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-200 rounded-full">Inactive Rule</span>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between pb-3 mb-3 border-b">
-                  <div>
-                    <h3 className="text-lg font-semibold text-blue-700">{rule.name}</h3>
-                    <p className="mt-1 text-sm text-gray-600">{rule.description}</p>
-                  </div>
-
-                  <div className="flex items-center space-x-3">
-                    <div className="text-sm text-gray-500">{rule.isActive ? "Active" : "Inactive"}</div>
-                    <div className="relative inline-block w-10 align-middle select-none">
-                      <input type="checkbox" checked={rule.isActive} readOnly className="absolute block w-6 h-6 bg-white border-4 rounded-full opacity-0 appearance-none cursor-pointer" />
-                      <label className={`block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer ${rule.isActive ? "bg-green-400" : ""}`}>
-                        <span
-                          className={`block h-6 w-6 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out ${rule.isActive ? "translate-x-4" : "translate-x-0"}`}
-                        ></span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 mb-3 md:grid-cols-3">
-                  <div className="p-3 rounded bg-gray-50">
-                    <span className="block mb-1 text-xs font-medium text-gray-500 uppercase">Season</span>
-                    <span className="font-medium">{rule.season}</span>
-                  </div>
-
-                  <div className="p-3 rounded bg-gray-50">
-                    <span className="block mb-1 text-xs font-medium text-gray-500 uppercase">Period</span>
-                    <span className="font-medium">
-                      {new Date(rule.startDate).toLocaleDateString()} - {new Date(rule.endDate).toLocaleDateString()}
-                    </span>
-                  </div>
-
-                  <div className="p-3 rounded bg-gray-50">
-                    <span className="block mb-1 text-xs font-medium text-gray-500 uppercase">Discount</span>
-                    <span className="font-medium">{rule.isDiscount ? <span className="text-green-600">{rule.discount}% Off</span> : <span className="text-gray-600">No discount</span>}</span>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded bg-blue-50">
-                  <span className="block mb-1 text-xs font-medium text-blue-700 uppercase">Applied to</span>
-                  <div className="flex flex-wrap gap-2">
-                    {villas
-                      .filter((v) => rule.villaIds.includes(v.id))
-                      .map((v) => (
-                        <span key={v.id} className="px-2 py-1 text-sm text-blue-800 bg-blue-100 rounded">
-                          {v.name}
-                        </span>
-                      ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </Layout>
   );
 };

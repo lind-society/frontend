@@ -21,13 +21,6 @@ export interface Icon {
   url: string;
 }
 
-export interface VillaBestSeller {
-  id: string;
-  name: string;
-  averageRating: string;
-  bookingCount: string;
-}
-
 export interface AdditionalItem {
   pivotId: string;
   id: string;

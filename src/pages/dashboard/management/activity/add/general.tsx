@@ -205,59 +205,67 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
 
         <div className="flex items-center justify-between">
           <FormField label="Start Date" required>
-            <DatePicker
-              dateFormat="dd/MM/yyyy"
-              selected={formState.startDate}
-              toggleCalendarOnIconClick
-              closeOnScroll
-              onChange={(date) => updateFormState("startDate", date)}
-              showIcon
-              className="!pl-8 input-text"
-            />
+            <div className="w-full datepicker-container">
+              <DatePicker
+                dateFormat="dd/MM/yyyy"
+                selected={formState.startDate}
+                toggleCalendarOnIconClick
+                closeOnScroll
+                onChange={(date) => updateFormState("startDate", date)}
+                showIcon
+                className="datepicker-input"
+              />
+            </div>
           </FormField>
           <FormField label="End Date" required>
-            <DatePicker
-              dateFormat="dd/MM/yyyy"
-              selected={formState.endDate}
-              toggleCalendarOnIconClick
-              closeOnScroll
-              onChange={(date) => updateFormState("endDate", date)}
-              showIcon
-              className="!pl-8 input-text"
-            />
+            <div className="w-full datepicker-container">
+              <DatePicker
+                dateFormat="dd/MM/yyyy"
+                selected={formState.endDate}
+                toggleCalendarOnIconClick
+                closeOnScroll
+                onChange={(date) => updateFormState("endDate", date)}
+                showIcon
+                className="datepicker-input"
+              />
+            </div>
           </FormField>
         </div>
 
         <div className="flex items-center justify-between">
           <FormField label="Opening Hour" required>
-            <DatePicker
-              selected={formState.openingHour}
-              toggleCalendarOnIconClick
-              closeOnScroll
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={15}
-              timeCaption="Time"
-              dateFormat="h:mm aa"
-              onChange={(date) => updateFormState("openingHour", date)}
-              showIcon
-              className="!pl-8 input-text"
-            />
+            <div className="w-full datepicker-container">
+              <DatePicker
+                selected={formState.openingHour}
+                toggleCalendarOnIconClick
+                closeOnScroll
+                showTimeSelect
+                showTimeSelectOnly
+                timeIntervals={15}
+                timeCaption="Time"
+                dateFormat="h:mm aa"
+                onChange={(date) => updateFormState("openingHour", date)}
+                showIcon
+                className="datepicker-input"
+              />
+            </div>
           </FormField>
           <FormField label="Closing Hour" required>
-            <DatePicker
-              selected={formState.closingHour}
-              toggleCalendarOnIconClick
-              closeOnScroll
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={15}
-              timeCaption="Time"
-              dateFormat="h:mm aa"
-              onChange={(date) => updateFormState("closingHour", date)}
-              showIcon
-              className="!pl-8 input-text"
-            />
+            <div className="w-full datepicker-container">
+              <DatePicker
+                selected={formState.closingHour}
+                toggleCalendarOnIconClick
+                closeOnScroll
+                showTimeSelect
+                showTimeSelectOnly
+                timeIntervals={15}
+                timeCaption="Time"
+                dateFormat="h:mm aa"
+                onChange={(date) => updateFormState("closingHour", date)}
+                showIcon
+                className="datepicker-input"
+              />
+            </div>
           </FormField>
         </div>
 

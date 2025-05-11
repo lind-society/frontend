@@ -2,7 +2,7 @@ import IconifyPicker from "@zunicornshift/mui-iconify-picker";
 
 import { Button } from "../../button";
 
-import { FaPenAlt, FaPlus, FaTrashAlt } from "react-icons/fa";
+import { FaPlus, FaRegEdit, FaTrashAlt } from "react-icons/fa";
 import { GrPowerReset } from "react-icons/gr";
 
 import { Feature } from "../../../static";
@@ -33,7 +33,7 @@ export const FeatureHeader = ({ feature, onEdit, onBlur, onAddItem, onReset, onD
         </div>
         <span className="font-semibold">{feature.name}</span>
         <button onClick={() => onBlur(feature.id, "toggle")}>
-          <FaPenAlt />
+          <FaRegEdit />
         </button>
       </div>
     )}

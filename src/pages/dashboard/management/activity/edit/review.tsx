@@ -33,7 +33,7 @@ const Table = ({ reviews, onCancel, isLoading, error }: ReviewsTableProps) => {
     {
       key: "activityBooking.bookingDate" as keyof Review,
       header: "Booking Date",
-      render: (review: Review) => convertDate(review.activityBooking.bookingDate),
+      render: (review: Review) => convertDate(review.activityBooking.bookingDate!),
     },
     {
       key: "rating" as keyof Review,

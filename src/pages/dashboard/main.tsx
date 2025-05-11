@@ -13,7 +13,11 @@ import { FaCalendar, FaRegStar, FaStar } from "react-icons/fa";
 
 import { convertDate, getTodayTime } from "../../utils";
 
-import { Booking, Data, PaginationProps, Payload, Review, VillaBestSeller } from "../../types";
+import { Booking, Data, PaginationProps, Payload, Review, Villa } from "../../types";
+
+interface VillaBestSeller extends Villa {
+  totalBooking: string;
+}
 
 const data = [
   { name: "Jan", value: 100 },
@@ -175,7 +179,7 @@ export const MainPage = () => {
               <div key={booking.id} className="flex items-center justify-between py-2 text-sm">
                 <div className="space-y-1">
                   <p className="font-bold">{booking.customer.name}</p>
-                  <p className="text-dark">{convertDate(booking.checkInDate)}</p>
+                  <p className="text-dark">{convertDate(booking.checkInDate!)}</p>
                 </div>
                 <StatusBadge status={booking.status} />
               </div>
@@ -195,7 +199,7 @@ export const MainPage = () => {
               <li key={booking.id} className="flex items-center justify-between py-2 text-sm">
                 <div className="space-y-1">
                   <p className="font-bold">{booking.customer.name}</p>
-                  <p className="text-dark">{convertDate(booking.bookingDate)}</p>
+                  <p className="text-dark">{convertDate(booking.bookingDate!)}</p>
                 </div>
                 <StatusBadge status={booking.status} colors={STATUS_COLORS} />
               </li>
@@ -210,13 +214,15 @@ export const MainPage = () => {
           {isErrorVillasBestSeller && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
           {!isErrorVillasBestSeller && respVillasBestSeller?.data.data.length! < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has booking yet</p>}
           <ul className="space-y-4">
-            {respVillasBestSeller?.data.data.map((villa) => (
-              <li key={villa.id} className="flex items-center justify-between">
+            {respVillasBestSeller?.data.data.map((villa, index) => (
+              <li key={index} className="flex items-center justify-between">
                 <div className="space-y-1">
                   <p className="font-medium">{villa.name}</p>
-                  <p className="text-sm text-dark">Bali, Indonesia</p>
+                  <p className="text-sm text-dark">
+                    {villa.city}, {villa.country}
+                  </p>
                 </div>
-                <Button className="btn-primary">{villa.bookingCount} Bookings →</Button>
+                <Button className="btn-primary">{villa.totalBooking} Bookings →</Button>
               </li>
             ))}
           </ul>
@@ -230,8 +236,8 @@ export const MainPage = () => {
           {isErrorReview && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
           {!isErrorReview && reviews.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No customer review</p>}
           <ul className="space-y-4">
-            {reviews.map((review, index) => (
-              <li key={index} className="flex items-center justify-between border-b last:border-none">
+            {reviews.map((review) => (
+              <li key={review.id} className="flex items-center justify-between border-b last:border-none">
                 <div>
                   <p className="font-medium">
                     {review?.villaBooking?.customer?.name || review?.activityBooking?.customer?.name} <strong>[{review.villaId ? "VILLA" : "ACTIVITY"}]</strong>

@@ -24,6 +24,7 @@ import {
   RentPage,
   OrderPage,
   ReviewPage,
+  PriceRulePage,
 } from "./pages";
 
 import { ProtectedRoute } from "./routes/protected-route";
@@ -55,7 +56,7 @@ const App = () => {
           <Route path="/dashboard/management/home-villa" element={<HomeVillaPage />} />
           <Route path="/dashboard/management/home-villa/add" element={<AddHomeVillaPage />} />
           <Route path="/dashboard/management/home-villa/edit/:id" element={<EditHomeVillaPage />} />
-          {/* <Route path="/dashboard/management/price-rule-villa" element={<PriceRulePage />} /> */}
+          <Route path="/dashboard/management/price-rule-villa" element={<PriceRulePage />} />
           <Route path="/dashboard/management/activity" element={<ActivityPage />} />
           <Route path="/dashboard/management/activity/add" element={<AddActivityPage />} />
           <Route path="/dashboard/management/activity/edit/:id" element={<EditActivityPage />} />
