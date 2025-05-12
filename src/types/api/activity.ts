@@ -27,8 +27,8 @@ export interface Activity {
   placeNearby: PlaceNearby[];
   openingHour: string;
   closingHour: string;
-  startDate: Date | null;
-  endDate: Date | null;
+  startDate: string;
+  endDate: string;
   photos: string[];
   videos: string[];
   video360s: string[];

@@ -45,15 +45,15 @@ export const PriceRulePage = () => {
   });
   const { mutate: deletePriceRule } = useDeleteApi({ key: ["delete-villa-price-rules"], url: "/villa-price-rules", redirectPath: "/dashboard/management/price-rule-villa" });
 
-  const handleSearch = React.useCallback(() => {
+  const handleSearch = () => {
     setSearchQuery(searchModalValue);
-  }, [searchModalValue]);
+  };
 
   const handleAddPriceRule = () => {
     if (!window.confirm("Are you sure want to add price rule?")) return;
     const newDataPriceRule = {
       id: crypto.randomUUID(),
-      name: "Rules 1",
+      name: `Rules ${priceRules.length + 1}`,
       startDate: today.toISOString() || null,
       endDate: today.toISOString() || null,
       season: SEASONS[0],
@@ -83,6 +83,7 @@ export const PriceRulePage = () => {
         startDate: priceRule?.startDate?.toISOString() || null,
         endDate: priceRule?.endDate?.toISOString() || null,
         discount: +priceRule?.discount! || 0,
+        villaIds: priceRule?.villas.map((item) => item.id) || [],
       },
     });
   };
@@ -121,11 +122,11 @@ export const PriceRulePage = () => {
   };
 
   React.useEffect(() => {
-    if (respPriceRules) {
+    if (respPriceRules && respVillas) {
       const priceRules = respPriceRules.data.data.map((priceRule) => ({
         ...priceRule,
         isEditingName: false,
-        isCustomApplied: false,
+        isCustomApplied: priceRule.villas.length === respVillas.data.meta.totalItems ? true : false,
         isEditable: false,
         isOpenModal: false,
         startDate: new Date(priceRule.startDate),
@@ -135,12 +136,12 @@ export const PriceRulePage = () => {
       }));
       setPriceRules(priceRules);
     }
-  }, [respPriceRules]);
+  }, [respPriceRules, respVillas]);
 
   return (
     <Layout>
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
-        <h1 className="head-title">Villa & Home Management</h1>
+        <h1 className="head-title">Price Rules Villa Management</h1>
 
         <Button onClick={handleAddPriceRule} className="flex items-center gap-2 btn-primary">
           {isCreating ? (
@@ -342,7 +343,16 @@ export const PriceRulePage = () => {
                                 id={`${status + priceRule.id}`}
                                 className="cursor-pointer accent-primary"
                                 checked={priceRule.isCustomApplied === (status === "Yes")}
-                                onChange={() => updateFieldPriceRule(priceRule.id, "isCustomApplied", status === "Yes")}
+                                onChange={() => {
+                                  updateFieldPriceRule(priceRule.id, "isCustomApplied", status === "Yes");
+                                  if (status === "Yes") {
+                                    updateFieldPriceRule(priceRule.id, "villas", respVillas?.data.data || []);
+                                  } else {
+                                    if (priceRule.villas.length === respVillas?.data.data.length) {
+                                      updateFieldPriceRule(priceRule.id, "villas", []);
+                                    }
+                                  }
+                                }}
                               />
                             </div>
                           ))}
