@@ -23,14 +23,14 @@ export const SectionField = ({ field, sectionTitle, onNameChange, onDescriptionC
   return (
     <div className="space-y-2">
       <div className="flex items-center">
-        <label className="whitespace-nowrap min-w-60">Name*</label>
+        <span className="block whitespace-nowrap min-w-60">Name*</span>
         <input type="text" placeholder={sectionTitle} value={field.name} onChange={(e) => onNameChange(e.target.value)} className="input-text" />
-        <label className="px-8 whitespace-nowrap">Description*</label>
+        <span className="px-8 whitespace-nowrap">Description*</span>
         <input type="text" placeholder="King bed, Single bed, Bathroom" value={field.description} onChange={(e) => onDescriptionChange(e.target.value)} className="input-text" />
       </div>
 
       <div className="flex items-center pt-1">
-        <label className="whitespace-nowrap min-w-60">Photo*</label>
+        <span className="block whitespace-nowrap min-w-60">Photo*</span>
         <div className="relative">
           <input type="file" id={field.id} onChange={onUpdateImage} hidden accept="image/*" multiple disabled={isLoading} />
           <label htmlFor={field.id} className="file-label">

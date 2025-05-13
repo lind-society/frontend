@@ -24,7 +24,7 @@ export const authentication = {
       window.location.href = "/dashboard/main";
       return data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.data.message || "Login failed");
+      throw new Error(error.response?.data?.message || "Login failed");
     }
   },
 
@@ -32,7 +32,7 @@ export const authentication = {
     try {
       await API.post(`${API_URL}/auth/logout`);
     } catch (error: any) {
-      throw new Error(error.response?.data?.data.message || "Logout failed");
+      throw new Error(error.response?.data?.message || "Logout failed");
     }
     cookies.remove(TOKEN_KEY, { path: "/" });
     cookies.remove(USER_KEY, { path: "/" });

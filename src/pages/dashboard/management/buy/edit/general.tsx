@@ -24,9 +24,9 @@ interface FormState {
 
 const FormField = ({ label, children, required = false }: { label: string; children: React.ReactNode; required?: boolean }) => (
   <div className="flex items-center">
-    <label className="block whitespace-nowrap min-w-60">
+    <span className="block whitespace-nowrap min-w-60">
       {label} {required && "*"}
-    </label>
+    </span>
     {children}
   </div>
 );
@@ -228,12 +228,12 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 <div className="flex gap-4">
                   {(["Yes", "No"] as const).map((status, index) => (
                     <div key={index} className="flex items-center gap-2">
-                      <label className="cursor-pointer" htmlFor={status}>
+                      <label className="cursor-pointer" htmlFor={`${status}-${index}`}>
                         {status}
                       </label>
                       <input
                         type="checkbox"
-                        id={status}
+                        id={`${status}-${index}`}
                         className="cursor-pointer accent-primary"
                         checked={formState.isDiscount === (status === "Yes")}
                         onChange={() => updateFormState("isDiscount", status === "Yes")}
@@ -264,12 +264,12 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
         <FormField label="Ownership" required>
           {(["Freehold", "Leasehold"] as const).map((ownership, index) => (
             <div key={index} className="flex items-center gap-2 ms-4">
-              <label className="cursor-pointer" htmlFor={ownership}>
+              <label className="cursor-pointer" htmlFor={`${ownership}-${index}`}>
                 {ownership}
               </label>
               <input
                 type="checkbox"
-                id={ownership}
+                id={`${ownership}-${index}`}
                 className="cursor-pointer accent-primary"
                 checked={formState.ownershipType.includes(ownership)}
                 onChange={() => updateFormState("ownershipType", ownership)}
@@ -281,12 +281,12 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
         <FormField label="Sold Status" required>
           {(["Yes", "No"] as const).map((status, index) => (
             <div key={index} className="flex items-center gap-2 ms-4">
-              <label className="cursor-pointer" htmlFor={status}>
+              <label className="cursor-pointer" htmlFor={`${status}-${index}`}>
                 {status}
               </label>
               <input
                 type="checkbox"
-                id={status}
+                id={`${status}-${index}`}
                 className="cursor-pointer accent-primary"
                 checked={formState.soldStatus === (status === "Yes")}
                 onChange={() => updateFormState("soldStatus", status === "Yes")}

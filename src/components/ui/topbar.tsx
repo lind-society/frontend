@@ -1,17 +1,26 @@
 import * as React from "react";
 
-import { authentication, useGetApiWithAuth, useToggleState } from "../../hooks";
+import { authentication, useGetApiWithAuth, usePersistentData, useToggleState } from "../../hooks";
+
+import Select from "react-select";
 
 import { Button, Img } from "../../components";
 
-import { IoIosArrowDown, IoMdMenu, IoMdSearch } from "react-icons/io";
+import { IoIosArrowDown, IoMdMenu } from "react-icons/io";
 
-import { Payload, User } from "../../types";
+import { baseCurrency } from "../../static";
 
-export const TopBar = ({ setOpenNav }: { setOpenNav: React.Dispatch<React.SetStateAction<boolean>> }) => {
+import { Currency, Data, OptionType, Payload, User } from "../../types";
+
+export const TopBar = ({ handleOpenNav }: { handleOpenNav: () => void }) => {
   const [ref, dropdown, toggleDropdown] = useToggleState(false);
+  const [currency, setCurrency] = React.useState<OptionType | null>(null);
 
-  const { data } = useGetApiWithAuth<Payload<User>>({ key: ["profile"], url: `/admins/profile` });
+  const useStore = usePersistentData<{ id: string; label: string }>("selected-currency");
+  const { setData, data } = useStore();
+
+  const { data: user } = useGetApiWithAuth<Payload<User>>({ key: ["profile"], url: `/admins/profile` });
+  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
 
   const [loading, setLoading] = React.useState<boolean>(false);
 
@@ -22,27 +31,47 @@ export const TopBar = ({ setOpenNav }: { setOpenNav: React.Dispatch<React.SetSta
     setLoading(false);
   };
 
+  const handleCurrencyChange = (option: OptionType | null) => {
+    setCurrency(option);
+    if (option) {
+      setData({ id: option.value, label: option.label });
+    }
+  };
+
+  React.useEffect(() => {
+    if (data && data.id && data.label) {
+      setCurrency({ value: data.id, label: data.label });
+    } else {
+      setCurrency({ value: baseCurrency, label: "IDR" });
+      setData({ id: baseCurrency, label: "IDR" });
+    }
+
+    return () => setCurrency(null);
+  }, []);
+
   return (
     <div className="sticky top-0 block w-full duration-300 border-b z-9999 bg-light">
-      <div className="flex justify-between p-2 mx-6">
+      <div className="flex items-center justify-between p-2 mx-6">
         <div className="flex w-full gap-4">
-          <button className="z-20 text-primary" onClick={() => setOpenNav((prev) => !prev)}>
+          <button className="z-20 text-primary" onClick={handleOpenNav}>
             <IoMdMenu size={28} />
           </button>
-          <div className="flex w-full max-w-md">
-            <input type="text" placeholder="Search by villa, property, or activity name" className="input-text !rounded-e-none" />
-            <button className="flex items-center justify-center w-12 text-light bg-primary rounded-e">
-              <IoMdSearch size={25} />
-            </button>
-          </div>
         </div>
 
-        <div ref={ref} className="relative flex gap-4">
+        <div ref={ref} className="relative flex items-center gap-4">
+          <Select
+            className="w-full text-sm min-w-40 text-dark"
+            options={currencies?.data.data.map((currency) => ({ value: currency.id, label: currency.code }))}
+            value={currency}
+            onChange={handleCurrencyChange}
+            placeholder="Select Currency"
+            required
+          />
           <div className="flex items-center gap-2 cursor-pointer text-dark" onClick={toggleDropdown}>
-            <Img src="/logo.png" className="border rounded-full size-8 sm:size-10 border-gray/50" alt="user-profile" />
+            <Img src="/logo-circle.png" className="border rounded-full size-8 sm:size-10 border-gray/50 p-1" alt="user-profile" />
             <div className="mr-1">
-              <p className="text-sm font-semibold sm:text-base">{data?.data.username}</p>
-              <p className="text-xs tracking-tight sm:text-sm">{data?.data.email}</p>
+              <p className="text-sm font-semibold sm:text-base">{user?.data.username}</p>
+              <p className="text-xs tracking-tight sm:text-sm">{user?.data.email}</p>
             </div>
             <p className={`duration-300 ${dropdown && "rotate-180"}`}>
               <IoIosArrowDown />

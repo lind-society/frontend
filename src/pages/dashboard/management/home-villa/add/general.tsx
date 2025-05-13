@@ -319,12 +319,12 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                       <div className="flex gap-4">
                         {(["Yes", "No"] as const).map((status, index) => (
                           <div key={index} className="flex items-center gap-2">
-                            <label className="cursor-pointer" htmlFor={status}>
+                            <label className="cursor-pointer" htmlFor={`${type}-${status}`}>
                               {status}
                             </label>
                             <input
                               type="checkbox"
-                              id={status}
+                              id={`${type}-${status}`}
                               className="cursor-pointer accent-primary"
                               checked={formState.isDiscount[type] === (status === "Yes")}
                               onChange={() => updateNestedField("isDiscount", type, status === "Yes")}

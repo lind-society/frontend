@@ -262,10 +262,16 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
         <FormField label="Duration" required>
           {(["Permanent", "Temporary"] as const).map((duration, index) => (
             <div key={index} className="flex items-center gap-2 ms-4">
-              <label className="cursor-pointer" htmlFor={duration}>
+              <label className="cursor-pointer" htmlFor={`${duration}-${index}`}>
                 {duration}
               </label>
-              <input type="checkbox" id={duration} className="cursor-pointer accent-primary" checked={formState.duration.includes(duration)} onChange={() => updateFormState("duration", duration)} />
+              <input
+                type="checkbox"
+                id={`${duration}-${index}`}
+                className="cursor-pointer accent-primary"
+                checked={formState.duration.includes(duration)}
+                onChange={() => updateFormState("duration", duration)}
+              />
             </div>
           ))}
         </FormField>
@@ -360,12 +366,12 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 <div className="flex gap-4">
                   {(["Yes", "No"] as const).map((status, index) => (
                     <div key={index} className="flex items-center gap-2">
-                      <label className="cursor-pointer" htmlFor={status}>
+                      <label className="cursor-pointer" htmlFor={`${status}-${index}`}>
                         {status}
                       </label>
                       <input
                         type="checkbox"
-                        id={status}
+                        id={`${status}-${index}`}
                         className="cursor-pointer accent-primary"
                         checked={formState.isDiscount === (status === "Yes")}
                         onChange={() => updateFormState("isDiscount", status === "Yes")}
