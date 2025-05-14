@@ -2,14 +2,14 @@ import * as React from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 
-import { useDeleteApi, useGetApi, useSearchPagination } from "../../../../hooks";
+import { useDeleteApi, useGetApi, usePersistentData, useSearchPagination } from "../../../../hooks";
 
 import { Layout, SearchBox } from "../../../../components/ui";
 import { Button, Img, Modal, Pagination } from "../../../../components";
 
 import { FaPlus, FaRegTrashAlt } from "react-icons/fa";
 
-import { Activity, Data, Payload } from "../../../../types";
+import { Activity, Data, OptionType, Payload } from "../../../../types";
 import { capitalize } from "../../../../utils";
 
 interface CardContentProps {
@@ -76,6 +76,9 @@ const CardContent = ({ isLoading, activities, openDeleteModal }: CardContentProp
 export const ActivityPage = () => {
   const navigate = useNavigate();
 
+  const useCurrency = usePersistentData<OptionType>("selected-currency", "localStorage");
+  const { data: currency } = useCurrency();
+
   const [deleteModal, setDeleteModal] = React.useState<boolean>(false);
   const [selectedActivity, setSelectedActivity] = React.useState<Activity | null>(null);
 
@@ -84,7 +87,7 @@ export const ActivityPage = () => {
   const { data: respActivities, isLoading } = useGetApi<Payload<Data<Activity[]>>>({
     key: ["get-activities", searchQuery, currentPage],
     url: "activities",
-    params: { search: searchQuery, page: currentPage },
+    params: { search: searchQuery, page: currentPage, baseCurrencyId: currency.value },
   });
   const { mutate: deleteActivity, isPending } = useDeleteApi({ key: ["delete-activity"], url: "/activities", redirectPath: "/dashboard/management/home-villa" });
 

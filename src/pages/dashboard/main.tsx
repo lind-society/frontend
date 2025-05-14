@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useGetApi } from "../../hooks";
 
@@ -62,6 +62,8 @@ const Pagination = ({ setPage, page, totalPage }: PaginationProps) => {
 };
 
 export const MainPage = () => {
+  const navigate = useNavigate();
+
   const [currentPageBookingVilla, setCurrentPageBookingVilla] = React.useState<number>(1);
   const [currentPageBookingActivity, setCurrentPageBookingActivity] = React.useState<number>(1);
   const [currentPageReview, setCurrentPageReview] = React.useState<number>(1);
@@ -222,7 +224,9 @@ export const MainPage = () => {
                     {villa.city}, {villa.country}
                   </p>
                 </div>
-                <Button className="btn-primary">{villa.totalBooking} Bookings →</Button>
+                <Button onClick={() => navigate(`/dashboard/management/home-villa/edit/${villa.id}`)} className="btn-primary">
+                  {villa.totalBooking} Bookings →
+                </Button>
               </li>
             ))}
           </ul>

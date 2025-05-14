@@ -15,7 +15,7 @@ import { ReviewTab } from "./review";
 import { VillaPoliciesTab } from "./villa-policies";
 import { RentManagementTab } from "./rent-management";
 
-import { Payload, Villa } from "../../../../../types";
+import { OptionType, Payload, Villa } from "../../../../../types";
 
 import { deleteKeysObject, formatTitleCase } from "../../../../../utils";
 
@@ -28,15 +28,17 @@ export const EditHomeVillaPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ key: ["editing-villa"], url: "/villas", redirectPath: "/dashboard/management/home-villa" });
-
-  const { data: respVilla, isLoading } = useGetApi<Payload<Villa>>({ url: `villas/${id}`, key: ["get-villa", id] });
-
   const useStore = usePersistentData<Villa>("get-villa");
   const useEdit = usePersistentData<Villa>("edit-villa");
+  const useCurrency = usePersistentData<OptionType>("selected-currency", "localStorage");
 
   const { setData } = useStore();
   const { data } = useEdit();
+  const { data: currency } = useCurrency();
+
+  const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ key: ["editing-villa"], url: "/villas", redirectPath: "/dashboard/management/home-villa" });
+
+  const { data: respVilla, isLoading } = useGetApi<Payload<Villa>>({ url: `villas/${id}`, key: ["get-villa", id], params: { baseCurrencyId: currency.value } });
 
   const [activeTab, setActiveTab] = React.useState<TabName>(() => {
     const hashTab = hash.replace("#", "");

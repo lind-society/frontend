@@ -10,7 +10,7 @@ import { Button, Modal, NumberInput } from "../../../../../components";
 import { FaPlus, FaRegEdit, FaTrash } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 
-import { Data, Payload, PriceRule, Villa } from "../../../../../types";
+import { Payload, PriceRule, VillaPriceRule } from "../../../../../types";
 
 export interface FormState extends Omit<PriceRule, "discount" | "startDate" | "endDate"> {
   isEditingName: boolean;
@@ -38,9 +38,13 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
   const [searchModalValue, setSearchModalValue] = React.useState<string>("");
   const [searchQuery, setSearchQuery] = React.useState<string>("");
 
-  const { data: respVillas, isLoading } = useGetApi<Payload<Data<Villa[]>>>({ key: ["get-villas-price-rule", searchQuery], url: `villas`, params: { search: searchQuery, limit: "5" } });
+  const { data: respVillas, isLoading } = useGetApi<Payload<VillaPriceRule[]>>({
+    key: ["get-villas-price-rule", searchQuery],
+    url: `villa-price-rules/available-villas?startDate=${priceRule.startDate}&endDate=${priceRule.startDate}`,
+    // params: { search: searchQuery, limit: "5" },
+  });
 
-  const appliedVillas = respVillas?.data.data.filter((villa) => !priceRule.villas.some((item) => item.id === villa.id)) || [];
+  const appliedVillas = respVillas?.data.filter((villa) => !priceRule.villas.some((item) => item.id === villa.id)) || [];
 
   const handleSearch = () => {
     setSearchQuery(searchModalValue);
@@ -218,9 +222,9 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
                   onChange={() => {
                     updateFieldPriceRule(priceRule.id, "isCustomApplied", status === "Yes");
                     if (status === "Yes") {
-                      updateFieldPriceRule(priceRule.id, "villas", respVillas?.data.data || []);
+                      updateFieldPriceRule(priceRule.id, "villas", respVillas?.data || []);
                     } else {
-                      if (priceRule.villas.length === respVillas?.data.meta.totalItems) {
+                      if (priceRule.villas.length === respVillas?.data.length) {
                         updateFieldPriceRule(priceRule.id, "villas", []);
                       }
                     }

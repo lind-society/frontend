@@ -7,7 +7,7 @@ export const convertDate = (dateInput: string | Date): string => {
 
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
-    month: "long", // January, February
+    month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",

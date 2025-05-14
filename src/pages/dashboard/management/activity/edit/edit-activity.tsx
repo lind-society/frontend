@@ -13,7 +13,7 @@ import { FaArrowLeft, FaUpload } from "react-icons/fa";
 import { GeneralTab } from "./general";
 import { ReviewTab } from "./review";
 
-import { Payload, Activity } from "../../../../../types";
+import { Payload, Activity, OptionType } from "../../../../../types";
 
 import { deleteKeysObject } from "../../../../../utils";
 import { OrderManagementTab } from "./order-management";
@@ -28,15 +28,17 @@ export const EditActivityPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { mutate: editActivity, isPending } = useUpdateApi<Partial<Activity>>({ key: ["editing-activity"], url: "/activities", redirectPath: "/dashboard/management/activity" });
-
-  const { data: respActivity, isLoading } = useGetApi<Payload<Activity>>({ url: `activities/${id}`, key: ["get-activity", id] });
-
   const useStore = usePersistentData<Activity>("get-activity");
   const useEdit = usePersistentData<Activity>("edit-activity");
+  const useCurrency = usePersistentData<OptionType>("selected-currency", "localStorage");
 
   const { setData } = useStore();
   const { data } = useEdit();
+  const { data: currency } = useCurrency();
+
+  const { mutate: editActivity, isPending } = useUpdateApi<Partial<Activity>>({ key: ["editing-activity"], url: "/activities", redirectPath: "/dashboard/management/activity" });
+
+  const { data: respActivity, isLoading } = useGetApi<Payload<Activity>>({ url: `activities/${id}`, key: ["get-activity", id], params: { baseCurrencyId: currency.value } });
 
   const [activeTab, setActiveTab] = React.useState<TabName>(() => {
     const hashTab = hash.replace("#", "");

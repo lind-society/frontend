@@ -16,7 +16,7 @@ export const TopBar = ({ handleOpenNav }: { handleOpenNav: () => void }) => {
   const [ref, dropdown, toggleDropdown] = useToggleState(false);
   const [currency, setCurrency] = React.useState<OptionType | null>(null);
 
-  const useStore = usePersistentData<{ id: string; label: string }>("selected-currency");
+  const useStore = usePersistentData<OptionType>("selected-currency", "localStorage");
   const { setData, data } = useStore();
 
   const { data: user } = useGetApiWithAuth<Payload<User>>({ key: ["profile"], url: `/admins/profile` });
@@ -33,17 +33,18 @@ export const TopBar = ({ handleOpenNav }: { handleOpenNav: () => void }) => {
 
   const handleCurrencyChange = (option: OptionType | null) => {
     setCurrency(option);
-    if (option) {
-      setData({ id: option.value, label: option.label });
-    }
+    setData({ value: option?.value, label: option?.label });
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
   };
 
   React.useEffect(() => {
-    if (data && data.id && data.label) {
-      setCurrency({ value: data.id, label: data.label });
+    if (data && data.value && data.label) {
+      setCurrency({ value: data.value, label: data.label });
     } else {
       setCurrency({ value: baseCurrency, label: "IDR" });
-      setData({ id: baseCurrency, label: "IDR" });
+      setData({ value: baseCurrency, label: "IDR" });
     }
 
     return () => setCurrency(null);
@@ -68,7 +69,7 @@ export const TopBar = ({ handleOpenNav }: { handleOpenNav: () => void }) => {
             required
           />
           <div className="flex items-center gap-2 cursor-pointer text-dark" onClick={toggleDropdown}>
-            <Img src="/logo-circle.png" className="border rounded-full size-8 sm:size-10 border-gray/50 p-1" alt="user-profile" />
+            <Img src="/logo-circle.png" className="p-1 border rounded-full size-8 sm:size-10 border-gray/50" alt="user-profile" />
             <div className="mr-1">
               <p className="text-sm font-semibold sm:text-base">{user?.data.username}</p>
               <p className="text-xs tracking-tight sm:text-sm">{user?.data.email}</p>

@@ -49,6 +49,9 @@ body {
   display: block;
   width: 100%;
 }
+.react-datepicker-popper {
+  z-index: 20;
+}
 
 /* input type number style */
 input[type="number"]::-webkit-inner-spin-button,

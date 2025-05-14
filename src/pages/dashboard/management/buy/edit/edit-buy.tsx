@@ -12,7 +12,7 @@ import { FaArrowLeft, FaUpload } from "react-icons/fa";
 
 import { deleteKeysObject } from "../../../../../utils";
 
-import { Payload, Property } from "../../../../../types";
+import { OptionType, Payload, Property } from "../../../../../types";
 
 type TabName = "general" | "media" | "location" | "key-features" | "service-features";
 
@@ -23,15 +23,17 @@ export const EditBuyPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { mutate: editProperty, isPending } = useUpdateApi<Partial<Property>>({ key: ["editing-property"], url: "/properties", redirectPath: "/dashboard/management/buy" });
-
-  const { data: respProperty, isLoading } = useGetApi<Payload<Property>>({ url: `properties/${id}`, key: ["get-property", id] });
-
   const useStore = usePersistentData<Property>("get-property");
   const useEdit = usePersistentData<Property>("edit-property");
+  const useCurrency = usePersistentData<OptionType>("selected-currency", "localStorage");
 
   const { setData } = useStore();
   const { data } = useEdit();
+  const { data: currency } = useCurrency();
+
+  const { mutate: editProperty, isPending } = useUpdateApi<Partial<Property>>({ key: ["editing-property"], url: "/properties", redirectPath: "/dashboard/management/buy" });
+
+  const { data: respProperty, isLoading } = useGetApi<Payload<Property>>({ url: `properties/${id}`, key: ["get-property", id], params: { baseCurrencyId: currency.value } });
 
   const [activeTab, setActiveTab] = React.useState<TabName>(() => {
     const hashTab = hash.replace("#", "");

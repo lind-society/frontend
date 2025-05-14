@@ -2,17 +2,20 @@ import * as React from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import { useDeleteApi, useGetApi, useSearchPagination } from "../../../../hooks";
+import { useDeleteApi, useGetApi, usePersistentData, useSearchPagination } from "../../../../hooks";
 
 import { CardContent, Layout, SearchBox } from "../../../../components/ui";
 import { Button, Modal, Pagination } from "../../../../components";
 
 import { FaPlus } from "react-icons/fa";
 
-import { Data, Payload, Villa } from "../../../../types";
+import { Data, OptionType, Payload, Villa } from "../../../../types";
 
 export const HomeVillaPage = () => {
   const navigate = useNavigate();
+
+  const useCurrency = usePersistentData<OptionType>("selected-currency", "localStorage");
+  const { data: currency } = useCurrency();
 
   const [deleteModal, setDeleteModal] = React.useState<boolean>(false);
   const [selectedVilla, setSelectedVilla] = React.useState<Villa | null>(null);
@@ -22,7 +25,7 @@ export const HomeVillaPage = () => {
   const { data: respVillas, isLoading } = useGetApi<Payload<Data<Villa[]>>>({
     key: ["get-villas", searchQuery, currentPage],
     url: `villas`,
-    params: { search: searchQuery, page: currentPage },
+    params: { search: searchQuery, page: currentPage, baseCurrencyId: currency.value },
   });
   const { mutate: deleteVilla, isPending } = useDeleteApi({ key: ["delete-villa"], url: "/villas", redirectPath: "/dashboard/management/home-villa" });
 

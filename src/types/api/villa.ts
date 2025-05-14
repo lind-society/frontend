@@ -32,6 +32,10 @@ export interface Villa {
   priceYearly: number;
   discountMonthly: number;
   discountYearly: number;
+  dailyPriceAfterDiscount: number;
+  lowSeasonDailyPriceAfterDiscount: number;
+  highSeasonDailyPriceAfterDiscount: number;
+  peakSeasonDailyPriceAfterDiscount: number;
   priceMonthlyAfterDiscount: number;
   priceYearlyAfterDiscount: number;
   availabilityQuotaPerMonth: number;

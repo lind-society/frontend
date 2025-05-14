@@ -1,4 +1,10 @@
-import { Villa } from "./villa";
+export interface VillaPriceRule {
+  id: string;
+  name: string;
+  city: string;
+  state: string;
+  country: string;
+}
 
 export interface PriceRule {
   id: string;
@@ -10,5 +16,5 @@ export interface PriceRule {
   discount: number;
   isActive: boolean;
   villaIds: string[];
-  villas: Villa[];
+  villas: VillaPriceRule[];
 }
