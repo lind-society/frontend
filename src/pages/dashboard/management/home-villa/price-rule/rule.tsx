@@ -41,10 +41,10 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
   const { data: respVillas, isLoading } = useGetApi<Payload<VillaPriceRule[]>>({
     key: ["get-villas-price-rule", searchQuery],
     url: `villa-price-rules/available-villas?startDate=${priceRule.startDate}&endDate=${priceRule.startDate}`,
-    // params: { search: searchQuery, limit: "5" },
+    params: { search: searchQuery, limit: "5" },
   });
 
-  const appliedVillas = respVillas?.data.filter((villa) => !priceRule.villas.some((item) => item.id === villa.id)) || [];
+  const appliedVillas = respVillas?.data.data.filter((villa) => !priceRule.villas.some((item) => item.id === villa.id)) || [];
 
   const handleSearch = () => {
     setSearchQuery(searchModalValue);
