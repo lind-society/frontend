@@ -14,7 +14,7 @@ import { Data, Payload, PriceRule, VillaPriceRule } from "../../../../../types";
 
 export interface FormState extends Omit<PriceRule, "discount" | "startDate" | "endDate"> {
   isEditingName: boolean;
-  isCustomApplied: boolean;
+  isAppliedToAllVilla: boolean;
   isOpenModal: boolean;
   isEditable: boolean;
   startDate: Date | null;
@@ -32,15 +32,15 @@ interface Rule {
   handleEditToggle: (priceRuleId: string, action: "toggle" | "finish") => void;
 }
 
-const SEASONS = ["Low Season", "Normal Season", "High Season", "Peak Season"];
+const SEASONS = ["Low Season", "Regular Season", "High Season", "Peak Season"];
 
 export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVillaIds, handleDeletePriceRule, handleEditPriceRule, handleEditToggle, updateFieldPriceRule }: Rule) => {
   const [searchModalValue, setSearchModalValue] = React.useState<string>("");
   const [searchQuery, setSearchQuery] = React.useState<string>("");
 
   const { data: respVillas, isLoading } = useGetApi<Payload<Data<VillaPriceRule[]>>>({
-    key: ["get-villas-price-rule", searchQuery],
-    url: `villa-price-rules/available-villas?startDate=${priceRule.startDate}&endDate=${priceRule.startDate}`,
+    key: ["get-villas-price-rule", searchQuery, priceRule.startDate, priceRule.endDate],
+    url: `villa-price-rules/available-villas?startDate=${priceRule.startDate?.toISOString()}&endDate=${priceRule.endDate?.toISOString()}`,
     params: { search: searchQuery, limit: "5" },
   });
 
@@ -218,9 +218,9 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
                   type="checkbox"
                   id={`${status + priceRule.id}`}
                   className="cursor-pointer accent-primary"
-                  checked={priceRule.isCustomApplied === (status === "Yes")}
+                  checked={priceRule.isAppliedToAllVilla === (status === "Yes")}
                   onChange={() => {
-                    updateFieldPriceRule(priceRule.id, "isCustomApplied", status === "Yes");
+                    updateFieldPriceRule(priceRule.id, "isAppliedToAllVilla", status === "Yes");
                     if (status === "Yes") {
                       updateFieldPriceRule(priceRule.id, "villas", respVillas?.data.data || []);
                     } else {
@@ -233,7 +233,7 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
               </div>
             ))}
           </div>
-          {!priceRule.isCustomApplied && (
+          {!priceRule.isAppliedToAllVilla && (
             <button onClick={() => updateFieldPriceRule(priceRule.id, "isOpenModal", true)} className="ml-4 font-medium text-blue-500">
               Edit
             </button>

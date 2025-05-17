@@ -59,16 +59,16 @@ export const TopBar = ({ handleOpenNav }: { handleOpenNav: () => void }) => {
           </button>
         </div>
 
-        <div ref={ref} className="relative flex items-center gap-4">
+        <div ref={ref} className="flex items-center gap-4">
           <Select
-            className="w-full text-sm min-w-40 text-dark"
-            options={currencies?.data.data.map((currency) => ({ value: currency.id, label: currency.code }))}
+            className="w-full text-sm min-w-80 text-dark"
+            options={currencies?.data.data.map((currency) => ({ value: currency.id, label: `${currency.name} (${currency.code})` }))}
             value={currency}
             onChange={handleCurrencyChange}
             placeholder="Select Currency"
             required
           />
-          <div className="flex items-center gap-2 cursor-pointer text-dark" onClick={toggleDropdown}>
+          <div className="relative flex items-center gap-2 cursor-pointer text-dark" onClick={toggleDropdown}>
             <Img src="/logo-circle.png" className="p-1 border rounded-full size-8 sm:size-10 border-gray/50" alt="user-profile" />
             <div className="mr-1">
               <p className="text-sm font-semibold sm:text-base">{user?.data.username}</p>
@@ -77,14 +77,14 @@ export const TopBar = ({ handleOpenNav }: { handleOpenNav: () => void }) => {
             <p className={`duration-300 ${dropdown && "rotate-180"}`}>
               <IoIosArrowDown />
             </p>
+            {dropdown && (
+              <div className="w-full popover top-14">
+                <Button onClick={handleLogout} className="w-full btn-primary">
+                  {loading ? <div className="loader size-4 after:size-4"></div> : "Logout"}
+                </Button>
+              </div>
+            )}
           </div>
-          {dropdown && (
-            <div className="w-full popover top-14">
-              <Button onClick={handleLogout} className="w-full btn-primary">
-                {loading ? <div className="loader size-4 after:size-4"></div> : "Logout"}
-              </Button>
-            </div>
-          )}
         </div>
       </div>
     </div>

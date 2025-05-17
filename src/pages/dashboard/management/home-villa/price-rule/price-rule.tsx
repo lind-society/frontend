@@ -36,8 +36,8 @@ export const PriceRulePage = () => {
     const newDataPriceRule = {
       id: crypto.randomUUID(),
       name: `Rules ${priceRules.length + 1}`,
-      startDate: today.toISOString(),
-      endDate: today.toISOString(),
+      startDate: today.toDateString(),
+      endDate: today.toDateString(),
       season: "Low Season",
       isDiscount: true,
       discount: "",
@@ -49,22 +49,22 @@ export const PriceRulePage = () => {
       villaIds: [],
       villas: [],
     };
-    const processData = deleteKeysObject(newDataPriceRule, ["id", "isEditingName", "isCustomApplied", "isOpenModal", "isEditable", "villas"]);
+    const processData = deleteKeysObject(newDataPriceRule, ["id", "isEditingName", "isCustomApplied", "isOpenModal", "isEditable", "villas", "currency", "isAppliedToAllVilla"]);
     createPriceRule({ ...processData, discount: 0 });
   };
 
   const handleEditPriceRule = (e: React.MouseEvent, priceRuleId: string) => {
     e.preventDefault();
     const priceRule = priceRules.find((item) => item.id === priceRuleId);
-    const processData = deleteKeysObject(priceRule, ["id", "isEditingName", "isCustomApplied", "isOpenModal", "isEditable", "createdAt", "updatedAt", "villas"]);
+    const processData = deleteKeysObject(priceRule, ["id", "isEditingName", "isCustomApplied", "isOpenModal", "isEditable", "createdAt", "updatedAt", "villas", "currency", "isAppliedToAllVilla"]);
 
     updatePriceRule({
       id: priceRule?.id || "",
       updatedItem: {
         ...processData,
-        startDate: priceRule?.startDate?.toISOString(),
-        endDate: priceRule?.endDate?.toISOString(),
-        discount: +priceRule?.discount! || 0,
+        startDate: priceRule?.startDate?.toDateString(),
+        endDate: priceRule?.endDate?.toDateString(),
+        discount: priceRule?.isDiscount ? 0 : +priceRule?.discount!,
         villaIds: priceRule?.villas.map((item) => item.id) || [],
       },
     });
@@ -109,7 +109,6 @@ export const PriceRulePage = () => {
       const priceRules = respPriceRules.data.data.map((priceRule) => ({
         ...priceRule,
         isEditingName: false,
-        isCustomApplied: false,
         isEditable: false,
         isOpenModal: false,
         startDate: new Date(priceRule.startDate),

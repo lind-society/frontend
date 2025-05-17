@@ -13,6 +13,7 @@ export interface PriceRule {
   endDate: string;
   season: string;
   isDiscount: boolean;
+  isAppliedToAllVilla: boolean;
   discount: number;
   isActive: boolean;
   villaIds: string[];
