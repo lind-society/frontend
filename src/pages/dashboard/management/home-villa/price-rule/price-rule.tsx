@@ -137,28 +137,34 @@ export const PriceRulePage = () => {
       </header>
 
       {loadingPriceRule ? (
-        <div className="flex items-center justify-center min-h-400 bg-light">
+        <div className="flex items-center justify-center min-h-300 bg-light">
           <div className="loader size-16 after:size-16"></div>
         </div>
       ) : (
-        <div className="space-y-8">
-          <div className="space-y-4">
-            {priceRules.map((priceRule) => {
-              return (
-                <PriceRuleItem
-                  key={priceRule.id}
-                  isUpdating={isUpdating}
-                  priceRule={priceRule}
-                  handleEditToggle={handleEditToggle}
-                  updateFieldPriceRule={updateFieldPriceRule}
-                  deleteFieldPriceRuleVillaIds={deleteFieldPriceRuleVillaIds}
-                  handleEditPriceRule={handleEditPriceRule}
-                  handleDeletePriceRule={handleDeletePriceRule}
-                />
-              );
-            })}
-          </div>
-        </div>
+        <>
+          {priceRules.length === 0 ? (
+            <div className="flex items-center justify-center min-h-300">
+              <p className="text-center text-dark/50">No price rules added yet. Click "Add New Rules" to create one.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {priceRules.map((priceRule) => {
+                return (
+                  <PriceRuleItem
+                    key={priceRule.id}
+                    isUpdating={isUpdating}
+                    priceRule={priceRule}
+                    handleEditToggle={handleEditToggle}
+                    updateFieldPriceRule={updateFieldPriceRule}
+                    deleteFieldPriceRuleVillaIds={deleteFieldPriceRuleVillaIds}
+                    handleEditPriceRule={handleEditPriceRule}
+                    handleDeletePriceRule={handleDeletePriceRule}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
     </Layout>
   );

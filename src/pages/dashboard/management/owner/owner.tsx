@@ -59,7 +59,7 @@ const Table = ({ owners, isLoading, error }: OwnersTableProps) => {
     },
   ];
 
-  return <DataTable data={owners} columns={columns} keyExtractor={(owner) => owner.id} isLoading={isLoading} error={error} emptyMessage="Owners not found" />;
+  return <DataTable data={owners} columns={columns} keyExtractor={(owner) => owner.id} isLoading={isLoading} error={error} emptyMessage={`No owners added yet. Click "Add Owner" to create one.`} />;
 };
 
 export const OwnerPage = () => {

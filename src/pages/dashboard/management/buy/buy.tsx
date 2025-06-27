@@ -69,7 +69,7 @@ export const BuyPage = () => {
       <div className="space-y-8">
         <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
 
-        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} datas={properties} type="buy" />
+        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} datas={properties} type="buy" message={`No buy added yet. Click "Add New" to create one.`} />
 
         <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
       </div>

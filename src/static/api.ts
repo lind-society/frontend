@@ -1,6 +1,6 @@
-export const baseCurrency = "6558102a-3237-4f71-bc3f-addea8a51a56";
-export const baseHouseRules = "1e268f76-610c-48dd-af60-9c7d570c02be";
-export const basePaymentTerms = "7f5a3a5a-be8e-425b-b244-8ba0579d2258";
-export const baseCancellationTerms = "69580a93-9064-46f5-9db7-f105d184c27e";
+export const baseCurrency = "b5baec27-5155-4c91-95ac-2184a4cc8d24";
+export const baseHouseRules = "7068d8da-5cbb-4f50-98d6-cf1c2ed7a706";
+export const basePaymentTerms = "70aceb78-211c-4cbc-8dad-852de082820b";
+export const baseCancellationTerms = "7b07bf7b-505f-46f5-b2f3-ecada0fbbe52";
 
 export const statusBookings: string[] = ["Requested", "Negotiation", "Waiting for Payment", "Booked", "Done", "Canceled"];

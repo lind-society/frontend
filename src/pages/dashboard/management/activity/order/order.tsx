@@ -50,7 +50,7 @@ const Table = ({ bookings, isLoading, error }: BookingsTableProps) => {
     {
       key: "activity.category.name" as keyof Booking,
       header: "Category",
-      render: (booking: Booking) => booking.activity.category.name,
+      render: (booking: Booking) => booking.activity?.category?.name,
     },
     {
       key: "status" as keyof Booking,

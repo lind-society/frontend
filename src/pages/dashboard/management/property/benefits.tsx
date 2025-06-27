@@ -103,7 +103,7 @@ export const BenefitsTab = () => {
       </div>
       <form className="space-y-8" onSubmit={handleSubmit}>
         <div className="space-y-4">
-          {formState.length === 0 && <div className="p-4 text-center text-dark/50">No benefits added yet. Click "Add Benefit" to create one.</div>}
+          {formState.length === 0 && <p className="p-4 text-center text-dark/50">No benefits added yet. Click "Add Benefit" to create one.</p>}
 
           {formState.map((benefit, index) => (
             <div key={benefit.id} className="flex items-center w-full gap-8">

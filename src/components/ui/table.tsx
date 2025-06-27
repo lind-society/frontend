@@ -25,7 +25,7 @@ const TableHeader = <T,>({ columns }: TableHeaderProps<T>) => {
     <thead>
       <tr className="bg-primary text-light">
         {columns.map((column, index) => (
-          <th key={index} className={column.className || "px-4 py-3.5 text-left"}>
+          <th key={index} className={column.className || "px-4 py-3.5 text-left whitespace-nowrap"}>
             {column.header}
           </th>
         ))}
@@ -75,7 +75,7 @@ export const DataTable = <T,>({ data, columns, keyExtractor, isLoading = false, 
       </table>
       {data.length === 0 && (
         <div className="flex items-center justify-center w-full py-16">
-          <span className="text-3xl font-bold text-dark/50">{emptyMessage}</span>
+          <p className="text-center text-dark/50">{emptyMessage}</p>
         </div>
       )}
     </>

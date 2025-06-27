@@ -7,7 +7,7 @@ import { useDeleteApi, useGetApi, usePersistentData, useSearchPagination } from 
 import { Layout, SearchBox } from "../../../../components/ui";
 import { Button, Img, Modal, Pagination } from "../../../../components";
 
-import { FaPlus, FaRegTrashAlt } from "react-icons/fa";
+import { FaPlus, FaRegStar, FaRegTrashAlt, FaStar } from "react-icons/fa";
 
 import { Activity, Data, OptionType, Payload } from "../../../../types";
 import { capitalize } from "../../../../utils";
@@ -19,9 +19,22 @@ interface CardContentProps {
 }
 
 const CardContent = ({ isLoading, activities, openDeleteModal }: CardContentProps) => {
+  const [favorites, setFavorites] = React.useState<Record<string, boolean>>({});
+
+  const toggleFavorite = (activityId: string) => {
+    if (activities.some((activity) => activity.id === activityId)) {
+      setFavorites((prev) => ({
+        ...prev,
+        [activityId]: !prev[activityId],
+      }));
+    }
+  };
+
+  const isFavorite = (activityId: string) => !!favorites[activityId];
+
   if (isLoading) {
     return (
-      <div className="flex justify-center min-h-400">
+      <div className="flex justify-center min-h-300">
         <div className="loader size-12 after:size-12"></div>
       </div>
     );
@@ -29,8 +42,8 @@ const CardContent = ({ isLoading, activities, openDeleteModal }: CardContentProp
 
   if (activities.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-400">
-        <span className="text-4xl font-bold text-dark/50">Activities not found</span>
+      <div className="flex items-center justify-center min-h-300">
+        <p className="text-center text-dark/50">No activities added yet. Click "Add Activity" to create one.</p>
       </div>
     );
   }
@@ -44,6 +57,9 @@ const CardContent = ({ isLoading, activities, openDeleteModal }: CardContentProp
           <div className="relative w-full">
             <button onClick={() => openDeleteModal(activity)} className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1">
               <FaRegTrashAlt />
+            </button>
+            <button onClick={() => toggleFavorite(activity.id)} className="absolute p-2 top-2 left-2 z-1">
+              {isFavorite(activity.id) ? <FaStar className="text-yellow-500" size={24} /> : <FaRegStar size={24} />}
             </button>
             <Img src={activity.photos && activity.photos.length > 0 ? activity.photos[0] : defaultImage} alt={activity.name} className="object-cover w-full h-60" />
           </div>

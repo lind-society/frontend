@@ -10,13 +10,14 @@ interface CardContentProps {
   isLoading: boolean;
   type: string;
   datas: any[];
+  message: string;
   openDeleteModal: (data: any) => void;
 }
 
-export const CardContent = ({ isLoading, datas, type, openDeleteModal }: CardContentProps) => {
+export const CardContent = ({ isLoading, datas, type, openDeleteModal, message }: CardContentProps) => {
   if (isLoading) {
     return (
-      <div className="flex justify-center min-h-400">
+      <div className="flex justify-center min-h-300">
         <div className="loader size-12 after:size-12"></div>
       </div>
     );
@@ -24,8 +25,8 @@ export const CardContent = ({ isLoading, datas, type, openDeleteModal }: CardCon
 
   if (datas.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-400">
-        <span className="text-4xl font-bold text-dark/50">{type === "home-villa" ? "Home & Villa management not found" : "Buy management not found"}</span>
+      <div className="flex items-center justify-center min-h-300">
+        <p className="text-center text-dark/50">{message}</p>
       </div>
     );
   }

@@ -50,20 +50,26 @@ export const PackageTab = () => {
           <div className="loader size-12 after:size-12"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 text-primary">
-          {respPackages?.data.data.map((item) => (
-            <div key={item.id} className="relative p-4 space-y-4 border rounded bg-light border-primary">
-              <button onClick={() => openDeleteModal(item)} className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1">
-                <FaRegTrashAlt />
-              </button>
-              <h5 className="h-16 text-2xl font-semibold line-clamp-2">{item.name}</h5>
-              <p className="leading-normal text-justify line-clamp-6">{item.description}</p>
-              <Button onClick={() => navigate(`/dashboard/management/property/package/edit/${item.id}`)} className="w-full btn-primary">
-                Edit
-              </Button>
+        <>
+          {respPackages?.data.data.length === 0 ? (
+            <p className="p-4 text-center text-dark/50">No packages added yet. Click "Add Package" to create one.</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 text-primary">
+              {respPackages?.data.data.map((item) => (
+                <div key={item.id} className="relative p-4 space-y-4 border rounded bg-light border-primary">
+                  <button onClick={() => openDeleteModal(item)} className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1">
+                    <FaRegTrashAlt />
+                  </button>
+                  <h5 className="h-16 text-2xl font-semibold line-clamp-2">{item.name}</h5>
+                  <p className="leading-normal text-justify line-clamp-6">{item.description}</p>
+                  <Button onClick={() => navigate(`/dashboard/management/property/package/edit/${item.id}`)} className="w-full btn-primary">
+                    Edit
+                  </Button>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
       <Modal onClose={closeDeleteModal} isVisible={deleteModal}>
         <h2 className="heading">Delete Package Data</h2>

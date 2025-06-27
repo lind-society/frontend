@@ -63,7 +63,7 @@ export const HomeVillaPage = () => {
       <div className="space-y-8">
         <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
 
-        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} datas={villas} type="home-villa" />
+        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} datas={villas} type="home-villa" message={`No villa & home added yet. Click "Add New" to create one.`} />
 
         <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
       </div>
