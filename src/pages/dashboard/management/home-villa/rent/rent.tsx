@@ -87,9 +87,13 @@ export const RentPage = () => {
     isPending,
     error,
     refetch,
-  } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings-villas", searchQuery, currentPage], url: "bookings/villas", params: { search: searchQuery, page: currentPage } });
+  } = useGetApi<Payload<Data<Booking[]>>>({
+    key: ["get-bookings-villas", searchQuery, currentPage],
+    url: "bookings",
+    params: { search: searchQuery, page: currentPage, type: "villa" },
+  });
 
-  const { mutate: editRent } = useUpdateApi({ key: ["edit-booking"], url: "/bookings/villas" });
+  const { mutate: editRent } = useUpdateApi({ key: ["edit-booking"], url: "/bookings" });
 
   const bookings = respBookings?.data.data || [];
   const totalPages = respBookings?.data.meta.totalPages || 1;

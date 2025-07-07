@@ -21,6 +21,20 @@ export interface Icon {
   url: string;
 }
 
+export interface monthlyTotal {
+  month: number;
+  monthName: string;
+  startDate: string;
+  endDate: string;
+  total: number;
+}
+
+export interface yearlyData {
+  year: number;
+  totalPerMonth: monthlyTotal[];
+  totalPerYear: number;
+}
+
 export interface AdditionalItem {
   pivotId: string;
   id: string;

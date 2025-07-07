@@ -13,22 +13,22 @@ import { FaCalendar, FaRegStar, FaStar } from "react-icons/fa";
 
 import { convertDate, getTodayTime } from "../../utils";
 
-import { Booking, Data, PaginationProps, Payload, Review, Villa } from "../../types";
+import { Booking, Data, PaginationProps, Payload, Review, Villa, yearlyData } from "../../types";
 
 interface VillaBestSeller extends Villa {
   totalBooking: string;
 }
 
 const data = [
-  { name: "Jan", value: 100 },
-  { name: "Feb", value: 50 },
-  { name: "Mar", value: 40 },
-  { name: "Apr", value: 20 },
-  { name: "May", value: 60 },
-  { name: "Jun", value: 70 },
-  { name: "Jul", value: 110 },
-  { name: "Aug", value: 80 },
-  { name: "Sep", value: 60 },
+  { name: "Jan", value: 0 },
+  { name: "Feb", value: 0 },
+  { name: "Mar", value: 0 },
+  { name: "Apr", value: 0 },
+  { name: "May", value: 0 },
+  { name: "Jun", value: 0 },
+  { name: "Jul", value: 0 },
+  { name: "Aug", value: 0 },
+  { name: "Sep", value: 0 },
 ];
 
 const STATUS_COLORS: Record<string, string> = {
@@ -70,6 +70,13 @@ export const MainPage = () => {
 
   const today = getTodayTime();
 
+  const { data: respBookingStatistics } = useGetApi<Payload<yearlyData>>({
+    key: ["get-booking-statistics"],
+    url: "bookings/statistics/yearly",
+    params: { year: "2025" },
+  });
+  console.log("🚀 ~ MainPage ~ respBookingStatistics:", respBookingStatistics);
+
   const { data: respVillasBestSeller, isError: isErrorVillasBestSeller } = useGetApi<Payload<Data<VillaBestSeller[]>>>({
     key: ["get-villas-best-seller"],
     url: "villas/best-seller",
@@ -77,8 +84,8 @@ export const MainPage = () => {
 
   const { data: respBookingVilla, isError: isErrorBookingVilla } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings", currentPageBookingVilla],
-    url: `bookings/villas?filter.createdAt=$gte:${today}T:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
-    params: { page: currentPageBookingVilla, limit: "5" },
+    url: `bookings?filter.createdAt=$gte:${today}T:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
+    params: { page: currentPageBookingVilla, limit: "5", type: "villa" },
   });
 
   const bookingsVilla = respBookingVilla?.data.data || [];
@@ -86,8 +93,8 @@ export const MainPage = () => {
 
   const { data: respBookingActivity, isError: isErrorBookingActivity } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-activities", currentPageBookingActivity],
-    url: `bookings/activities?filter.createdAt=$gte:${today}T:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
-    params: { page: currentPageBookingActivity, limit: "5" },
+    url: `bookings?filter.createdAt=$gte:${today}T:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
+    params: { page: currentPageBookingActivity, limit: "5", type: "activity" },
   });
 
   const bookingsActivity = respBookingActivity?.data.data || [];
@@ -161,7 +168,7 @@ export const MainPage = () => {
             <h2 className="text-xl font-bold">Booking Statistics</h2>
           </div>
           <ResponsiveContainer width="100%" height={800}>
-            <BarChart data={data}>
+            <BarChart data={respBookingStatistics?.data.totalPerMonth.map((item) => ({ name: item.monthName.substring(0, 3), value: item.total })) || data}>
               <XAxis dataKey="name" />
               <YAxis />
               <Bar dataKey="value" fill="#2e5153" />

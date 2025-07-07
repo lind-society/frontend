@@ -85,11 +85,11 @@ export const RentManagementTab: React.FC = () => {
   } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings", id, searchQuery, currentPage],
     url: "bookings/villas",
-    params: { "filter.villaId": id, search: searchQuery, page: currentPage },
+    params: { "filter.villaId": id, search: searchQuery, page: currentPage, type: "villa" },
     enabled: Boolean(id),
   });
 
-  const { mutate: editRent } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "bookings/villas" });
+  const { mutate: editRent } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "bookings" });
 
   const bookings = respBookings?.data.data || [];
   const totalPages = respBookings?.data.meta.totalPages || 1;

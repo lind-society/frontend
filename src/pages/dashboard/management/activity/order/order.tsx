@@ -69,7 +69,11 @@ export const OrderPage = () => {
     data: respBookings,
     isPending,
     error,
-  } = useGetApi<Payload<Data<Booking[]>>>({ key: ["get-bookings-activities", searchQuery, currentPage], url: "bookings/activities", params: { search: searchQuery, page: currentPage } });
+  } = useGetApi<Payload<Data<Booking[]>>>({
+    key: ["get-bookings-activities", searchQuery, currentPage],
+    url: "bookings",
+    params: { search: searchQuery, page: currentPage, type: "activity" },
+  });
 
   const bookings = respBookings?.data.data || [];
   const totalPages = respBookings?.data.meta.totalPages || 1;

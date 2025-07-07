@@ -83,12 +83,12 @@ export const OrderManagementTab: React.FC = () => {
     refetch,
   } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings", id, searchQuery, currentPage],
-    url: "bookings/activities",
-    params: { "filter.activityId": id, search: searchQuery, page: currentPage },
+    url: "bookings",
+    params: { "filter.activityId": id, search: searchQuery, page: currentPage, type: "activity" },
     enabled: Boolean(id),
   });
 
-  const { mutate: editRent } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "bookings/activities" });
+  const { mutate: editRent } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "bookings" });
 
   const bookings = respBookings?.data.data || [];
   const totalPages = respBookings?.data.meta.totalPages || 1;
