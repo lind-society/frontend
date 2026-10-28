@@ -37,7 +37,7 @@ export const AddMediaTab: React.FC<MediaProps> = ({ persistedDataKey, type, onCh
       data.additionals.reduce((acc, additional) => {
         const key = additional.type;
         if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
-        acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos });
+        acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos ?? [] });
         return acc;
       }, {} as Record<string, Section>)
     );

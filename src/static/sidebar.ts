@@ -8,10 +8,12 @@ export const sideBarMenu: sidebarMenuTypes[] = [
   { title: "Buy Management", link: "/management/buy" },
   { title: "Home & Villa Management", link: "/management/home-villa" },
   { title: "Price Rule Management", link: "/management/price-rule-villa" },
+  { title: "Kalender Harga", link: "/management/pricing-calendar" },
   { title: "Rent Management", link: "/management/rent" },
   { title: "Activity Management", link: "/management/activity" },
   { title: "Order Management", link: "/management/order" },
   { title: "Property Management", link: "/management/property" },
   { title: "Owner Management", link: "/management/owner" },
   { title: "Review", link: "/review" },
+  { title: "WhatsApp", link: "/whatsapp" },
 ];

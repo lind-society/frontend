@@ -18,7 +18,7 @@ export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
 
   const [owner, setOwner] = React.useState<Owner>(ownerItem);
 
-  const { mutate: editOwner, isPending } = useUpdateApi<Partial<Owner>>({ key: ["edit-owner"], url: "/owners", redirectPath: "/dashboard/management/owner" });
+  const { mutate: editOwner, isPending } = useUpdateApi<Partial<Owner>>({ key: ["owners"], url: "/owners" });
 
   const { data: phoneCodes } = useGetApi<PhoneCodes[]>({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
 
@@ -35,8 +35,8 @@ export const EditOwnerPage = ({ ownerItem }: { ownerItem: Owner }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const ownerProcess = deleteKeysObject(owner, ["id", "activities", "properties", "villas", "createdAt", "updatedAt"]);
-    editOwner({ id: owner.id, updatedItem: { ...ownerProcess, phoneCountryCode: phoneCountryCode?.value } });
+    const ownerProcess = deleteKeysObject(owner, ["id", "activities", "properties", "villas", "createdAt", "updatedAt", "link"]);
+    editOwner({ id: owner.id, updatedItem: { ...ownerProcess, phoneCountryCode: phoneCountryCode?.value } }, { onSuccess: () => setEditModal(false) });
   };
 
   React.useEffect(() => {

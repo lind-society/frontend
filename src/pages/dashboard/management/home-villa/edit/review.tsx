@@ -23,22 +23,22 @@ const Table = ({ reviews, onCancel, isLoading, error }: ReviewsTableProps) => {
     {
       key: "villaBooking.customer.name" as keyof Review,
       header: "Name",
-      render: (review: Review) => review.villaBooking.customer.name,
+      render: (review: Review) => review.booking?.customer?.name,
     },
     {
       key: "villa.country" as keyof Review,
       header: "Country",
-      render: (review: Review) => review.villa.country,
+      render: (review: Review) => review.villa?.country,
     },
     {
-      key: "villaBooking.checkInDate" as keyof Review,
+      key: "booking.checkInDate" as keyof Review,
       header: "Check In",
-      render: (review: Review) => convertDate(review.villaBooking.checkInDate!),
+      render: (review: Review) => convertDate(review.booking?.checkInDate || ""),
     },
     {
-      key: "villaBooking.checkOutDate" as keyof Review,
+      key: "booking.checkOutDate" as keyof Review,
       header: "Check Out",
-      render: (review: Review) => convertDate(review.villaBooking.checkOutDate!),
+      render: (review: Review) => convertDate(review.booking?.checkOutDate || ""),
     },
     {
       key: "rating" as keyof Review,
@@ -78,7 +78,7 @@ export const ReviewTab: React.FC = () => {
     enabled: Boolean(id),
   });
 
-  const { mutate: deleteReview } = useDeleteApi({ key: ["delete-review"], url: "/reviews", redirectPath: `/dashboard/management/home-villa/edit/${id}` });
+  const { mutate: deleteReview } = useDeleteApi({ key: ["get-reviews", id], url: "/reviews" });
 
   const reviews = respReviews?.data.data || [];
   const totalPages = respReviews?.data.meta.totalPages || 1;

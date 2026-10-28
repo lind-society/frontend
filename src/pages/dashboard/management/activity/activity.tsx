@@ -7,7 +7,7 @@ import { useDeleteApi, useGetApi, usePersistentData, useSearchPagination } from 
 import { Layout, SearchBox } from "../../../../components/ui";
 import { Button, Img, Modal, Pagination } from "../../../../components";
 
-import { FaPlus, FaRegStar, FaRegTrashAlt, FaStar } from "react-icons/fa";
+import { FaFileAlt, FaPlus, FaRegStar, FaRegTrashAlt, FaStar } from "react-icons/fa";
 
 import { Activity, Data, OptionType, Payload } from "../../../../types";
 import { capitalize } from "../../../../utils";
@@ -16,9 +16,10 @@ interface CardContentProps {
   isLoading: boolean;
   activities: Activity[];
   openDeleteModal: (data: any) => void;
+  draftActivityId?: string;
 }
 
-const CardContent = ({ isLoading, activities, openDeleteModal }: CardContentProps) => {
+const CardContent = ({ isLoading, activities, openDeleteModal, draftActivityId }: CardContentProps) => {
   const [favorites, setFavorites] = React.useState<Record<string, boolean>>({});
 
   const toggleFavorite = (activityId: string) => {
@@ -61,6 +62,11 @@ const CardContent = ({ isLoading, activities, openDeleteModal }: CardContentProp
             <button onClick={() => toggleFavorite(activity.id)} className="absolute p-2 top-2 left-2 z-1">
               {isFavorite(activity.id) ? <FaStar className="text-yellow-500" size={24} /> : <FaRegStar size={24} />}
             </button>
+            {activity.id === draftActivityId && (
+              <span className="absolute z-1 flex items-center gap-1 px-2 py-1 text-xs text-yellow-800 bg-yellow-200 rounded-full bottom-2 left-2">
+                <FaFileAlt size={10} /> Draft
+              </span>
+            )}
             <Img src={activity.photos && activity.photos.length > 0 ? activity.photos[0] : defaultImage} alt={activity.name} className="object-cover w-full h-60" />
           </div>
           <div className="text-primary bg-light">
@@ -77,7 +83,7 @@ const CardContent = ({ isLoading, activities, openDeleteModal }: CardContentProp
                   <p className="font-bold whitespace-nowrap">
                     {activity.currency.code} {activity.price}
                   </p>
-                  <p className="text-xs font-light">/session</p>
+                  <p className="text-xs font-light">/{activity.priceUnit || "session"}</p>
                 </div>
               </div>
               <p className="text-xs text-justify line-clamp-6">{activity.highlight}</p>
@@ -95,6 +101,14 @@ export const ActivityPage = () => {
   const useCurrency = usePersistentData<OptionType>("selected-currency", "localStorage");
   const { data: currency } = useCurrency();
 
+  // At most one activity can have unpublished edits pending at a time (the
+  // draft store is a single global slot) — surface which one, if any, so it
+  // doesn't take opening the edit page to notice there's unfinished work.
+  const useEditDraft = usePersistentData<Activity>("edit-activity");
+  const { data: editDraft } = useEditDraft();
+  const hasRealDraftContent = Object.entries(editDraft).some(([key, value]) => key !== "id" && Boolean(value));
+  const draftActivityId = hasRealDraftContent ? editDraft.id : undefined;
+
   const [deleteModal, setDeleteModal] = React.useState<boolean>(false);
   const [selectedActivity, setSelectedActivity] = React.useState<Activity | null>(null);
 
@@ -105,7 +119,7 @@ export const ActivityPage = () => {
     url: "activities",
     params: { search: searchQuery, page: currentPage, baseCurrencyId: currency.value },
   });
-  const { mutate: deleteActivity, isPending } = useDeleteApi({ key: ["delete-activity"], url: "/activities", redirectPath: "/dashboard/management/home-villa" });
+  const { mutate: deleteActivity, isPending } = useDeleteApi({ key: ["get-activities"], url: "/activities" });
 
   const activities = respActivities?.data.data || [];
   const totalPages = respActivities?.data.meta.totalPages || 1;
@@ -134,15 +148,20 @@ export const ActivityPage = () => {
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="head-title">Activities Management</h1>
 
-        <Button onClick={() => navigate("/dashboard/management/activity/add")} className="flex items-center gap-2 btn-primary">
-          <FaPlus /> Add New
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button onClick={() => navigate("/dashboard/management/activity/category")} className="btn-outline">
+            Categories
+          </Button>
+          <Button onClick={() => navigate("/dashboard/management/activity/add")} className="flex items-center gap-2 btn-primary">
+            <FaPlus /> Add New
+          </Button>
+        </div>
       </header>
 
       <div className="space-y-8">
         <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
 
-        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} activities={activities} />
+        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} activities={activities} draftActivityId={draftActivityId} />
 
         <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
       </div>

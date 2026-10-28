@@ -41,7 +41,9 @@ export interface AdditionalItem {
   name: string;
   type: string;
   description: string;
-  photos: string[];
+  // Nullable at the source (`additional.entity.ts`'s `photos!: string[] | null`)
+  // — an additional (e.g. a bedroom) can exist before any photo's assigned.
+  photos: string[] | null;
   createdAt: string;
   updatedAt: string;
 }

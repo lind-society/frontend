@@ -7,7 +7,7 @@ import DatePicker from "react-datepicker";
 import { SearchBox } from "../../../../../components/ui";
 import { Button, Modal, NumberInput } from "../../../../../components";
 
-import { FaPlus, FaRegEdit, FaTrash } from "react-icons/fa";
+import { FaLock, FaPlus, FaRegEdit, FaTrash } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 
 import { Data, Payload, PriceRule, VillaPriceRule } from "../../../../../types";
@@ -32,16 +32,30 @@ interface Rule {
   handleEditToggle: (priceRuleId: string, action: "toggle" | "finish") => void;
 }
 
-const SEASONS = ["Low Season", "Regular Season", "High Season", "Peak Season"];
+/**
+ * The API validates `season` against its own enum, so the option value has to
+ * be the enum member. Sending the human label was rejected with a 422 and the
+ * page had no way to surface it.
+ */
+const SEASONS = [
+  { value: "low_season", label: "Low Season" },
+  { value: "regular_season", label: "Regular Season" },
+  { value: "high_season", label: "High Season" },
+  { value: "peak_season", label: "Peak Season" },
+];
 
 export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVillaIds, handleDeletePriceRule, handleEditPriceRule, handleEditToggle, updateFieldPriceRule }: Rule) => {
   const [searchModalValue, setSearchModalValue] = React.useState<string>("");
   const [searchQuery, setSearchQuery] = React.useState<string>("");
 
+  const hasRange = Boolean(priceRule.startDate && priceRule.endDate);
+
   const { data: respVillas, isLoading } = useGetApi<Payload<Data<VillaPriceRule[]>>>({
     key: ["get-villas-price-rule", searchQuery, priceRule.startDate, priceRule.endDate],
     url: `villa-price-rules/available-villas?startDate=${priceRule.startDate?.toISOString()}&endDate=${priceRule.endDate?.toISOString()}`,
     params: { search: searchQuery, limit: "5" },
+    // Without both dates the URL carries the literal "undefined".
+    enabled: hasRange,
   });
 
   const appliedVillas = respVillas?.data.data.filter((villa) => !priceRule.villas.some((item) => item.id === villa.id)) || [];
@@ -52,8 +66,8 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
 
   return (
     <div className="relative p-6 border rounded-b bg-light border-dark/30">
-      <div className={`absolute inset-0 bg-gray/30 ${priceRule.isActive ? "-z-1" : "z-5"}`}></div>
-      <div className={`absolute inset-0 bg-gray/10 ${priceRule.isEditable ? "-z-1" : "z-5"}`}></div>
+      <div className={`absolute inset-0 pointer-events-none bg-gray/30 ${priceRule.isActive ? "-z-1" : "z-5"}`}></div>
+      <div className={`absolute inset-0 pointer-events-none bg-gray/10 ${priceRule.isEditable ? "-z-1" : "z-5"}`}></div>
       <button className={`absolute top-0 right-0 p-2 bg-red-500 text-light rounded-es-2xl z-5`} onClick={(e) => handleDeletePriceRule(e, priceRule.id)}>
         <FaTrash size={14} />
       </button>
@@ -127,13 +141,29 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
         </div>
       </div>
 
+      {!priceRule.isEditable && (
+        <button
+          type="button"
+          onClick={() => updateFieldPriceRule(priceRule.id, "isEditable", true)}
+          className="z-10 flex items-center gap-2 px-4 py-2 mx-4 mt-3 text-sm rounded text-primary bg-tertiary hover:bg-primary/20"
+        >
+          <FaLock size={12} />
+          Rule terkunci — klik untuk mengubah
+        </button>
+      )}
+
       <div className="grid grid-cols-1 gap-12 px-4 my-4 md:grid-cols-3">
         <div className="space-y-2">
           <span className="block font-semibold uppercase text-primary">Season *</span>
-          <select className="w-full input-select" value={priceRule.season} onChange={(e) => updateFieldPriceRule(priceRule.id, "season", e.target.value)}>
-            {SEASONS.map((status, index) => (
-              <option key={index} value={status}>
-                {status}
+          <select
+            className="w-full input-select disabled:bg-gray/40 disabled:cursor-not-allowed"
+            value={priceRule.season}
+            disabled={!priceRule.isEditable}
+            onChange={(e) => updateFieldPriceRule(priceRule.id, "season", e.target.value)}
+          >
+            {SEASONS.map((season) => (
+              <option key={season.value} value={season.value}>
+                {season.label}
               </option>
             ))}
           </select>
@@ -150,6 +180,7 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
                 closeOnScroll
                 onChange={(date) => updateFieldPriceRule(priceRule.id, "startDate", date)}
                 showIcon
+                disabled={!priceRule.isEditable}
                 className="datepicker-input"
               />
             </div>
@@ -162,6 +193,7 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
                 closeOnScroll
                 onChange={(date) => updateFieldPriceRule(priceRule.id, "endDate", date)}
                 showIcon
+                disabled={!priceRule.isEditable}
                 className="datepicker-input"
               />
             </div>
@@ -176,7 +208,11 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
                 type="checkbox"
                 id={`isDiscount-${priceRule.id}`}
                 checked={priceRule.isDiscount}
-                onChange={(e) => updateFieldPriceRule(priceRule.id, "isDiscount", e.target.checked)}
+                disabled={!priceRule.isEditable}
+                onChange={(e) => {
+                  updateFieldPriceRule(priceRule.id, "isDiscount", e.target.checked);
+                  if (!e.target.checked) updateFieldPriceRule(priceRule.id, "discount", "");
+                }}
                 className="hidden"
               />
               <label
@@ -191,14 +227,14 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
           </div>
           <div className="flex items-center w-full gap-2">
             <NumberInput
-              className="input-text placeholder:text-dark"
-              value={priceRule.isDiscount ? "0" : priceRule.discount}
+              className="input-text placeholder:text-dark disabled:bg-gray/40 disabled:cursor-not-allowed"
+              value={priceRule.discount}
               onChange={(e) => {
                 if (+e.target.value > 100 || +e.target.value < 0) return;
                 updateFieldPriceRule(priceRule.id, "discount", e.target.value);
               }}
-              placeholder="0"
-              disabled={priceRule.isDiscount}
+              placeholder={priceRule.isDiscount ? "1 - 100" : "Nyalakan diskon dulu"}
+              disabled={!priceRule.isEditable || !priceRule.isDiscount}
             />
             <p>%</p>
           </div>
@@ -217,7 +253,8 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
                 <input
                   type="checkbox"
                   id={`${status + priceRule.id}`}
-                  className="cursor-pointer accent-primary"
+                  className="cursor-pointer accent-primary disabled:cursor-not-allowed"
+                  disabled={!priceRule.isEditable}
                   checked={priceRule.isAppliedToAllVilla === (status === "Yes")}
                   onChange={() => {
                     updateFieldPriceRule(priceRule.id, "isAppliedToAllVilla", status === "Yes");
@@ -234,7 +271,11 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
             ))}
           </div>
           {!priceRule.isAppliedToAllVilla && (
-            <button onClick={() => updateFieldPriceRule(priceRule.id, "isOpenModal", true)} className="ml-4 font-medium text-blue-500">
+            <button
+              onClick={() => updateFieldPriceRule(priceRule.id, "isOpenModal", true)}
+              disabled={!priceRule.isEditable}
+              className="ml-4 font-medium text-blue-500 disabled:text-dark/30 disabled:cursor-not-allowed"
+            >
               Edit
             </button>
           )}
@@ -244,7 +285,8 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
             <div key={v.id} className="relative px-4 py-1.5 rounded bg-primary text-light text-sm">
               <button
                 onClick={() => deleteFieldPriceRuleVillaIds(priceRule.id, index)}
-                className="absolute flex items-center justify-center bg-red-500 rounded-full size-4 -top-1.5 -right-1.5 z-1 hover:bg-red-700"
+                disabled={!priceRule.isEditable}
+                className="absolute flex items-center justify-center bg-red-500 rounded-full size-4 -top-1.5 -right-1.5 z-1 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <IoCloseOutline className="text-light" size={14} />
               </button>

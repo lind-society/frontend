@@ -104,7 +104,7 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
           ? {
               id: feature.id,
               name: findDefaultFeatureValue?.name || "New Category",
-              icon: { url: findDefaultFeatureValue?.icon.url || "", key: findDefaultFeatureValue?.icon.key || "" },
+              icon: { url: findDefaultFeatureValue?.icon?.url || "", key: findDefaultFeatureValue?.icon?.key || "" },
               items: [{ id: crypto.randomUUID(), title: "", free: true, price: "", currency: null, hidden: false }],
               isEditing: false,
             }

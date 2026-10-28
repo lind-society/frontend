@@ -29,7 +29,7 @@ export const FeatureHeader = ({ feature, onEdit, onBlur, onAddItem, onReset, onD
     ) : (
       <div className="flex items-center justify-between gap-4">
         <div onClick={() => setIdIcon(feature.id)}>
-          <IconifyPicker onChange={onIconChange} value={feature.icon.key} />
+          <IconifyPicker onChange={onIconChange} value={feature.icon?.key ?? ""} />
         </div>
         <span className="font-semibold">{feature.name}</span>
         <button onClick={() => onBlur(feature.id, "toggle")}>

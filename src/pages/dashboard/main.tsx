@@ -31,13 +31,6 @@ const data = [
   { name: "Sep", value: 0 },
 ];
 
-const STATUS_COLORS: Record<string, string> = {
-  Pending: "bg-yellow-300 text-yellow-700",
-  Confirmed: "bg-purple-300 text-purple-700",
-  Completed: "bg-green-300 text-green-700",
-  Canceled: "bg-red-300 text-red-700",
-};
-
 const Pagination = ({ setPage, page, totalPage }: PaginationProps) => {
   const updatePage = (newPage: number) => {
     setPage(newPage);
@@ -70,12 +63,15 @@ export const MainPage = () => {
 
   const today = getTodayTime();
 
+  // Was pinned to "2025", so the chart stayed empty once the year rolled over
+  // no matter how many bookings existed.
+  const currentYear = new Date().getFullYear();
+
   const { data: respBookingStatistics } = useGetApi<Payload<yearlyData>>({
-    key: ["get-booking-statistics"],
+    key: ["get-booking-statistics", currentYear],
     url: "bookings/statistics/yearly",
-    params: { year: "2025" },
+    params: { year: String(currentYear) },
   });
-  console.log("🚀 ~ MainPage ~ respBookingStatistics:", respBookingStatistics);
 
   const { data: respVillasBestSeller, isError: isErrorVillasBestSeller } = useGetApi<Payload<Data<VillaBestSeller[]>>>({
     key: ["get-villas-best-seller"],
@@ -84,8 +80,8 @@ export const MainPage = () => {
 
   const { data: respBookingVilla, isError: isErrorBookingVilla } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings", currentPageBookingVilla],
-    url: `bookings?filter.createdAt=$gte:${today}T:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
-    params: { page: currentPageBookingVilla, limit: "5", type: "villa" },
+    url: `bookings?filter.createdAt=$gte:${today}T00:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
+    params: { page: currentPageBookingVilla, limit: "5", "filter.type": "$eq:villa" },
   });
 
   const bookingsVilla = respBookingVilla?.data.data || [];
@@ -93,8 +89,8 @@ export const MainPage = () => {
 
   const { data: respBookingActivity, isError: isErrorBookingActivity } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-activities", currentPageBookingActivity],
-    url: `bookings?filter.createdAt=$gte:${today}T:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
-    params: { page: currentPageBookingActivity, limit: "5", type: "activity" },
+    url: `bookings?filter.createdAt=$gte:${today}T00:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
+    params: { page: currentPageBookingActivity, limit: "5", "filter.type": "$eq:activity" },
   });
 
   const bookingsActivity = respBookingActivity?.data.data || [];
@@ -102,7 +98,7 @@ export const MainPage = () => {
 
   const { data: respReviews, isError: isErrorReview } = useGetApi<Payload<Data<Review[]>>>({
     key: ["get-reviews", currentPageReview],
-    url: `reviews?filter.createdAt=$gte:${today}T:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
+    url: `reviews?filter.createdAt=$gte:${today}T00:00:00.000Z&filter.createdAt=$lte:${today}T23:59:59.999Z`,
     params: { page: currentPageReview, limit: "5" },
   });
 
@@ -210,7 +206,7 @@ export const MainPage = () => {
                   <p className="font-bold">{booking.customer.name}</p>
                   <p className="text-dark">{convertDate(booking.bookingDate!)}</p>
                 </div>
-                <StatusBadge status={booking.status} colors={STATUS_COLORS} />
+                <StatusBadge status={booking.status} />
               </li>
             ))}
           </ul>
@@ -251,7 +247,7 @@ export const MainPage = () => {
               <li key={review.id} className="flex items-center justify-between border-b last:border-none">
                 <div>
                   <p className="font-medium">
-                    {review?.villaBooking?.customer?.name || review?.activityBooking?.customer?.name} <strong>[{review.villaId ? "VILLA" : "ACTIVITY"}]</strong>
+                    {review?.booking?.customer?.name} <strong>[{review.villaId ? "VILLA" : "ACTIVITY"}]</strong>
                   </p>
                   <p className="text-sm text-dark">{review?.villa?.name || review?.activity?.name}</p>
                 </div>

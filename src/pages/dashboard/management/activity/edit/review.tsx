@@ -21,19 +21,19 @@ interface ReviewsTableProps {
 const Table = ({ reviews, onCancel, isLoading, error }: ReviewsTableProps) => {
   const columns = [
     {
-      key: "activityBooking.customer.name" as keyof Review,
+      key: "booking.customer.name" as keyof Review,
       header: "Name",
-      render: (review: Review) => review.activityBooking.customer.name,
+      render: (review: Review) => review.booking?.customer?.name,
     },
     {
-      key: "villa.country" as keyof Review,
+      key: "activity.country" as keyof Review,
       header: "Country",
-      render: (review: Review) => review.activity.country,
+      render: (review: Review) => review.activity?.country,
     },
     {
-      key: "activityBooking.bookingDate" as keyof Review,
+      key: "booking.bookingDate" as keyof Review,
       header: "Booking Date",
-      render: (review: Review) => convertDate(review.activityBooking.bookingDate!),
+      render: (review: Review) => convertDate(review.booking?.bookingDate || ""),
     },
     {
       key: "rating" as keyof Review,
@@ -73,7 +73,7 @@ export const ReviewTab: React.FC = () => {
     enabled: Boolean(id),
   });
 
-  const { mutate: deleteReview } = useDeleteApi({ key: ["delete-review"], url: "/reviews", redirectPath: `/dashboard/management/activity/edit/${id}` });
+  const { mutate: deleteReview } = useDeleteApi({ key: ["get-reviews", id], url: "/reviews" });
 
   const reviews = respReviews?.data.data || [];
   const totalPages = respReviews?.data.meta.totalPages || 1;

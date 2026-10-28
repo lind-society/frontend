@@ -1,18 +1,32 @@
-@import url("https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..800;1,400..700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: "Raleway", sans-serif !important;
+  font-family: "Inter", sans-serif !important;
   font-optical-sizing: auto !important;
-  color: #eaeaea;
+  color: #1a1a1a;
+  background-color: #f9fbf9;
+}
+
+/* Playfair Display for page-level display type, Lora for card/sub headings —
+   mirrors the public site's three-family system. */
+h1,
+h2 {
+  font-family: "Playfair Display", serif;
+}
+
+h3,
+h4,
+h5 {
+  font-family: "Lora", serif;
 }
 
 /* card shadow style */
 .card-shadow {
-  box-shadow: 0px 8px 8px #181c143b;
+  box-shadow: 0px 8px 8px #1a1a1a1f;
 }
 
 /* datepicker styling input */
@@ -24,7 +38,7 @@ body {
   width: 100%;
 }
 .datepicker-container .datepicker-input {
-  border: 1px solid #181c144d;
+  border: 1px solid #a2754c4d;
   border-radius: 0.25rem;
   padding-left: 2rem !important;
   width: 100%;
@@ -148,7 +162,7 @@ input[type="number"]::-webkit-outer-spin-button {
     @apply absolute flex items-center justify-center bg-red-500 rounded-full size-6 -top-2 -right-2 z-1 hover:bg-red-700;
   }
   .head-title {
-    @apply text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-primary;
+    @apply text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-dark;
   }
   .heading {
     @apply text-lg sm:text-xl lg:text-2xl font-bold text-primary;
@@ -157,10 +171,10 @@ input[type="number"]::-webkit-outer-spin-button {
     @apply text-base text-dark sm:text-lg md:text-xl;
   }
   .input-text {
-    @apply w-full p-2 text-sm border rounded text-dark outline-none border-dark/30 focus:border-teal-500 focus:ring-1 focus:ring-teal-500;
+    @apply w-full p-2 text-sm border rounded text-dark outline-none border-dark/20 focus:border-primary focus:ring-1 focus:ring-primary;
   }
   .input-select {
-    @apply p-2 text-sm border border-dark/30 text-dark focus:border-teal-500 outline-none rounded focus:ring-1 focus:ring-teal-500;
+    @apply p-2 text-sm border border-dark/20 text-dark focus:border-primary outline-none rounded focus:ring-1 focus:ring-primary;
   }
   .popover {
     @apply absolute p-4 space-y-2 -translate-x-1/2 border border-gray rounded shadow-lg left-1/2 w-full bg-light text-dark z-100;

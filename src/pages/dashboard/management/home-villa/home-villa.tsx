@@ -17,6 +17,13 @@ export const HomeVillaPage = () => {
   const useCurrency = usePersistentData<OptionType>("selected-currency", "localStorage");
   const { data: currency } = useCurrency();
 
+  // At most one villa can have unpublished edits pending at a time (the draft
+  // store is a single global slot) — surface which one, if any.
+  const useEditDraft = usePersistentData<Villa>("edit-villa");
+  const { data: editDraft } = useEditDraft();
+  const hasRealDraftContent = Object.entries(editDraft).some(([key, value]) => key !== "id" && Boolean(value));
+  const draftVillaId = hasRealDraftContent ? editDraft.id : undefined;
+
   const [deleteModal, setDeleteModal] = React.useState<boolean>(false);
   const [selectedVilla, setSelectedVilla] = React.useState<Villa | null>(null);
 
@@ -27,7 +34,7 @@ export const HomeVillaPage = () => {
     url: `villas`,
     params: { search: searchQuery, page: currentPage, baseCurrencyId: currency.value },
   });
-  const { mutate: deleteVilla, isPending } = useDeleteApi({ key: ["delete-villa"], url: "/villas", redirectPath: "/dashboard/management/home-villa" });
+  const { mutate: deleteVilla, isPending } = useDeleteApi({ key: ["get-villas"], url: "/villas" });
 
   const villas = respVillas?.data.data || [];
   const totalPages = respVillas?.data.meta.totalPages || 1;
@@ -63,7 +70,7 @@ export const HomeVillaPage = () => {
       <div className="space-y-8">
         <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
 
-        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} datas={villas} type="home-villa" message={`No villa & home added yet. Click "Add New" to create one.`} />
+        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} datas={villas} type="home-villa" message={`No villa & home added yet. Click "Add New" to create one.`} draftId={draftVillaId} />
 
         <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
       </div>

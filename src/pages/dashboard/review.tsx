@@ -21,14 +21,14 @@ const Table = ({ reviews, isLoading, error }: ReviewsTableProps) => {
       render: (review: Review) => review.villa?.name || review.activity?.name,
     },
     {
-      key: "villaBooking.customer.name" as keyof Review,
+      key: "booking.customer.name" as keyof Review,
       header: "Full Name",
-      render: (review: Review) => review.villaBooking?.customer?.name || review.activityBooking?.customer?.name,
+      render: (review: Review) => review.booking?.customer?.name,
     },
     {
-      key: "villaBooking.customer.email" as keyof Review,
+      key: "booking.customer.email" as keyof Review,
       header: "Email",
-      render: (review: Review) => review.villaBooking?.customer?.email || review.activityBooking?.customer?.email,
+      render: (review: Review) => review.booking?.customer?.email,
     },
     {
       key: "rating" as keyof Review,

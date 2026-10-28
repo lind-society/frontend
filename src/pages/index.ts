@@ -7,11 +7,14 @@ export * from "./dashboard/main";
 
 export * from "./dashboard/review";
 
+export * from "./dashboard/whatsapp";
+
 export * from "./dashboard/management/home-villa/home-villa";
 export * from "./dashboard/management/home-villa/add/add-home-villa";
 export * from "./dashboard/management/home-villa/edit/edit-home-villa";
 
 export * from "./dashboard/management/home-villa/price-rule/price-rule";
+export * from "./dashboard/management/home-villa/price-rule/pricing-calendar-page";
 
 export * from "./dashboard/management/home-villa/rent/rent";
 export * from "./dashboard/management/home-villa/rent/edit-rent";
@@ -28,6 +31,7 @@ export * from "./dashboard/management/property/package/add-package";
 export * from "./dashboard/management/property/package/edit-package";
 
 export * from "./dashboard/management/activity/activity";
+export * from "./dashboard/management/activity/category/category";
 export * from "./dashboard/management/activity/add/add-activity";
 export * from "./dashboard/management/activity/edit/edit-activity";
 

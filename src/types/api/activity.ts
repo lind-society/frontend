@@ -15,6 +15,8 @@ export interface Activity {
   secondaryName: string;
   highlight: string;
   price: number;
+  /** e.g. "session", "person", "hour" — shown on the public site as "/{priceUnit}". */
+  priceUnit: string | null;
   discount: number;
   duration: string;
   address: string;
@@ -33,8 +35,8 @@ export interface Activity {
   videos: string[];
   video360s: string[];
   categoryId: string;
-  currencyId: string;
-  ownerId: string;
+  currencyId?: string;
+  ownerId?: string;
   createdAt: string;
   updatedAt: string;
   owner: Owner;

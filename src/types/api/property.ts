@@ -26,9 +26,9 @@ export interface Property {
   floorPlans: string[];
   averageRating: number;
   soldStatus: boolean;
-  currencyId: string;
+  currencyId?: string;
   currency: Currency;
-  ownerId: string;
+  ownerId?: string;
   owner: Owner;
   createdAt: string;
   updatedAt: string;

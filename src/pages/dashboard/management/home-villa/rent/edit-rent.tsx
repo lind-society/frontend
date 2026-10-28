@@ -12,7 +12,7 @@ import { Button, NumberInput } from "../../../../../components";
 
 import { FaArrowLeft } from "react-icons/fa";
 
-import { statusBookings } from "../../../../../static";
+import { villaBookingStatuses } from "../../../../../static";
 
 import { Booking, Currency, Data, OptionType, Payload, PhoneCodes } from "../../../../../types";
 
@@ -34,7 +34,7 @@ export const EditRentPage = () => {
   const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
   const { data: respBooking } = useGetApi<Payload<Booking>>({ key: ["get-booking", id], url: `bookings/${id}`, params: { type: "villa" } });
   const { data: phoneCodes } = useGetApi<PhoneCodes[]>({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
-  const { mutate: editBooking } = useUpdateApi<Partial<Booking>>({ key: ["edit-booking"], url: "/bookings", redirectPath: `/dashboard/management/rent/edit/${id}` });
+  const { mutate: editBooking } = useUpdateApi<Partial<Booking>>({ key: ["get-booking", id], url: "/bookings" });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +58,8 @@ export const EditRentPage = () => {
   React.useEffect(() => {
     if (respBooking && currencies && phoneCodes) {
       const customer = respBooking.data.customer;
-      const findCurrency = currencies.data.data.find((c) => c.id === respBooking.data.currencyId);
+      // The API never sends a flat currencyId — only the nested `currency` object.
+      const findCurrency = currencies.data.data.find((c) => c.id === respBooking.data.currency?.id);
       const findPhoneCode = phoneCodes.find((phone: any) => phone.dial_code === customer.phoneCountryCode);
 
       setName(customer.name);
@@ -67,8 +68,8 @@ export const EditRentPage = () => {
       setTotalAmount(String(respBooking.data.totalAmount));
       setTotalGuest(String(respBooking.data.totalGuest));
       setStatus(respBooking.data.status);
-      setCheckInDate(new Date(respBooking.data.checkInDate));
-      setCheckOutDate(new Date(respBooking.data.checkOutDate));
+      setCheckInDate(respBooking.data.checkInDate ? new Date(respBooking.data.checkInDate) : null);
+      setCheckOutDate(respBooking.data.checkOutDate ? new Date(respBooking.data.checkOutDate) : null);
       setPhoneCountryCode({ value: findPhoneCode?.dial_code || "", label: `${findPhoneCode?.name} (${findPhoneCode?.dial_code})` });
       setCurrency({ value: findCurrency?.id || "", label: findCurrency?.code || "" });
     }
@@ -93,11 +94,11 @@ export const EditRentPage = () => {
           {/* Property name */}
           <div className="flex items-center">
             <span className="block whitespace-nowrap min-w-60">Property name</span>
-            <input type="text" className="input-text" placeholder="Urna Santal Villa" value={respBooking?.data.villa.name || ""} readOnly />
+            <input type="text" className="input-text" placeholder="Urna Santal Villa" value={respBooking?.data.villa?.name || ""} readOnly />
           </div>
           <div className="flex items-center">
             <span className="block whitespace-nowrap min-w-60">Secondary property name</span>
-            <input type="text" className="input-text" placeholder="Urna Cangau" value={respBooking?.data.villa.secondaryName || ""} readOnly />
+            <input type="text" className="input-text" placeholder="Urna Cangau" value={respBooking?.data.villa?.secondaryName || ""} readOnly />
           </div>
 
           {/* Rent */}
@@ -105,9 +106,9 @@ export const EditRentPage = () => {
             <div className="flex items-center w-full">
               <span className="block whitespace-nowrap min-w-60">Status</span>
               <select className="w-full input-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                {statusBookings.map((status, index) => (
-                  <option key={index} value={status}>
-                    {status}
+                {villaBookingStatuses.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
                   </option>
                 ))}
               </select>

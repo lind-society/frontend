@@ -43,7 +43,7 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
     const groupedAdditionals = data.additionals.reduce((acc, additional) => {
       const key = additional.type;
       if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
-      acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos });
+      acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos ?? [] });
       return acc;
     }, {} as Record<string, Section>);
 
@@ -195,9 +195,16 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
   React.useEffect(() => {
     if (!onChange) return;
 
+    // No completeness filter here, unlike handleSubmitMedia's — this is a
+    // dirty-check against `data.additionals`, which itself has no such
+    // filter (any additional that was ever saved is in there, photo or not).
+    // Filtering it out here dropped e.g. a photo-less bedroom from the
+    // "current" side but not the "original" side, so the lengths never
+    // matched and the tab reported unsaved changes — triggering the leave
+    // confirmation — on a villa the admin hadn't touched at all.
     const currentAdditionals = formState.additional.flatMap((section) =>
       section.field
-        .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)
+        .filter((field) => field.name !== "" || field.description !== "" || field.photos.length > 0)
         .map((field) => ({
           name: field.name,
           type: section.title.toLowerCase(),
@@ -206,11 +213,18 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
         }))
     ) as AdditionalItem[];
 
+    // `data.videos`/`video360s`/`floorPlans` come straight from the API and
+    // are frequently `null` (nothing uploaded yet), while `formState.*`
+    // always normalizes to `[]`. `arraysEqual` treats null and [] as
+    // unequal, so without normalizing here every villa with no
+    // videos/360s/floor-plans looked permanently "changed" from the moment
+    // this tab mounted — triggering the leave-confirmation on every tab
+    // switch even though nothing had been touched.
     const hasChanges =
-      !arraysEqual(formState.photos, data.photos!) ||
-      !arraysEqual(formState.videos, data.videos!) ||
-      !arraysEqual(formState.video360s, data.video360s!) ||
-      !arraysEqual(formState.floorPlans, data.floorPlans!) ||
+      !arraysEqual(formState.photos, data.photos ?? []) ||
+      !arraysEqual(formState.videos, data.videos ?? []) ||
+      !arraysEqual(formState.video360s, data.video360s ?? []) ||
+      !arraysEqual(formState.floorPlans, data.floorPlans ?? []) ||
       !additionalEqual(currentAdditionals, data.additionals);
 
     onChange(hasChanges);

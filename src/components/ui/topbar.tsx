@@ -8,9 +8,10 @@ import { Button, Img } from "../../components";
 
 import { IoIosArrowDown, IoMdMenu } from "react-icons/io";
 
-import { baseCurrency } from "../../static";
-
 import { Currency, Data, OptionType, Payload, User } from "../../types";
+
+/** Mirrors BASE_CURRENCY_CODE in the backend env; the id is resolved at runtime. */
+const BASE_CURRENCY_CODE = "IDR";
 
 export const TopBar = ({ handleOpenNav }: { handleOpenNav: () => void }) => {
   const [ref, dropdown, toggleDropdown] = useToggleState(false);
@@ -40,15 +41,25 @@ export const TopBar = ({ handleOpenNav }: { handleOpenNav: () => void }) => {
   };
 
   React.useEffect(() => {
-    if (data && data.value && data.label) {
-      setCurrency({ value: data.value, label: data.label });
-    } else {
-      setCurrency({ value: baseCurrency, label: "IDR" });
-      setData({ value: baseCurrency, label: "IDR" });
+    const options = currencies?.data.data;
+    if (!options?.length) return;
+
+    // Keep the stored choice only if it still exists server-side. A stale id —
+    // from a previous database, or from the hardcoded `baseCurrency` constant in
+    // static/api.ts — makes every list request 404 with "currency not found",
+    // which surfaces as an empty page rather than an error.
+    const stored = data?.value ? options.find((item) => item.id === data.value) : undefined;
+
+    if (stored) {
+      setCurrency({ value: stored.id, label: stored.code });
+      return;
     }
 
-    return () => setCurrency(null);
-  }, []);
+    const base = options.find((item) => item.code === BASE_CURRENCY_CODE) ?? options[0];
+
+    setCurrency({ value: base.id, label: base.code });
+    setData({ value: base.id, label: base.code });
+  }, [currencies, data]);
 
   return (
     <div className="sticky top-0 block w-full duration-300 border-b z-9999 bg-light">

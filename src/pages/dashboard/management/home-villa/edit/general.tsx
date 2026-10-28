@@ -163,28 +163,73 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     updateNestedField("availability", type, !formState.availability[type]);
   };
 
+  // Clamped rather than rejected — see the add-villa form for why a silent
+  // `return` on an out-of-range keystroke lets the visible input drift away
+  // from the real state (and from what Final Price is computed from).
+  const MAX_PRICE = 999999999999999;
+
   const handlePriceChange = (type: AvailabilityType, value: string) => {
-    if (+value > 999999999999999 || +value < 0) return;
-    updateNestedField("price", type, value);
+    if (value === "") return updateNestedField("price", type, "");
+    const clamped = Math.min(Math.max(+value, 0), MAX_PRICE);
+    updateNestedField("price", type, String(clamped));
   };
 
   const handleDiscountChange = (type: AvailabilityType, value: string) => {
-    if (+value > 100 || +value < 0) return;
-    updateNestedField("discount", type, value);
+    if (value === "") return updateNestedField("discount", type, "");
+    const clamped = Math.min(Math.max(+value, 0), 100);
+    updateNestedField("discount", type, String(clamped));
   };
 
   const handlePriceDailyChange = (type: "lowSeasonDailyPrice" | "highSeasonDailyPrice" | "peakSeasonDailyPrice", value: string) => {
-    if (+value > 999999999999999 || +value < 0) return;
-    updateFormState(type, value);
+    if (value === "") return updateFormState(type, "");
+    const clamped = Math.min(Math.max(+value, 0), MAX_PRICE);
+    updateFormState(type, String(clamped));
   };
 
   const calculatePrice = (price: string, discount: string, isDiscount?: boolean) => {
-    const result = isDiscount ? +price - +price * (+discount / 100) : +price + +price * (+discount / 100);
+    if (price === "") return "0";
+    const factor = (+discount || 0) / 100;
+    const result = isDiscount ? +price - +price * factor : +price + +price * factor;
     return Number.isInteger(result) ? result.toString() : result.toFixed(2);
   };
 
-  // Check if form is changes
+  // Draft on every keystroke, in or out of Edit Mode — no click on Save
+  // needed. This used to only report a hasChanges diff and never persist
+  // anything until Save was pressed, so switching tabs (or closing the
+  // browser) mid-edit silently threw the fields away.
   React.useEffect(() => {
+    const { name, secondaryName, highlight, currency, owner, discount, price, dailyPrice, lowSeasonDailyPrice, highSeasonDailyPrice, peakSeasonDailyPrice, availabilityQuotaPerMonth, availabilityQuotaPerYear, isDiscount, availability } = formState;
+
+    const dataToSave = {
+      name,
+      secondaryName,
+      highlight,
+      // `currency`/`owner` start null and only resolve once the currencies/owners
+      // lookups (and their id -> option match) finish — falling straight to ""
+      // meant switching tabs before that resolved wrote an empty currencyId/
+      // ownerId into the draft, silently and permanently until something reset
+      // it, so Publish later failed 422 "ownerId must be a UUID" for a value
+      // the admin never touched. Fall back to the value already on the villa
+      // instead of blanking it out while the lookup is still in flight.
+      currencyId: currency?.value || data.currencyId || "",
+      ownerId: owner?.value || data.ownerId || "",
+      availability: availability,
+      dailyPrice: availability.daily ? +dailyPrice || 0 : 0,
+      lowSeasonDailyPrice: availability.daily ? +lowSeasonDailyPrice || 0 : 0,
+      highSeasonDailyPrice: availability.daily ? +highSeasonDailyPrice || 0 : 0,
+      peakSeasonDailyPrice: availability.daily ? +peakSeasonDailyPrice || 0 : 0,
+      availabilityQuotaPerMonth: availability.monthly ? +availabilityQuotaPerMonth || 0 : 0,
+      availabilityQuotaPerYear: availability.yearly ? +availabilityQuotaPerYear || 0 : 0,
+      priceMonthly: availability.monthly ? +price.monthly || 0 : 0,
+      priceYearly: availability.yearly ? +price.yearly || 0 : 0,
+      discountMonthly: isDiscount.monthly && availability.monthly ? 0 : +discount.monthly || 0,
+      discountYearly: isDiscount.yearly && availability.yearly ? 0 : +discount.yearly || 0,
+      checkInHour: "00:00",
+      checkOutHour: "00:00",
+    };
+
+    setData(dataToSave);
+
     if (!onChange) return;
 
     const findCurrency = currencies?.data.data.find((c) => c.id === data.currencyId);
@@ -211,61 +256,11 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
     e.preventDefault();
-    const {
-      name,
-      secondaryName,
-      highlight,
-      currency,
-      owner,
-      discount,
-      price,
-      dailyPrice,
-      lowSeasonDailyPrice,
-      highSeasonDailyPrice,
-      peakSeasonDailyPrice,
-      availabilityQuotaPerMonth,
-      availabilityQuotaPerYear,
-      isDiscount,
-      availability,
-    } = formState;
-
-    const requiredFields = [name, secondaryName, highlight, currency, owner];
-
-    const daily = [dailyPrice, lowSeasonDailyPrice, highSeasonDailyPrice, peakSeasonDailyPrice].every((field) => !!field);
-
-    const monthly = [price.monthly, availabilityQuotaPerMonth].every((field) => !!field);
-
-    const yearly = [price.yearly, availabilityQuotaPerYear].every((field) => !!field);
-
-    const hasAnyOnePriceAndDiscount = daily || monthly || yearly;
-
-    const isComplete = requiredFields.every((field) => !!field) && hasAnyOnePriceAndDiscount;
-
-    if (!isComplete) return;
-
-    const dataToSave = {
-      name,
-      secondaryName,
-      highlight,
-      currencyId: currency?.value || "",
-      ownerId: owner?.value || "",
-      availability: availability,
-      dailyPrice: availability.daily ? +dailyPrice : 0,
-      lowSeasonDailyPrice: availability.daily ? +lowSeasonDailyPrice : 0,
-      highSeasonDailyPrice: availability.daily ? +highSeasonDailyPrice : 0,
-      peakSeasonDailyPrice: availability.daily ? +peakSeasonDailyPrice : 0,
-      availabilityQuotaPerMonth: availability.monthly ? +availabilityQuotaPerMonth : 0,
-      availabilityQuotaPerYear: availability.yearly ? +availabilityQuotaPerYear : 0,
-      priceMonthly: availability.monthly ? +price.monthly : 0,
-      priceYearly: availability.yearly ? +price.yearly : 0,
-      discountMonthly: isDiscount.monthly && availability.monthly ? 0 : +discount.monthly,
-      discountYearly: isDiscount.yearly && availability.yearly ? 0 : +discount.yearly,
-      checkInHour: "00:00",
-      checkOutHour: "00:00",
-    };
-
-    setData(dataToSave);
-    ToastMessage({ message: "Success saving edit general...", color: "#22c55e" });
+    // The effect above already drafts every keystroke — Save here just closes
+    // out Edit Mode with a confirmation toast rather than persisting anything
+    // new. Required-field completeness still isn't enforced on the draft
+    // itself; the backend rejects an incomplete Publish with its own message.
+    ToastMessage({ message: "Saved. Publish when you're ready to make it live.", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();
     }, 200);
@@ -406,12 +401,15 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                             <label className="cursor-pointer" htmlFor={`${type}-${status}`}>
                               {status}
                             </label>
+                            {/* `isDiscount` internally means "discount is OFF" —
+                                inverted from the label. "Yes" must map to false
+                                so it enables the field below. */}
                             <input
                               type="checkbox"
                               id={`${type}-${status}`}
                               className="cursor-pointer accent-primary"
-                              checked={formState.isDiscount[type] === (status === "Yes")}
-                              onChange={() => updateNestedField("isDiscount", type, status === "Yes")}
+                              checked={formState.isDiscount[type] === (status === "No")}
+                              onChange={() => updateNestedField("isDiscount", type, status === "No")}
                             />
                           </div>
                         ))}

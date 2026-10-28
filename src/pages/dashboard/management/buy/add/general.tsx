@@ -55,49 +55,56 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Clamped rather than rejected — a silent `return` on an out-of-range
+  // keystroke leaves state unchanged, and when the next value equals the last
+  // one React skips re-syncing the DOM, so the input keeps showing whatever
+  // was typed/pasted while the real state (and Final Price) stays put.
+  const MAX_PRICE = 999999999999999;
+
   const handlePriceChange = (value: string) => {
-    if (+value > 999999999999999 || +value < 0) return;
-    updateFormState("price", value);
+    if (value === "") return updateFormState("price", "");
+    const clamped = Math.min(Math.max(+value, 0), MAX_PRICE);
+    updateFormState("price", String(clamped));
   };
 
   const handleDiscountChange = (value: string) => {
-    if (+value > 100 || +value < 0) return;
-    updateFormState("discount", value);
+    if (value === "") return updateFormState("discount", "");
+    const clamped = Math.min(Math.max(+value, 0), 100);
+    updateFormState("discount", String(clamped));
   };
 
   const calculatePrice = (price: string, discount: string, isDiscount?: boolean) => {
-    const result = isDiscount ? +price - +price * (+discount / 100) : +price + +price * (+discount / 100);
+    if (price === "") return "0";
+    const factor = (+discount || 0) / 100;
+    const result = isDiscount ? +price - +price * factor : +price + +price * factor;
     return Number.isInteger(result) ? result.toString() : result.toFixed(2);
   };
 
-  // Check if form is complete
+  // Draft on every keystroke regardless of completeness, so switching tabs
+  // never loses a half-filled form. Completeness only gates Next/Publish.
   React.useEffect(() => {
-    if (!onChange) return;
-
     const { name, secondaryName, highlight, currency, owner, price, isDiscount, soldStatus, ownershipType, discount } = formState;
 
-    const requiredFields = [name, secondaryName, highlight, currency, owner, price];
+    const dataToSave = {
+      name,
+      secondaryName,
+      highlight,
+      soldStatus,
+      ownershipType,
+      price: +price || 0,
+      discount: isDiscount ? 0 : +discount || 0,
+      currencyId: currency?.value || "",
+      ownerId: owner?.value || "",
+    };
 
+    setData(dataToSave);
+
+    if (!onChange) return;
+
+    const requiredFields = [name, secondaryName, highlight, currency, owner, price];
     const isComplete = requiredFields.every((field) => !!field);
 
-    if (isComplete) {
-      const dataToSave = {
-        name,
-        secondaryName,
-        highlight,
-        soldStatus,
-        ownershipType,
-        price: +price,
-        discount: isDiscount ? 0 : +discount,
-        currencyId: currency?.value || "",
-        ownerId: owner?.value || "",
-      };
-
-      onChange(false);
-      setData(dataToSave);
-    } else {
-      onChange(true);
-    }
+    onChange(!isComplete);
   }, [formState]);
 
   React.useEffect(() => {
@@ -164,12 +171,15 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                       <label className="cursor-pointer" htmlFor={`${status}-${index}`}>
                         {status}
                       </label>
+                      {/* `isDiscount` internally means "discount is OFF" — inverted
+                          from the label. "Yes" must map to false so it enables
+                          the field below. */}
                       <input
                         type="checkbox"
                         id={`${status}-${index}`}
                         className="cursor-pointer accent-primary"
-                        checked={formState.isDiscount === (status === "Yes")}
-                        onChange={() => updateFormState("isDiscount", status === "Yes")}
+                        checked={formState.isDiscount === (status === "No")}
+                        onChange={() => updateFormState("isDiscount", status === "No")}
                       />
                     </div>
                   ))}

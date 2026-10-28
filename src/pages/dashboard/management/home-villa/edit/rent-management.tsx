@@ -6,13 +6,15 @@ import { Pagination } from "../../../../../components";
 
 import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
 
+import { nextApprovedStatus } from "../../../../../static";
+
 import { Booking, Data, Payload } from "../../../../../types";
 import { DataTable, SearchBox, StatusBadge } from "../../../../../components/ui";
 
 interface BookingsTableProps {
   bookings: Booking[];
   onEdit: (id: string) => void;
-  onApprove?: (id: string) => void;
+  onApprove?: (booking: Booking) => void;
   onCancel?: (id: string) => void;
   isLoading?: boolean;
   error?: unknown;
@@ -28,17 +30,17 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
     {
       key: "customer.name" as keyof Booking,
       header: "Full Name",
-      render: (booking: Booking) => booking.customer.name,
+      render: (booking: Booking) => booking.customer?.name,
     },
     {
       key: "customer.email" as keyof Booking,
       header: "Email",
-      render: (booking: Booking) => booking.customer.email,
+      render: (booking: Booking) => booking.customer?.email,
     },
     {
       key: "customer.phoneNumber" as keyof Booking,
       header: "Phone",
-      render: (booking: Booking) => booking.customer.phoneNumber,
+      render: (booking: Booking) => booking.customer?.phoneNumber,
     },
     {
       key: "totalGuest" as keyof Booking,
@@ -61,7 +63,7 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
       render: (booking: Booking) => (
         <div className="flex items-center justify-center gap-2">
           <FaEdit size={20} className="cursor-pointer text-primary" onClick={() => onEdit(booking.id)} />
-          {onApprove && <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking.id)} />}
+          {onApprove && <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking)} />}
           {onCancel && <FaWindowClose size={20} className="text-red-600 cursor-pointer" onClick={() => onCancel(booking.id)} />}
         </div>
       ),
@@ -84,8 +86,16 @@ export const RentManagementTab: React.FC = () => {
     refetch,
   } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings", id, searchQuery, currentPage],
-    url: "bookings/villas",
-    params: { "filter.villaId": id, search: searchQuery, page: currentPage, type: "villa" },
+    // `bookings/villas` is not a route — it fell through to `bookings/:id` and
+    // was rejected by ParseUUIDPipe with 400 "uuid is expected". The list is
+    // served by `bookings` with a villaId filter instead.
+    url: "bookings",
+    params: {
+      "filter.villaId": `$eq:${id}`,
+      "filter.type": "$eq:villa",
+      search: searchQuery,
+      page: currentPage,
+    },
     enabled: Boolean(id),
   });
 
@@ -98,9 +108,20 @@ export const RentManagementTab: React.FC = () => {
     navigate(`/dashboard/management/rent/edit/${bookingId}`);
   };
 
-  const handleApprove = (bookingId: string) => {
+  const handleApprove = (booking: Booking) => {
+    // This used to send a flat "done" for every booking, which the API rejects:
+    // for a villa `done` is only reachable from `checked_in`. The next status
+    // depends on where the booking currently is.
+    const nextStatus = nextApprovedStatus(booking.type, booking.status);
+
+    if (!nextStatus) {
+      window.alert(`Nothing to approve: this booking is already ${booking.status}.`);
+      return;
+    }
+
     if (!window.confirm("Are you sure you want to approve?")) return;
-    editRent({ id: bookingId, updatedItem: { status: "done" } });
+
+    editRent({ id: booking.id, updatedItem: { status: nextStatus } });
     setTimeout(() => {
       refetch();
     }, 1000);

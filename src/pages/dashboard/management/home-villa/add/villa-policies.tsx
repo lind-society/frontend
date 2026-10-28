@@ -1,10 +1,10 @@
 import * as React from "react";
 
-import { usePersistentData } from "../../../../../hooks";
+import { usePersistentData, useVillaPolicyTypes } from "../../../../../hooks";
 
 import { SectionPolicy } from "../../../../../components/ui";
 
-import { baseCancellationTerms, baseHouseRules, basePaymentTerms } from "../../../../../static";
+import { POLICY_TYPE_NAMES } from "../../../../../static";
 
 import { Villa } from "../../../../../types";
 
@@ -24,14 +24,25 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { setData, data } = useStore();
 
-  const defaultHouseRules =
-    data.policies?.filter((policy) => policy.typeId === baseHouseRules).map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) ||
-    houseRulesLists.map((title) => ({ id: crypto.randomUUID(), icon: { key: "key", url: "url" }, title, value: "" }));
+  const { houseRulesId, paymentTermsId, cancellationTermsId, isReady, isLoading: isLoadingPolicyTypes } = useVillaPolicyTypes();
 
-  const defaultPaymentTerms =
-    data.policies?.filter((policy) => policy.typeId === basePaymentTerms).map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) || [];
-  const defaultCancellationTerms =
-    data.policies?.filter((policy) => policy.typeId === baseCancellationTerms).map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) || [];
+  // Grouped by type name: responses carry `type.name`, and the draft held in
+  // session storage carries the `typeId` that was about to be sent. Matching on
+  // either keeps a half-finished draft from losing its policies on reload.
+  const policiesOfType = (typeName: string, typeId?: string) =>
+    data.policies?.filter((policy) => policy.type?.name === typeName || (typeId && policy.typeId === typeId)) ?? [];
+
+  const toEditableRows = (policies: NonNullable<Villa["policies"]>) =>
+    policies.map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description }));
+
+  const savedHouseRules = policiesOfType(POLICY_TYPE_NAMES.houseRules, houseRulesId);
+
+  const defaultHouseRules = savedHouseRules.length
+    ? toEditableRows(savedHouseRules)
+    : houseRulesLists.map((title) => ({ id: crypto.randomUUID(), icon: { key: "key", url: "url" }, title, value: "" }));
+
+  const defaultPaymentTerms = toEditableRows(policiesOfType(POLICY_TYPE_NAMES.paymentTerms, paymentTermsId));
+  const defaultCancellationTerms = toEditableRows(policiesOfType(POLICY_TYPE_NAMES.cancellationTerms, cancellationTermsId));
 
   const [houseRules, setHouseRules] = React.useState<Policies[]>(defaultHouseRules);
   const [paymentTerms, setPaymentTerms] = React.useState<Policies[]>(defaultPaymentTerms);
@@ -58,24 +69,27 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
     const filledHouseRules = houseRules.filter((rule) => rule.value.trim() !== "");
     const isHouseRulesComplete = filledHouseRules.length === 3;
 
-    if (isHouseRulesComplete) {
+    // Without the resolved ids the payload would carry `typeId: undefined`,
+    // which the API rejects with a validation error the admin cannot act on.
+    // Better to keep the step marked incomplete until the types have loaded.
+    if (isHouseRulesComplete && isReady) {
       const dataToSave = {
         policies: [
           ...houseRules.map((rule) => ({
             name: rule.title.replace("Add ", ""),
-            typeId: baseHouseRules,
+            typeId: houseRulesId,
             description: rule.value,
             icon: { key: "key", url: "url" },
           })),
           ...cancellationTerms.map((rule) => ({
             name: rule.title,
-            typeId: baseCancellationTerms,
+            typeId: cancellationTermsId,
             description: rule.value,
             icon: { key: "key", url: "url" },
           })),
           ...paymentTerms.map((term) => ({
             name: term.title,
-            typeId: basePaymentTerms,
+            typeId: paymentTermsId,
             description: term.value,
             icon: { key: "key", url: "url" },
           })),
@@ -86,10 +100,17 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
     } else {
       onChange(true);
     }
-  }, [houseRules, cancellationTerms, paymentTerms]);
+  }, [houseRules, cancellationTerms, paymentTerms, isReady, houseRulesId, paymentTermsId, cancellationTermsId]);
 
   return (
     <>
+      {!isLoadingPolicyTypes && !isReady && (
+        <div className="p-4 mb-8 text-sm text-red-700 border border-red-200 rounded bg-red-50">
+          Policy types are missing on the server, so policies cannot be saved yet. Required: {POLICY_TYPE_NAMES.houseRules}, {POLICY_TYPE_NAMES.paymentTerms},{" "}
+          {POLICY_TYPE_NAMES.cancellationTerms}.
+        </div>
+      )}
+
       <div className="mb-8 space-y-8">
         <div className="flex items-center justify-between">
           <h2 className="heading">House Rules</h2>

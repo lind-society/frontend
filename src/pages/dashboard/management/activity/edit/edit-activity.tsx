@@ -6,16 +6,16 @@ import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks
 
 import { EditLocationTab, Layout } from "../../../../../components/ui";
 
-import { Button } from "../../../../../components";
+import { Button, ToastMessage } from "../../../../../components";
 
-import { FaArrowLeft, FaUpload } from "react-icons/fa";
+import { FaArrowLeft, FaFileAlt, FaUpload } from "react-icons/fa";
 
 import { GeneralTab } from "./general";
 import { ReviewTab } from "./review";
 
 import { Payload, Activity, OptionType } from "../../../../../types";
 
-import { deleteKeysObject } from "../../../../../utils";
+import { deleteKeysObject, formatTitleCase } from "../../../../../utils";
 import { OrderManagementTab } from "./order-management";
 import { EditMediaTab } from "./media";
 
@@ -33,10 +33,46 @@ export const EditActivityPage = () => {
   const useCurrency = usePersistentData<OptionType>("selected-currency", "localStorage");
 
   const { setData } = useStore();
-  const { data } = useEdit();
+  const { setData: setEditData, data, clearData: clearEditDraft } = useEdit();
   const { data: currency } = useCurrency();
 
-  const { mutate: editActivity, isPending } = useUpdateApi<Partial<Activity>>({ key: ["editing-activity"], url: "/activities", redirectPath: "/dashboard/management/activity" });
+  // The draft store is a single global slot, not scoped per activity — if the
+  // admin left one activity mid-edit and opened a different one without
+  // Publishing or discarding, its stale draft would otherwise leak straight
+  // into this activity's form fields (every tab reads from the same store).
+  // Tagging the draft with `id` lets every render tell "genuinely this
+  // activity's" apart from "leftover from a different one" — including on
+  // the very first render, before any effect below has run.
+  const isOwnDraft = data.id === id;
+  // "edit-activity" only ever holds fields a tab has actually Saved locally —
+  // exactly the staged, not-yet-Published changes Publish reads from below.
+  const hasDraftContent = isOwnDraft && Object.entries(data).some(([key, value]) => key !== "id" && Boolean(value));
+
+  const [hadRestoredDraft] = React.useState(() => hasDraftContent);
+
+  React.useEffect(() => {
+    if (!id) return;
+    if (data.id && data.id !== id) {
+      clearEditDraft();
+    }
+    setEditData({ id } as Partial<Activity>);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  React.useEffect(() => {
+    if (hadRestoredDraft) {
+      ToastMessage({ message: "Unpublished changes restored from your last session.", color: "#d97706" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleDiscardDraft = () => {
+    if (!window.confirm("Discard all unpublished changes and revert every tab back to what's live?")) return;
+    clearEditDraft();
+    window.location.reload();
+  };
+
+  const { mutate: editActivity, isPending } = useUpdateApi<Partial<Activity>>({ key: ["get-activities"], url: "/activities", redirectPath: "/dashboard/management/activity" });
 
   const { data: respActivity, isLoading } = useGetApi<Payload<Activity>>({ url: `activities/${id}`, key: ["get-activity", id], params: { baseCurrencyId: currency.value } });
 
@@ -68,17 +104,29 @@ export const EditActivityPage = () => {
 
       setData({
         ...responseData,
+        // The API returns relations only as nested objects, but every tab (and
+        // the update payload) reads the flat ids — without these the Owner and
+        // Currency dropdowns opened empty on an existing activity.
+        ownerId: responseData.ownerId ?? responseData.owner?.id,
+        currencyId: responseData.currencyId ?? responseData.currency?.id,
       });
     }
   }, [respActivity]);
 
   const handleNavigateAway = (tab: TabName) => {
+    if (tab === activeTab) return;
+
     if (hasUnsavedChanges) {
       const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to leave?");
       if (!confirmLeave) {
         return;
       }
     }
+
+    // Clear the flag on a successful switch. It used to stay true forever, so
+    // every later tab click re-triggered the confirm — and a browser with
+    // dialogs suppressed returns false silently, freezing the tabs.
+    setHasUnsavedChanges(false);
     setActiveTab(tab);
   };
 
@@ -96,9 +144,19 @@ export const EditActivityPage = () => {
             <FaArrowLeft size={20} />
           </Button>
           <h1 className="head-title">{respActivity?.data.name}</h1>
+          {hasDraftContent && (
+            <span className="flex items-center gap-2 px-3 py-1 text-sm text-yellow-800 bg-yellow-200 rounded-full">
+              <FaFileAlt size={12} /> Unpublished changes
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
+          {hasDraftContent && (
+            <Button onClick={handleDiscardDraft} className="btn-outline">
+              Discard Draft
+            </Button>
+          )}
           <Button onClick={handlePublish} className="btn-primary">
             {isPending ? (
               <div className="loader size-4 after:size-4"></div>
@@ -118,7 +176,7 @@ export const EditActivityPage = () => {
             className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
             onClick={() => handleNavigateAway(tab)}
           >
-            {tab}
+            {formatTitleCase(tab)}
           </button>
         ))}
       </div>

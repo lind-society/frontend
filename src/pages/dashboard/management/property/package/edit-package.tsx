@@ -16,6 +16,7 @@ interface PackageFormItem {
 interface PackageFormState {
   packageName: string;
   packageDescription: string;
+  packageCommissionPercentage: string;
   packageBenefits: PackageFormItem[];
 }
 
@@ -27,6 +28,7 @@ export const EditPackagePage = () => {
   const [formState, setFormState] = React.useState<PackageFormState>({
     packageName: "",
     packageDescription: "",
+    packageCommissionPercentage: "",
     packageBenefits: [],
   });
 
@@ -34,7 +36,7 @@ export const EditPackagePage = () => {
 
   const { data: respBenefits } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "20" } });
   const { data: respPackage, isLoading } = useGetApi<Payload<Package>>({ key: ["get-package"], url: `packages/${id}` });
-  const { mutate: editPackage, isPending } = useUpdateApi<Partial<Package>>({ key: ["edit-package"], url: "/packages", redirectPath: `/dashboard/management/property` });
+  const { mutate: editPackage, isPending } = useUpdateApi<Partial<Package>>({ key: ["get-packages"], url: "/packages", redirectPath: `/dashboard/management/property` });
 
   const benefitOptions = React.useMemo(() => {
     return respBenefits?.data?.data.map((benefit) => ({ value: benefit.id, label: benefit.title })) || [];
@@ -74,6 +76,7 @@ export const EditPackagePage = () => {
       setFormState({
         packageName: respPackage.data.name,
         packageDescription: respPackage.data.description,
+        packageCommissionPercentage: respPackage.data.commissionPercentage === null || respPackage.data.commissionPercentage === undefined ? "" : String(respPackage.data.commissionPercentage),
         packageBenefits: respPackage.data.benefits.map((item) => ({
           benefit: { label: item.title, value: item.id },
           id: item.id,
@@ -85,10 +88,13 @@ export const EditPackagePage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Same fix as add-package.tsx: don't send rows with no benefit picked —
+    // an empty `{id: ""}` 422'd on "id must be a UUID" with no clear reason.
     const dataToSave = {
       name: formState.packageName,
       description: formState.packageDescription,
-      benefits: formState.packageBenefits.map((item) => ({ id: item.benefit?.value || "" })) as Package["benefits"],
+      commissionPercentage: formState.packageCommissionPercentage === "" ? null : Number(formState.packageCommissionPercentage),
+      benefits: formState.packageBenefits.filter((item) => item.benefit?.value).map((item) => ({ id: item.benefit!.value })) as Package["benefits"],
     };
     setIsDirty(false);
     editPackage({ updatedItem: dataToSave, id: id || "" });
@@ -121,6 +127,7 @@ export const EditPackagePage = () => {
       setFormState({
         packageName: respPackage.data.name,
         packageDescription: respPackage.data.description,
+        packageCommissionPercentage: respPackage.data.commissionPercentage === null || respPackage.data.commissionPercentage === undefined ? "" : String(respPackage.data.commissionPercentage),
         packageBenefits: respPackage.data.benefits.map((item) => ({ benefit: { label: item.title, value: item.id }, id: item.id })),
       });
       setIsDirty(false);
@@ -166,6 +173,24 @@ export const EditPackagePage = () => {
               placeholder="Brief description of the package"
               value={formState.packageDescription}
               onChange={(e) => updateFormField("packageDescription", e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="flex items-center">
+            <label htmlFor="package-commission-percentage" className="block whitespace-nowrap min-w-60">
+              Commission (%)*
+            </label>
+            <input
+              id="package-commission-percentage"
+              type="number"
+              min={0}
+              max={100}
+              step={0.01}
+              className="input-text"
+              placeholder="8"
+              value={formState.packageCommissionPercentage}
+              onChange={(e) => updateFormField("packageCommissionPercentage", e.target.value)}
               required
             />
           </div>

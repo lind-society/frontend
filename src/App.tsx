@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import {
+  ActivityCategoryPage,
   ActivityPage,
   AddActivityPage,
   EditActivityPage,
@@ -24,7 +25,9 @@ import {
   RentPage,
   OrderPage,
   ReviewPage,
+  WhatsappPage,
   PriceRulePage,
+  PricingCalendarPage,
 } from "./pages";
 
 import { ProtectedRoute } from "./routes/protected-route";
@@ -53,13 +56,16 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard/main" element={<MainPage />} />
           <Route path="/dashboard/review" element={<ReviewPage />} />
+          <Route path="/dashboard/whatsapp" element={<WhatsappPage />} />
           <Route path="/dashboard/management/home-villa" element={<HomeVillaPage />} />
           <Route path="/dashboard/management/home-villa/add" element={<AddHomeVillaPage />} />
           <Route path="/dashboard/management/home-villa/edit/:id" element={<EditHomeVillaPage />} />
           <Route path="/dashboard/management/price-rule-villa" element={<PriceRulePage />} />
+          <Route path="/dashboard/management/pricing-calendar" element={<PricingCalendarPage />} />
           <Route path="/dashboard/management/activity" element={<ActivityPage />} />
           <Route path="/dashboard/management/activity/add" element={<AddActivityPage />} />
           <Route path="/dashboard/management/activity/edit/:id" element={<EditActivityPage />} />
+          <Route path="/dashboard/management/activity/category" element={<ActivityCategoryPage />} />
           <Route path="/dashboard/management/buy" element={<BuyPage />} />
           <Route path="/dashboard/management/buy/add" element={<AddBuyPage />} />
           <Route path="/dashboard/management/buy/edit/:id" element={<EditBuyPage />} />

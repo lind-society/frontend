@@ -30,7 +30,7 @@ export const Images360 = ({ src }: { src: string }) => {
     if (src) {
       setValidSrc(src);
     }
-  }, []);
+  }, [src]);
 
   return (
     <div className="w-full">

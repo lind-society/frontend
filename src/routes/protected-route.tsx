@@ -4,12 +4,10 @@ import { authentication, useGetApiWithAuth } from "../hooks";
 
 export const ProtectedRoute = () => {
   const isAuthenticated = authentication.isAuthenticated();
-
   const identifier = authentication.getUser();
+  const { isLoading, isError } = useGetApiWithAuth({ key: ["profile"], url: "/admins/profile", enabled: isAuthenticated });
 
   if (!isAuthenticated) return <Navigate to="/admin/login" />;
-
-  const { isLoading, isError } = useGetApiWithAuth({ key: ["profile"], url: "/admins/profile" });
 
   if (isLoading) {
     return (

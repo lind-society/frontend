@@ -17,6 +17,13 @@ export const BuyPage = () => {
   const useCurrency = usePersistentData<OptionType>("selected-currency", "localStorage");
   const { data: currency } = useCurrency();
 
+  // At most one property can have unpublished edits pending at a time (the
+  // draft store is a single global slot) — surface which one, if any.
+  const useEditDraft = usePersistentData<Property>("edit-property");
+  const { data: editDraft } = useEditDraft();
+  const hasRealDraftContent = Object.entries(editDraft).some(([key, value]) => key !== "id" && Boolean(value));
+  const draftPropertyId = hasRealDraftContent ? editDraft.id : undefined;
+
   const [deleteModal, setDeleteModal] = React.useState<boolean>(false);
   const [selectedProperty, setSelectedProperty] = React.useState<Property | null>(null);
 
@@ -29,9 +36,8 @@ export const BuyPage = () => {
   });
 
   const { mutate: deleteProperty, isPending } = useDeleteApi({
-    key: ["delete-property"],
+    key: ["get-properties"],
     url: "/properties",
-    redirectPath: "/dashboard/management/buy",
   });
 
   const properties = respProperties?.data.data || [];
@@ -69,7 +75,7 @@ export const BuyPage = () => {
       <div className="space-y-8">
         <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
 
-        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} datas={properties} type="buy" message={`No buy added yet. Click "Add New" to create one.`} />
+        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} datas={properties} type="buy" message={`No buy added yet. Click "Add New" to create one.`} draftId={draftPropertyId} />
 
         <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
       </div>

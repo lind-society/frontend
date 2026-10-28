@@ -6,23 +6,18 @@ import { Pagination } from "../../../../../components";
 
 import { FaCheckSquare, FaWindowClose } from "react-icons/fa";
 
+import { nextApprovedStatus } from "../../../../../static";
+
 import { Booking, Data, Payload } from "../../../../../types";
 import { DataTable, SearchBox, StatusBadge } from "../../../../../components/ui";
 
 interface BookingsTableProps {
   bookings: Booking[];
-  onApprove?: (id: string) => void;
+  onApprove?: (booking: Booking) => void;
   onCancel?: (id: string) => void;
   isLoading?: boolean;
   error?: unknown;
 }
-
-const STATUS_COLORS: Record<string, string> = {
-  Pending: "bg-yellow-300 text-yellow-700",
-  Confirmed: "bg-purple-300 text-purple-700",
-  Completed: "bg-green-300 text-green-700",
-  Canceled: "bg-red-300 text-red-700",
-};
 
 const Table = ({ bookings, onApprove, onCancel, isLoading, error }: BookingsTableProps) => {
   const columns = [
@@ -34,34 +29,34 @@ const Table = ({ bookings, onApprove, onCancel, isLoading, error }: BookingsTabl
     {
       key: "customer.name" as keyof Booking,
       header: "Full Name",
-      render: (booking: Booking) => booking.customer.name,
+      render: (booking: Booking) => booking.customer?.name,
     },
     {
       key: "customer.email" as keyof Booking,
       header: "Email",
-      render: (booking: Booking) => booking.customer.email,
+      render: (booking: Booking) => booking.customer?.email,
     },
     {
       key: "customer.phoneNumber" as keyof Booking,
       header: "Phone",
-      render: (booking: Booking) => booking.customer.phoneNumber,
+      render: (booking: Booking) => booking.customer?.phoneNumber,
     },
     {
       key: "activity.category.name" as keyof Booking,
       header: "Category",
-      render: (booking: Booking) => booking.activity.category.name,
+      render: (booking: Booking) => booking.activity?.category?.name,
     },
     {
       key: "status" as keyof Booking,
       header: "Status",
-      render: (booking: Booking) => <StatusBadge status={booking.status} colors={STATUS_COLORS} />,
+      render: (booking: Booking) => <StatusBadge status={booking.status} />,
     },
     {
       key: "actions",
       header: "Actions",
       render: (booking: Booking) => (
         <div className="flex items-center justify-center gap-2">
-          {onApprove && <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking.id)} />}
+          {onApprove && <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking)} />}
           {onCancel && <FaWindowClose size={20} className="text-red-600 cursor-pointer" onClick={() => onCancel(booking.id)} />}
         </div>
       ),
@@ -84,7 +79,7 @@ export const OrderManagementTab: React.FC = () => {
   } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings", id, searchQuery, currentPage],
     url: "bookings",
-    params: { "filter.activityId": id, search: searchQuery, page: currentPage, type: "activity" },
+    params: { "filter.activityId": id, search: searchQuery, page: currentPage, "filter.type": "$eq:activity" },
     enabled: Boolean(id),
   });
 
@@ -93,9 +88,20 @@ export const OrderManagementTab: React.FC = () => {
   const bookings = respBookings?.data.data || [];
   const totalPages = respBookings?.data.meta.totalPages || 1;
 
-  const handleApprove = (bookingId: string) => {
+  const handleApprove = (booking: Booking) => {
+    // Activity bookings never had a `done` status — their vocabulary is
+    // pending/confirmed/completed/canceled — so the old flat "done" always came
+    // back 400. The next status depends on where the booking currently is.
+    const nextStatus = nextApprovedStatus(booking.type, booking.status);
+
+    if (!nextStatus) {
+      window.alert(`Nothing to approve: this booking is already ${booking.status}.`);
+      return;
+    }
+
     if (!window.confirm("Are you sure you want to approve?")) return;
-    editRent({ id: bookingId, updatedItem: { status: "done" } });
+
+    editRent({ id: booking.id, updatedItem: { status: nextStatus } });
     setTimeout(() => {
       refetch();
     }, 1000);

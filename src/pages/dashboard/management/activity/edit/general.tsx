@@ -18,6 +18,7 @@ interface FormState {
   secondaryName: string;
   highlight: string;
   price: string;
+  priceUnit: string;
   isDiscount: boolean;
   discount: string;
   duration: string;
@@ -68,6 +69,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     dataAfterEdit.categoryId ||
     dataAfterEdit.highlight ||
     dataAfterEdit.price ||
+    dataAfterEdit.priceUnit ||
     dataAfterEdit.discount ||
     dataAfterEdit.dailyLimit ||
     dataAfterEdit.duration ||
@@ -91,6 +93,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     secondaryName: data.secondaryName || "",
     highlight: data.highlight || "",
     price: String(data.price || ""),
+    priceUnit: data.priceUnit || "session",
     isDiscount: data.discount ? false : true,
     discount: String(data.discount || ""),
     dailyLimit: String(data.dailyLimit || ""),
@@ -108,18 +111,26 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Clamped rather than rejected — see the add-activity form for why a silent
+  // `return` on an out-of-range keystroke lets the visible input drift away
+  // from the real state (and from what Final Price is computed from).
+  const MAX_PRICE = 999999999999999;
+
   const handlePriceChange = (value: string) => {
-    if (+value > 999999999999999 || +value < 0) return;
-    updateFormState("price", value);
+    if (value === "") return updateFormState("price", "");
+    const clamped = Math.min(Math.max(+value, 0), MAX_PRICE);
+    updateFormState("price", String(clamped));
   };
 
   const handleDiscountChange = (value: string) => {
-    if (+value > 100 || +value < 0) return;
-    updateFormState("discount", value);
+    if (value === "") return updateFormState("discount", "");
+    const clamped = Math.min(Math.max(+value, 0), 100);
+    updateFormState("discount", String(clamped));
   };
 
   const calculatePrice = (price: string, discount: string) => {
-    const result = +price - +price * (+discount / 100);
+    if (price === "") return "0";
+    const result = +price - +price * (+discount || 0) / 100;
     return Number.isInteger(result) ? result.toString() : result.toFixed(2);
   };
 
@@ -141,8 +152,33 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     }
   }, [currencies, owners, categories]);
 
-  // Check if form is changes
+  // Draft on every keystroke, in or out of Edit Mode — no click on Save
+  // needed. This used to only report a hasChanges diff and never persist
+  // anything until Save was pressed, so switching tabs (or closing the
+  // browser) mid-edit silently threw the fields away.
   React.useEffect(() => {
+    const { name, secondaryName, highlight, currency, owner, discount, price, priceUnit, category, dailyLimit, closingHour, duration, endDate, openingHour, startDate, isDiscount } = formState;
+
+    const dataToSave = {
+      name,
+      secondaryName,
+      highlight,
+      price: +price || 0,
+      priceUnit: priceUnit || "session",
+      discount: isDiscount ? 0 : +discount || 0,
+      duration,
+      startDate: startDate?.toDateString() || "",
+      endDate: endDate?.toDateString() || "",
+      openingHour: dateToTimeString(openingHour),
+      closingHour: dateToTimeString(closingHour),
+      dailyLimit: +dailyLimit || 0,
+      currencyId: currency?.value || "",
+      ownerId: owner?.value || "",
+      categoryId: category?.value || "",
+    };
+
+    setData(dataToSave);
+
     if (!onChange) return;
 
     const findCurrency = currencies?.data.data.find((c) => c.id === data.currencyId);
@@ -155,6 +191,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       !arraysEqual(formState.highlight, data.highlight || "") ||
       !arraysEqual(formState.duration, data.duration || "") ||
       !arraysEqual(formState.price, String(data.price || "")) ||
+      !arraysEqual(formState.priceUnit, data.priceUnit || "") ||
       !arraysEqual(formState.discount, String(data.discount || "")) ||
       !arraysEqual(formState.currency?.value || "", String(findCurrency?.id || "")) ||
       !arraysEqual(formState.owner?.value || "", String(findOwner?.id || "")) ||
@@ -165,34 +202,11 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
 
   const handleSubmitGeneral = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const { name, secondaryName, highlight, currency, owner, discount, price, category, dailyLimit, closingHour, duration, endDate, openingHour, startDate, isDiscount } = formState;
-
-    const requiredFields = [name, secondaryName, highlight, currency, owner, category, dailyLimit, closingHour, duration, endDate, openingHour, startDate];
-
-    const isComplete = requiredFields.every((field) => !!field);
-
-    if (!isComplete) return;
-
-    const dataToSave = {
-      name,
-      secondaryName,
-      highlight,
-      price: +price,
-      discount: isDiscount ? 0 : +discount,
-      duration,
-      startDate: startDate?.toDateString() || "",
-      endDate: endDate?.toDateString() || "",
-      openingHour: dateToTimeString(openingHour),
-      closingHour: dateToTimeString(closingHour),
-      dailyLimit: +dailyLimit,
-      currencyId: currency?.value || "",
-      ownerId: owner?.value || "",
-      categoryId: category?.value || "",
-    };
-
-    setData(dataToSave);
-    ToastMessage({ message: "Success saving edit general...", color: "#22c55e" });
+    // The effect above already drafts every keystroke — Save here just closes
+    // out Edit Mode with a confirmation toast rather than persisting anything
+    // new. Required-field completeness still isn't enforced on the draft
+    // itself; the backend rejects an incomplete Publish with its own message.
+    ToastMessage({ message: "Saved. Publish when you're ready to make it live.", color: "#22c55e" });
     setTimeout(() => {
       window.location.reload();
     }, 200);
@@ -359,6 +373,14 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
               <div className="flex items-center w-full gap-2 max-w-80">
                 <NumberInput className="input-text max-w-72 placeholder:text-dark" value={formState.price} onChange={(e) => handlePriceChange(e.target.value)} placeholder={`0`} required />
                 <p>{formState.currency ? formState.currency?.label : ""}</p>
+                <p>/</p>
+                <input
+                  type="text"
+                  className="input-text max-w-32"
+                  value={formState.priceUnit}
+                  onChange={(e) => updateFormState("priceUnit", e.target.value)}
+                  placeholder="session"
+                />
               </div>
 
               <div className="flex items-center justify-center w-full gap-8">
@@ -369,12 +391,15 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                       <label className="cursor-pointer" htmlFor={`${status}-${index}`}>
                         {status}
                       </label>
+                      {/* `isDiscount` internally means "discount is OFF" — inverted
+                          from the label. "Yes" must map to isDiscount=false so it
+                          enables the field below. */}
                       <input
                         type="checkbox"
                         id={`${status}-${index}`}
                         className="cursor-pointer accent-primary"
-                        checked={formState.isDiscount === (status === "Yes")}
-                        onChange={() => updateFormState("isDiscount", status === "Yes")}
+                        checked={formState.isDiscount === (status === "No")}
+                        onChange={() => updateFormState("isDiscount", status === "No")}
                       />
                     </div>
                   ))}

@@ -23,8 +23,23 @@ interface DataStoreState<T> {
   clearData: () => void;
 }
 
+// Keyed by storageType+storeName so every caller asking for the same store
+// (e.g. TopBar's currency picker and every page that also reads
+// "selected-currency") shares one Zustand instance instead of each getting
+// its own. `create()` used to run fresh on every call — a second instance on
+// the same storage key would each hydrate from localStorage, write its own
+// update back, and re-hydrate off the other's write, round-tripping forever
+// as "Maximum update depth exceeded".
+const storeCache = new Map<string, ReturnType<typeof create<DataStoreState<any>>>>();
+
 export function usePersistentData<T>(storeName: string, storageType: "localStorage" | "sessionStorage" = "sessionStorage") {
-  return create<DataStoreState<T>>()(
+  const cacheKey = `${storageType}:${storeName}`;
+  const cached = storeCache.get(cacheKey);
+  if (cached) {
+    return cached as ReturnType<typeof create<DataStoreState<T>>>;
+  }
+
+  const store = create<DataStoreState<T>>()(
     persist(
       (set) => ({
         data: {},
@@ -32,7 +47,10 @@ export function usePersistentData<T>(storeName: string, storageType: "localStora
           set((state) => ({
             data: { ...state.data, ...newData },
           })),
-        clearData: () => set({}),
+        // `set({})` merges an empty object into state — a no-op, since zustand's
+        // default `set` shallow-merges rather than replaces. The draft was never
+        // actually clearable through this. `data: {}` targets the field itself.
+        clearData: () => set({ data: {} }),
       }),
       {
         name: storeName,
@@ -40,4 +58,7 @@ export function usePersistentData<T>(storeName: string, storageType: "localStora
       }
     )
   );
+
+  storeCache.set(cacheKey, store);
+  return store;
 }

@@ -23,3 +23,7 @@ export * from "./api/auth";
 export * from "./api/package";
 export * from "./api/activity";
 export * from "./api/price-rule";
+export * from "./api/master-data";
+export * from "./api/blog";
+export * from "./api/payment";
+export * from "./api/search";

@@ -6,14 +6,14 @@ import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
 import { AddKeyFeaturesTab, AddLocationTab, AddMediaTab, AddServiceFeaturesTab, Layout } from "../../../../../components/ui";
 
-import { Button } from "../../../../../components";
+import { Button, ToastMessage } from "../../../../../components";
 
 import { GeneralTab } from "./general";
 
-import { FaArrowLeft, FaUpload } from "react-icons/fa";
+import { FaArrowLeft, FaFileAlt, FaUpload } from "react-icons/fa";
 import { GrLinkNext } from "react-icons/gr";
 
-import { deleteKeysObject } from "../../../../../utils";
+import { deleteKeysObject, formatTitleCase } from "../../../../../utils";
 
 import { Property } from "../../../../../types";
 
@@ -30,18 +30,41 @@ const getInitialTabValidationState = (): Record<TabName, boolean> => ({
 });
 
 export const AddBuyPage = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const navigate = useNavigate();
 
-  const { mutate: addProperty, isPending } = useCreateApi<Partial<Property>>({ key: ["add-property"], url: "/properties", redirectPath: "/dashboard/management/buy" });
+  const { mutate: addProperty, isPending } = useCreateApi<Partial<Property>>({ key: ["get-properties"], url: "/properties", redirectPath: "/dashboard/management/buy" });
 
   const useStore = usePersistentData<Partial<Property>>("add-property");
 
-  const { data } = useStore();
+  const { data, clearData } = useStore();
+
+  // Frozen at mount: whether a draft from an earlier visit was sitting in
+  // storage before this render's own autosave effects had a chance to run.
+  const [hadRestoredDraft] = React.useState(() => Object.values(data).some(Boolean));
+  const hasDraftContent = Object.values(data).some(Boolean);
+
+  React.useEffect(() => {
+    if (hadRestoredDraft) {
+      ToastMessage({ message: "Draft restored — continuing where you left off.", color: "#d97706" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleDiscardDraft = () => {
+    if (!window.confirm("Discard this draft? Everything typed on every tab will be cleared.")) return;
+    clearData();
+    tabs.forEach((tab) => sessionStorage.removeItem(tab));
+    window.location.reload();
+  };
 
   const [activeTab, setActiveTab] = React.useState<TabName>(() => {
-    const storedTab = sessionStorage.getItem("activeTab");
-    return (storedTab as TabName) || "General";
+    // Was reading a "activeTab" sessionStorage key nothing ever wrote, and
+    // falling back to "General" — capitalized, so it never matched any of
+    // the lowercase TabName values below and left every tab body unrendered
+    // until the user clicked one. Mirrors Activity/Villa's hash-based init.
+    const hashTab = hash.replace("#", "");
+    return tabs.includes(hashTab as TabName) ? (hashTab as TabName) : "general";
   });
 
   const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
@@ -72,24 +95,12 @@ export const AddBuyPage = () => {
     sessionStorage.setItem(tab, JSON.stringify(hasUnsavedChanges));
   };
 
+  // Every tab drafts continuously (see general.tsx), so there's nothing to
+  // lose by jumping around freely — this used to hard-block skipping ahead
+  // until every earlier tab was fully valid, forcing a strict, linear
+  // fill-one-then-the-next flow. Publish is still gated on all tabs being
+  // complete, so incomplete data can never actually be submitted.
   const handleNavigateAway = (tab: TabName) => {
-    const currentTabIndex = tabs.indexOf(activeTab);
-    const targetTabIndex = tabs.indexOf(tab);
-
-    if (targetTabIndex < currentTabIndex) {
-      setActiveTab(tab);
-      return;
-    }
-
-    if (targetTabIndex === currentTabIndex) return;
-
-    const allPreviousTabsValid = tabs.slice(0, targetTabIndex).every((tabName) => tabValidationState[tabName] === false);
-
-    if (!allPreviousTabsValid) {
-      alert("Please complete each previous section before continuing.");
-      return;
-    }
-
     setActiveTab(tab);
   };
 
@@ -108,9 +119,19 @@ export const AddBuyPage = () => {
             <FaArrowLeft size={20} />
           </Button>
           <h1 className="head-title">Add Buy Management</h1>
+          {hasDraftContent && (
+            <span className="flex items-center gap-2 px-3 py-1 text-sm text-yellow-800 bg-yellow-200 rounded-full">
+              <FaFileAlt size={12} /> Draft — not published yet
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
+          {hasDraftContent && (
+            <Button onClick={handleDiscardDraft} className="btn-outline">
+              Discard Draft
+            </Button>
+          )}
           {!tabValidationState["general"] && !tabValidationState["key-features"] && !tabValidationState["location"] && !tabValidationState["media"] && !tabValidationState["service-features"] && (
             <Button onClick={handlePublish} className="btn-primary">
               {isPending ? (
@@ -132,7 +153,7 @@ export const AddBuyPage = () => {
             className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
             onClick={() => handleNavigateAway(tab)}
           >
-            {tab}
+            {formatTitleCase(tab)}
           </button>
         ))}
       </div>

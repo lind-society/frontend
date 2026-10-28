@@ -6,9 +6,9 @@ import { FormState, PriceRuleItem } from "./rule";
 import { Layout } from "../../../../../components/ui";
 import { Button } from "../../../../../components";
 
-import { FaPlus } from "react-icons/fa";
+import toast from "react-hot-toast";
 
-import { deleteKeysObject } from "../../../../../utils";
+import { FaPlus } from "react-icons/fa";
 
 import { Data, Payload, PriceRule } from "../../../../../types";
 
@@ -17,56 +17,116 @@ export const PriceRulePage = () => {
 
   const today = new Date();
 
+  // `currencyId` is required by the API. The topbar already persists the
+  // dashboard's working currency, so the rule inherits it.
+  //
+  // Read straight from storage rather than through `usePersistentData`: that
+  // helper builds a brand new zustand store on every call, and a second store
+  // on the same key fights the topbar's instance into an infinite render loop.
+  const currencyId = React.useMemo(() => {
+    try {
+      const raw = localStorage.getItem("selected-currency");
+      return raw ? (JSON.parse(raw)?.state?.data?.value as string | undefined) : undefined;
+    } catch {
+      return undefined;
+    }
+  }, []);
+
   const { data: respPriceRules, isLoading: loadingPriceRule } = useGetApiWithAuth<Payload<Data<PriceRule[]>>>({ key: ["villa-price-rules"], url: "/villa-price-rules" });
   const { mutate: createPriceRule, isPending: isCreating } = useCreateApi<Partial<PriceRule>>({
-    key: ["add-villa-price-rules"],
+    key: ["villa-price-rules"],
     url: "/villa-price-rules",
-    redirectPath: "/dashboard/management/price-rule-villa",
   });
   const { mutate: updatePriceRule, isPending: isUpdating } = useUpdateApi<Partial<PriceRule>>({
-    key: ["update-villa-price-rules"],
+    key: ["villa-price-rules"],
     url: "/villa-price-rules",
-    redirectPath: "/dashboard/management/price-rule-villa",
   });
-  const { mutate: deletePriceRule } = useDeleteApi({ key: ["delete-villa-price-rules"], url: "/villa-price-rules", redirectPath: "/dashboard/management/price-rule-villa" });
+  const { mutate: deletePriceRule } = useDeleteApi({ key: ["villa-price-rules"], url: "/villa-price-rules" });
 
   const handleAddPriceRule = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!currencyId) {
+      toast.error("Pilih mata uang dulu di bagian atas dashboard.");
+      return;
+    }
+
     if (!window.confirm("Are you sure want to add price rule?")) return;
-    const newDataPriceRule = {
-      id: crypto.randomUUID(),
+
+    // A brand new rule carries no discount at all. Sending `isDiscount: true`
+    // with a zero amount made the API derive a percentage discount type and
+    // then reject 0 as out of the 1-100 range.
+    createPriceRule({
       name: `Rules ${priceRules.length + 1}`,
-      startDate: today.toDateString(),
-      endDate: today.toDateString(),
-      season: "Low Season",
-      isDiscount: true,
-      discount: "",
+      startDate: today.toISOString(),
+      endDate: today.toISOString(),
+      season: "low_season",
+      isDiscount: false,
       isActive: true,
-      isEditingName: false,
-      isEditable: false,
-      isCustomApplied: false,
-      isOpenModal: false,
       villaIds: [],
-      villas: [],
-    };
-    const processData = deleteKeysObject(newDataPriceRule, ["id", "isEditingName", "isCustomApplied", "isOpenModal", "isEditable", "villas", "currency", "isAppliedToAllVilla"]);
-    createPriceRule({ ...processData, discount: 0 });
+      currencyId,
+    } as unknown as Partial<PriceRule>);
   };
 
   const handleEditPriceRule = (e: React.MouseEvent, priceRuleId: string) => {
     e.preventDefault();
-    const priceRule = priceRules.find((item) => item.id === priceRuleId);
-    const processData = deleteKeysObject(priceRule, ["id", "isEditingName", "isCustomApplied", "isOpenModal", "isEditable", "createdAt", "updatedAt", "villas", "currency", "isAppliedToAllVilla"]);
 
+    const priceRule = priceRules.find((item) => item.id === priceRuleId);
+    if (!priceRule) return;
+
+    // Validate here rather than letting the API answer 422: the page has no
+    // field-level error slots, so a rejected save used to look like nothing
+    // happening at all.
+    if (!priceRule.name.trim()) {
+      toast.error("Nama rule tidak boleh kosong.");
+      return;
+    }
+
+    if (!priceRule.startDate || !priceRule.endDate) {
+      toast.error("Tanggal mulai dan selesai harus diisi.");
+      return;
+    }
+
+    if (priceRule.endDate < priceRule.startDate) {
+      toast.error("Tanggal selesai tidak boleh sebelum tanggal mulai.");
+      return;
+    }
+
+    const discount = Number(priceRule.discount);
+
+    if (priceRule.isDiscount && (!discount || discount < 1 || discount > 100)) {
+      toast.error("Diskon harus antara 1 dan 100 persen.");
+      return;
+    }
+
+    if (!currencyId) {
+      toast.error("Pilih mata uang dulu di bagian atas dashboard.");
+      return;
+    }
+
+    // Build the payload explicitly instead of spreading the loaded rule.
+    //
+    // The API echoes a HAL `link` field on every response, and it validates
+    // requests with `forbidNonWhitelisted`, so spreading the object back sent
+    // `link` and was rejected with "property link should not exist" — a 422
+    // the page had no way to show. A whitelist also survives the API growing
+    // new response fields later.
     updatePriceRule({
-      id: priceRule?.id || "",
+      id: priceRule.id,
       updatedItem: {
-        ...processData,
-        startDate: priceRule?.startDate?.toDateString(),
-        endDate: priceRule?.endDate?.toDateString(),
-        discount: priceRule?.isDiscount ? 0 : +priceRule?.discount!,
-        villaIds: priceRule?.villas.map((item) => item.id) || [],
-      },
+        name: priceRule.name.trim(),
+        season: priceRule.season,
+        startDate: priceRule.startDate.toISOString(),
+        endDate: priceRule.endDate.toISOString(),
+        isDiscount: priceRule.isDiscount,
+        isActive: priceRule.isActive,
+        // With a discount: send the amount (the API infers `discountType` from
+        // it, and rejects 0 as out of range). Without one: send an explicit
+        // null, otherwise switching the discount off leaves the old percentage
+        // stored and still being applied.
+        discount: priceRule.isDiscount ? discount : null,
+        villaIds: (priceRule.villas ?? []).map((item) => item.id),
+        currencyId,
+      } as unknown as Partial<PriceRule>,
     });
   };
 
@@ -113,8 +173,9 @@ export const PriceRulePage = () => {
         isOpenModal: false,
         startDate: new Date(priceRule.startDate),
         endDate: new Date(priceRule.endDate),
-        villaIds: priceRule.villas.map((item) => item.id),
-        discount: priceRule.discount.toString(),
+        villas: priceRule.villas ?? [],
+        villaIds: (priceRule.villas ?? []).map((item) => item.id),
+        discount: priceRule.discount?.toString() ?? "",
       }));
       setPriceRules(priceRules);
     }

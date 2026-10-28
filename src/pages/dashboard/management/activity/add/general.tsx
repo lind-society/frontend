@@ -16,6 +16,7 @@ interface FormState {
   secondaryName: string;
   highlight: string;
   price: string;
+  priceUnit: string;
   isDiscount: boolean;
   discount: string;
   duration: string;
@@ -52,6 +53,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     secondaryName: data.secondaryName || "",
     highlight: data.highlight || "",
     price: String(data.price || ""),
+    priceUnit: data.priceUnit || "session",
     isDiscount: data.discount ? false : true,
     discount: String(data.discount || ""),
     dailyLimit: String(data.dailyLimit || ""),
@@ -69,54 +71,66 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Clamped rather than rejected: silently `return`-ing on an out-of-range
+  // keystroke leaves the state unchanged, and when the new value is identical
+  // to the old one React skips re-syncing the DOM — so the input visually
+  // kept whatever the browser had just typed/pasted (e.g. "50000") while the
+  // real state (and Final Price) stayed at the last valid value. Clamping
+  // always writes something back, so the field the user sees can never drift
+  // from what is actually stored.
+  const MAX_PRICE = 999999999999999;
+
   const handlePriceChange = (value: string) => {
-    if (+value > 999999999999999 || +value < 0) return;
-    updateFormState("price", value);
+    if (value === "") return updateFormState("price", "");
+    const clamped = Math.min(Math.max(+value, 0), MAX_PRICE);
+    updateFormState("price", String(clamped));
   };
 
   const handleDiscountChange = (value: string) => {
-    if (+value > 100 || +value < 0) return;
-    updateFormState("discount", value);
+    if (value === "") return updateFormState("discount", "");
+    const clamped = Math.min(Math.max(+value, 0), 100);
+    updateFormState("discount", String(clamped));
   };
 
   const calculatePrice = (price: string, discount: string) => {
-    const result = +price - +price * (+discount / 100);
+    if (price === "") return "0";
+    const result = +price - +price * (+discount || 0) / 100;
     return Number.isInteger(result) ? result.toString() : result.toFixed(2);
   };
 
-  // Check if form is complete
+  // Draft the whole tab on every keystroke — regardless of completeness —
+  // so switching tabs (or closing the browser) never loses a half-filled
+  // form. Completeness only gates whether the caller shows Next/Publish;
+  // it used to also gate saving, so an incomplete tab kept nothing at all.
   React.useEffect(() => {
+    const { name, secondaryName, highlight, currency, owner, discount, price, priceUnit, category, dailyLimit, closingHour, duration, endDate, openingHour, startDate, isDiscount } = formState;
+
+    const dataToSave = {
+      name,
+      secondaryName,
+      highlight,
+      price: +price || 0,
+      priceUnit: priceUnit || "session",
+      discount: isDiscount ? 0 : +discount || 0,
+      duration,
+      startDate: startDate?.toDateString() || "",
+      endDate: endDate?.toDateString() || "",
+      openingHour: dateToTimeString(openingHour),
+      closingHour: dateToTimeString(closingHour),
+      dailyLimit: +dailyLimit || 0,
+      currencyId: currency?.value || "",
+      ownerId: owner?.value || "",
+      categoryId: category?.value || "",
+    };
+
+    setData(dataToSave);
+
     if (!onChange) return;
 
-    const { name, secondaryName, highlight, currency, owner, discount, price, category, dailyLimit, closingHour, duration, endDate, openingHour, startDate, isDiscount } = formState;
-
     const requiredFields = [name, secondaryName, highlight, currency, owner, category, dailyLimit, closingHour, duration, endDate, openingHour, startDate];
-
     const isComplete = requiredFields.every((field) => !!field);
 
-    if (isComplete) {
-      const dataToSave = {
-        name,
-        secondaryName,
-        highlight,
-        price: +price,
-        discount: isDiscount ? 0 : +discount,
-        duration,
-        startDate: startDate?.toDateString() || "",
-        endDate: endDate?.toDateString() || "",
-        openingHour: dateToTimeString(openingHour),
-        closingHour: dateToTimeString(closingHour),
-        dailyLimit: +dailyLimit,
-        currencyId: currency?.value || "",
-        ownerId: owner?.value || "",
-        categoryId: category?.value || "",
-      };
-
-      setData(dataToSave);
-      onChange(false);
-    } else {
-      onChange(true);
-    }
+    onChange(!isComplete);
   }, [formState]);
 
   React.useEffect(() => {
@@ -281,11 +295,24 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
               <div className="flex items-center w-full gap-2 max-w-80">
                 <NumberInput className="input-text max-w-72 placeholder:text-dark" value={formState.price} onChange={(e) => handlePriceChange(e.target.value)} placeholder={`0`} required />
                 <p>{formState.currency ? formState.currency?.label : ""}</p>
+                <p>/</p>
+                <input
+                  type="text"
+                  className="input-text max-w-32"
+                  value={formState.priceUnit}
+                  onChange={(e) => updateFormState("priceUnit", e.target.value)}
+                  placeholder="session"
+                />
               </div>
 
               <div className="flex items-center justify-center w-full gap-8">
                 <p>Discount*</p>
                 <div className="flex gap-4">
+                  {/* `isDiscount` internally means "discount is OFF" (it zeroes and
+                      disables the field below) — inverted from what the label
+                      reads. "Yes, there's a discount" must map to isDiscount=false
+                      so it enables the input; flipped here rather than renaming
+                      the variable everywhere it's read on save. */}
                   {(["Yes", "No"] as const).map((status, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <label className="cursor-pointer" htmlFor={`${status}-${index}`}>
@@ -295,8 +322,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                         type="checkbox"
                         id={`${status}-${index}`}
                         className="cursor-pointer accent-primary"
-                        checked={formState.isDiscount === (status === "Yes")}
-                        onChange={() => updateFormState("isDiscount", status === "Yes")}
+                        checked={formState.isDiscount === (status === "No")}
+                        onChange={() => updateFormState("isDiscount", status === "No")}
                       />
                     </div>
                   ))}

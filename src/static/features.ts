@@ -13,10 +13,13 @@ export interface ItemFeature {
 export interface Feature {
   id: string;
   name: string;
+  // The backend's feature catalog allows an unset icon (`icon: Icon | null`
+  // on the entity) — this type also represents live, API-sourced feature
+  // state, not just the hardcoded defaults below (which always have one).
   icon: {
     key: string;
     url: string;
-  };
+  } | null;
   items: ItemFeature[];
   isEditing: boolean;
 }

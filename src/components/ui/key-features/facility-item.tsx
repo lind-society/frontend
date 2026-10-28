@@ -25,7 +25,7 @@ export const FacilityItem: React.FC<FacilityItemProps> = ({ facility, onUpdateFi
     <div className="flex items-center gap-4 px-4 py-8 border-b border-dark/30">
       <div className="space-y-2">
         <label className="block text-sm whitespace-nowrap">Icon *</label>
-        <IconifyPicker onChange={handleIconChange} value={facility.icon.key} />
+        <IconifyPicker onChange={handleIconChange} value={facility.icon?.key ?? ""} />
       </div>
 
       <div className="w-full space-y-1 ms-2">

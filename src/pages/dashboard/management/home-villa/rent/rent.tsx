@@ -8,12 +8,14 @@ import { Img, Pagination } from "../../../../../components";
 import { FaCheckSquare, FaEdit, FaWindowClose } from "react-icons/fa";
 import { FaCalendar } from "react-icons/fa";
 
+import { nextApprovedStatus } from "../../../../../static";
+
 import { Booking, Data, Payload } from "../../../../../types";
 
 interface BookingsTableProps {
   bookings: Booking[];
   onEdit: (id: string) => void;
-  onApprove?: (id: string) => void;
+  onApprove?: (booking: Booking) => void;
   onCancel?: (id: string) => void;
   isLoading?: boolean;
   error?: unknown;
@@ -24,7 +26,8 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
     {
       key: "villa.name" as keyof Booking,
       header: "Image",
-      render: (booking: Booking) => <Img src={booking.villa?.photos[0] || "/images/modern-villa-background.webp"} alt={booking.villa?.name} className="size-14" />,
+      // `villa?.photos[0]` still indexed undefined when the relation was absent
+      render: (booking: Booking) => <Img src={booking.villa?.photos?.[0] || "/images/modern-villa-background.webp"} alt={booking.villa?.name || ""} className="size-14" />,
     },
     {
       key: "villa.name" as keyof Booking,
@@ -34,17 +37,17 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
     {
       key: "customer.name" as keyof Booking,
       header: "Full Name",
-      render: (booking: Booking) => booking.customer.name,
+      render: (booking: Booking) => booking.customer?.name,
     },
     {
       key: "customer.email" as keyof Booking,
       header: "Email",
-      render: (booking: Booking) => booking.customer.email,
+      render: (booking: Booking) => booking.customer?.email,
     },
     {
       key: "customer.phoneNumber" as keyof Booking,
       header: "Phone",
-      render: (booking: Booking) => booking.customer.phoneNumber,
+      render: (booking: Booking) => booking.customer?.phoneNumber,
     },
     {
       key: "totalGuest" as keyof Booking,
@@ -67,7 +70,7 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
       render: (booking: Booking) => (
         <div className="flex items-center justify-center gap-2">
           <FaEdit size={20} className="cursor-pointer text-primary" onClick={() => onEdit(booking.id)} />
-          {onApprove && <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking.id)} />}
+          {onApprove && <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking)} />}
           {onCancel && <FaWindowClose size={20} className="text-red-600 cursor-pointer" onClick={() => onCancel(booking.id)} />}
         </div>
       ),
@@ -90,7 +93,9 @@ export const RentPage = () => {
   } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings-villas", searchQuery, currentPage],
     url: "bookings",
-    params: { search: searchQuery, page: currentPage, type: "villa" },
+    // `type: "villa"` is not a paginate param, so activity bookings leaked into
+    // this villa-only screen — and those carry no `villa` relation to render.
+    params: { search: searchQuery, page: currentPage, "filter.type": "$eq:villa" },
   });
 
   const { mutate: editRent } = useUpdateApi({ key: ["edit-booking"], url: "/bookings" });
@@ -107,9 +112,22 @@ export const RentPage = () => {
     navigate(`/dashboard/management/rent/edit/${bookingId}`);
   };
 
-  const handleApprove = (bookingId: string) => {
+  // status values are the lowercase enum labels stored in Postgres; "Done" and
+  // "Canceled" were rejected with 400 invalid status
+  const handleApprove = (booking: Booking) => {
+    // This used to send a flat "done" for every booking, which the API rejects:
+    // for a villa `done` is only reachable from `checked_in`. The next status
+    // depends on where the booking currently is.
+    const nextStatus = nextApprovedStatus(booking.type, booking.status);
+
+    if (!nextStatus) {
+      window.alert(`Nothing to approve: this booking is already ${booking.status}.`);
+      return;
+    }
+
     if (!window.confirm("Are you sure you want to approve?")) return;
-    editRent({ id: bookingId, updatedItem: { status: "Done" } });
+
+    editRent({ id: booking.id, updatedItem: { status: nextStatus } });
     setTimeout(() => {
       refetch();
     }, 1000);
@@ -117,7 +135,7 @@ export const RentPage = () => {
 
   const handleCancel = (bookingId: string) => {
     if (!window.confirm("Are you sure you want to cancel?")) return;
-    editRent({ id: bookingId, updatedItem: { status: "Canceled" } });
+    editRent({ id: bookingId, updatedItem: { status: "canceled" } });
     setTimeout(() => {
       refetch();
     }, 1000);

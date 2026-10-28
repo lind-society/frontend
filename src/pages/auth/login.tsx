@@ -42,7 +42,7 @@ export const LoginPage = () => {
     }
   };
 
-  const { isSuccess } = useGetApiWithAuth({ key: ["profile"], url: `/admins/profile` });
+  const { isSuccess } = useGetApiWithAuth({ key: ["profile"], url: `/admins/profile`, enabled: authentication.isAuthenticated() });
 
   if (isSuccess) {
     return <Navigate to="/dashboard/main" />;
@@ -52,7 +52,7 @@ export const LoginPage = () => {
     <Background src="/images/modern-villa-background.webp" alt="login background" className="flex items-center justify-center min-h-screen">
       <div className="relative w-full max-w-md p-8 rounded-lg shadow-lg bg-light">
         <div className="flex flex-col items-center mb-8">
-          <Img src="/logo.png" alt="LIND Society" className="h-12 mb-4" />
+          <Img src="/logo-brand.png" alt="LIND Society" className="h-12 mb-4" />
           <h1 className="text-sm text-primary">Welcome to LIND Society</h1>
           <h2 className="text-xl font-medium text-center text-primary">
             Manage Your Villa & Property
@@ -92,7 +92,7 @@ export const LoginPage = () => {
 
           {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
 
-          <button type="submit" className="flex items-center justify-center w-full px-4 py-2 transition-colors duration-300 bg-teal-700 rounded-md text-light hover:bg-teal-800" disabled={isLoading}>
+          <button type="submit" className="flex items-center justify-center w-full px-4 py-2 transition-colors duration-300 rounded btn-primary" disabled={isLoading}>
             {isLoading ? (
               <div className="flex justify-center">
                 <div className="loader size-6 after:size-6"></div>

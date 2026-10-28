@@ -20,7 +20,7 @@ export const AddOwnerPage = () => {
 
   const [owner, setOwner] = React.useState<Partial<Owner>>(initValue);
 
-  const { mutate: addOwner, isPending, isSuccess } = useCreateApi<Partial<Owner>>({ key: ["add-owner"], url: "/owners", redirectPath: "/dashboard/management/owner" });
+  const { mutate: addOwner, isPending } = useCreateApi<Partial<Owner>>({ key: ["owners"], url: "/owners" });
 
   const { data: phoneCodes } = useGetApi<PhoneCodes[]>({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
 
@@ -36,11 +36,19 @@ export const AddOwnerPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const ownerProcess = deleteKeysObject(owner, ["id", "activities", "properties", "villas", "createdAt", "updatedAt"]);
-    addOwner({
-      ...ownerProcess,
-      phoneCountryCode: phoneCountryCode?.value,
-    });
-    if (isSuccess) setOwner(initValue);
+    addOwner(
+      {
+        ...ownerProcess,
+        phoneCountryCode: phoneCountryCode?.value,
+      },
+      {
+        onSuccess: () => {
+          setOwner(initValue);
+          setPhoneCountryCode(null);
+          setAddModal(false);
+        },
+      },
+    );
   };
 
   return (

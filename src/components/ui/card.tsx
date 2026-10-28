@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import { Img } from "../image";
 
-import { FaRegTrashAlt, FaStar } from "react-icons/fa";
+import { FaFileAlt, FaRegTrashAlt, FaStar } from "react-icons/fa";
 
 import { capitalize } from "../../utils";
 
@@ -12,9 +12,11 @@ interface CardContentProps {
   datas: any[];
   message: string;
   openDeleteModal: (data: any) => void;
+  /** Id of the one record (if any) with unpublished edits pending — the draft store is a single global slot. */
+  draftId?: string;
 }
 
-export const CardContent = ({ isLoading, datas, type, openDeleteModal, message }: CardContentProps) => {
+export const CardContent = ({ isLoading, datas, type, openDeleteModal, message, draftId }: CardContentProps) => {
   if (isLoading) {
     return (
       <div className="flex justify-center min-h-300">
@@ -42,6 +44,11 @@ export const CardContent = ({ isLoading, datas, type, openDeleteModal, message }
               <FaRegTrashAlt />
             </button>
             <Img src={data.photos && data.photos.length > 0 ? data.photos[0] : defaultImage} alt={data.name} className="object-cover w-full h-60" />
+            {data.id === draftId && (
+              <span className="absolute z-1 flex items-center gap-1 px-2 py-1 text-xs text-yellow-800 bg-yellow-200 rounded-full top-2 left-2">
+                <FaFileAlt size={10} /> Draft
+              </span>
+            )}
             {type === "home-villa" && (
               <span className="absolute flex items-center gap-1 py-1.5 px-4 text-xs font-bold bg-primary bottom-0 left-0 text-light z-1">
                 <FaStar />
@@ -60,7 +67,9 @@ export const CardContent = ({ isLoading, datas, type, openDeleteModal, message }
                 <h2 className="font-semibold">{data.name}</h2>
               </Link>
               <p className="font-bold">
-                {data.currency.symbol} {data.price || data.dailyPrice || data.priceMonthly || data.priceYearly}
+                {/* currency is an optional relation — a record saved without one
+                    used to crash the whole grid with "cannot read 'symbol'" */}
+                {data.currency?.symbol} {data.price || data.dailyPrice || data.priceMonthly || data.priceYearly}
               </p>
             </div>
           </div>

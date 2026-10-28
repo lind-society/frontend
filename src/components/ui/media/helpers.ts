@@ -31,7 +31,7 @@ export const arraysEqual = (a: string[], b: string[]) => {
 export const additionalEqual = (a: AdditionalItem[] = [], b: AdditionalItem[] = []) => {
   if (a.length !== b.length) return false;
 
-  const serializeItem = (item: AdditionalItem) => `${item.type}-${item.name}-${item.description}-${JSON.stringify([...item.photos].sort())}`;
+  const serializeItem = (item: AdditionalItem) => `${item.type}-${item.name}-${item.description}-${JSON.stringify([...(item.photos ?? [])].sort())}`;
 
   const aSet = new Set(a.map(serializeItem));
 

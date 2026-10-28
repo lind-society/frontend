@@ -113,7 +113,7 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
           ? {
               id: feature.id,
               name: findDefaultFeatureValue?.name || "New Category",
-              icon: { url: findDefaultFeatureValue?.icon.url || "", key: findDefaultFeatureValue?.icon.key || "" },
+              icon: { url: findDefaultFeatureValue?.icon?.url || "", key: findDefaultFeatureValue?.icon?.key || "" },
               items: [{ id: crypto.randomUUID(), title: "", free: true, price: "", currency: null, hidden: false }],
               isEditing: false,
             }
@@ -203,8 +203,12 @@ export const EditServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedDat
   React.useEffect(() => {
     if (!onChange || !data.features) return;
 
-    const hasChanges = defaultFeature !== features;
-    // TODO : adding some validation
+    // `defaultFeature` is rebuilt on every render, so comparing by reference was
+    // always true — hasUnsavedChanges got stuck on and every tab switch raised
+    // the "unsaved changes" prompt. Compare the actual content instead.
+    const hasChanges =
+      JSON.stringify(defaultFeature) !== JSON.stringify(features);
+
     onChange(hasChanges);
   }, [features]);
 

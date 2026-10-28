@@ -6,14 +6,16 @@ import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
 import { Layout, AddLocationTab } from "../../../../../components/ui";
 
-import { Button } from "../../../../../components";
+import { Button, ToastMessage } from "../../../../../components";
+
+import { FaFileAlt } from "react-icons/fa";
 
 import { GeneralTab } from "./general";
 
 import { FaArrowLeft, FaUpload } from "react-icons/fa";
 import { GrLinkNext } from "react-icons/gr";
 
-import { deleteKeysObject } from "../../../../../utils";
+import { deleteKeysObject, formatTitleCase } from "../../../../../utils";
 
 import { Activity } from "../../../../../types";
 import { AddMediaTab } from "./media";
@@ -32,9 +34,30 @@ export const AddActivityPage = () => {
   const { pathname, hash } = useLocation();
   const navigate = useNavigate();
 
-  const { mutate: addActivity, isPending } = useCreateApi<Partial<Activity>>({ key: ["add-activity"], url: "/activities", redirectPath: "/dashboard/management/activity" });
+  const { mutate: addActivity, isPending } = useCreateApi<Partial<Activity>>({ key: ["get-activities"], url: "/activities", redirectPath: "/dashboard/management/activity" });
   const useStore = usePersistentData<Partial<Activity>>("add-activity");
-  const { data } = useStore();
+  const { data, clearData } = useStore();
+
+  // Frozen at mount: whether a draft from an earlier visit was sitting in
+  // storage before this render's own autosave effects had a chance to run.
+  const [hadRestoredDraft] = React.useState(() => Object.values(data).some(Boolean));
+  const hasDraftContent = Object.values(data).some(Boolean);
+
+  React.useEffect(() => {
+    if (hadRestoredDraft) {
+      ToastMessage({ message: "Draft restored — continuing where you left off.", color: "#d97706" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleDiscardDraft = () => {
+    if (!window.confirm("Discard this draft? Everything typed on every tab will be cleared.")) return;
+    clearData();
+    sessionStorage.removeItem("general");
+    sessionStorage.removeItem("media");
+    sessionStorage.removeItem("location");
+    window.location.reload();
+  };
 
   const [activeTab, setActiveTab] = React.useState<TabName>(() => {
     const hashTab = hash.replace("#", "");
@@ -69,24 +92,12 @@ export const AddActivityPage = () => {
     sessionStorage.setItem(tab, JSON.stringify(hasUnsavedChanges));
   };
 
+  // Every tab drafts continuously (see general.tsx), so there's nothing to
+  // lose by jumping around freely — this used to hard-block skipping ahead
+  // until every earlier tab was fully valid, forcing a strict, linear
+  // fill-one-then-the-next flow. Publish is still gated on all tabs being
+  // complete, so incomplete data can never actually be submitted.
   const handleNavigateAway = (tab: TabName) => {
-    const currentTabIndex = tabs.indexOf(activeTab);
-    const targetTabIndex = tabs.indexOf(tab);
-
-    if (targetTabIndex < currentTabIndex) {
-      setActiveTab(tab);
-      return;
-    }
-
-    if (targetTabIndex === currentTabIndex) return;
-
-    const allPreviousTabsValid = tabs.slice(0, targetTabIndex).every((tabName) => tabValidationState[tabName] === false);
-
-    if (!allPreviousTabsValid) {
-      alert("Please complete each previous section before continuing.");
-      return;
-    }
-
     setActiveTab(tab);
   };
 
@@ -105,9 +116,19 @@ export const AddActivityPage = () => {
             <FaArrowLeft size={20} />
           </Button>
           <h1 className="head-title">Add Activity</h1>
+          {hasDraftContent && (
+            <span className="flex items-center gap-2 px-3 py-1 text-sm text-yellow-800 bg-yellow-200 rounded-full">
+              <FaFileAlt size={12} /> Draft — not published yet
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
+          {hasDraftContent && (
+            <Button onClick={handleDiscardDraft} className="btn-outline">
+              Discard Draft
+            </Button>
+          )}
           {!tabValidationState["general"] && !tabValidationState["location"] && !tabValidationState["media"] && (
             <Button onClick={handlePublish} className="btn-primary">
               {isPending ? (
@@ -129,7 +150,7 @@ export const AddActivityPage = () => {
             className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
             onClick={() => handleNavigateAway(tab)}
           >
-            {tab}
+            {formatTitleCase(tab)}
           </button>
         ))}
       </div>

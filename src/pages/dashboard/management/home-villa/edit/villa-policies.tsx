@@ -1,12 +1,12 @@
 import * as React from "react";
-import { usePersistentData } from "../../../../../hooks";
+import { usePersistentData, useVillaPolicyTypes } from "../../../../../hooks";
 
 import { SectionPolicy } from "../../../../../components/ui";
 import { Button, ToastMessage } from "../../../../../components";
 
 import { FaEdit, FaEye } from "react-icons/fa";
 
-import { baseCancellationTerms, baseHouseRules, basePaymentTerms } from "../../../../../static";
+import { POLICY_TYPE_NAMES } from "../../../../../static";
 
 import { Villa } from "../../../../../types";
 
@@ -33,14 +33,25 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
     return dataAfterEdit.policies ? dataAfterEdit : dataBeforeEdit;
   }, [dataAfterEdit, dataBeforeEdit]);
 
-  const defaultHouseRules =
-    data.policies?.filter((policy) => policy.typeId === baseHouseRules).map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) ||
-    houseRulesLists.map((title) => ({ id: crypto.randomUUID(), icon: { key: "key", url: "url" }, title, value: "" }));
+  const { houseRulesId, paymentTermsId, cancellationTermsId, isReady, isLoading: isLoadingPolicyTypes } = useVillaPolicyTypes();
 
-  const defaultPaymentTerms =
-    data.policies?.filter((policy) => policy.typeId === basePaymentTerms).map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) || [];
-  const defaultCancellationTerms =
-    data.policies?.filter((policy) => policy.typeId === baseCancellationTerms).map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description })) || [];
+  // The API returns the type as a nested object; a locally edited draft still
+  // carries the flat `typeId` it was about to send. Both are matched so an
+  // unsaved edit survives a reload.
+  const policiesOfType = (typeName: string, typeId?: string) =>
+    data.policies?.filter((policy) => policy.type?.name === typeName || (typeId && policy.typeId === typeId)) ?? [];
+
+  const toEditableRows = (policies: NonNullable<Villa["policies"]>) =>
+    policies.map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description }));
+
+  const savedHouseRules = policiesOfType(POLICY_TYPE_NAMES.houseRules, houseRulesId);
+
+  const defaultHouseRules = savedHouseRules.length
+    ? toEditableRows(savedHouseRules)
+    : houseRulesLists.map((title) => ({ id: crypto.randomUUID(), icon: { key: "key", url: "url" }, title, value: "" }));
+
+  const defaultPaymentTerms = toEditableRows(policiesOfType(POLICY_TYPE_NAMES.paymentTerms, paymentTermsId));
+  const defaultCancellationTerms = toEditableRows(policiesOfType(POLICY_TYPE_NAMES.cancellationTerms, cancellationTermsId));
 
   const [editMode, setEditMode] = React.useState<boolean>(false);
 
@@ -48,12 +59,15 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
   const [paymentTerms, setPaymentTerms] = React.useState<Policies[]>(defaultPaymentTerms);
   const [cancellationTerms, setCancellationTerms] = React.useState<Policies[]>(defaultCancellationTerms);
 
-  const updatePolicies = (policies: Policies[], typeId: string) => {
-    if (typeId === basePaymentTerms) {
+  // `SectionPolicy` reports back with its own title, not an id. This used to
+  // compare that title against a UUID, so it never matched and every edit to
+  // Payment or Cancellation Terms was silently dropped.
+  const updatePolicies = (policies: Policies[], type: string) => {
+    if (type === POLICY_TYPE_NAMES.paymentTerms) {
       setPaymentTerms(policies);
-    } else if (typeId === baseCancellationTerms) {
+    } else if (type === POLICY_TYPE_NAMES.cancellationTerms) {
       setCancellationTerms(policies);
-    } else if (typeId === baseHouseRules) {
+    } else if (type === POLICY_TYPE_NAMES.houseRules) {
       setHouseRules(policies);
     }
   };
@@ -97,23 +111,28 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
 
     if (!isHouseRulesComplete) return;
 
+    if (!isReady) {
+      ToastMessage({ message: "Policy types are not available on the server, cannot save policies.", color: "#ef4444" });
+      return;
+    }
+
     const dataToSave = {
       policies: [
         ...houseRules.map((rule) => ({
           name: rule.title,
-          typeId: baseHouseRules,
+          typeId: houseRulesId,
           description: rule.value,
           icon: { key: "key", url: "url" },
         })),
         ...cancellationTerms.map((rule) => ({
           name: rule.title,
-          typeId: baseCancellationTerms,
+          typeId: cancellationTermsId,
           description: rule.value,
           icon: { key: "key", url: "url" },
         })),
         ...paymentTerms.map((term) => ({
           name: term.title,
-          typeId: basePaymentTerms,
+          typeId: paymentTermsId,
           description: term.value,
           icon: { key: "key", url: "url" },
         })),
@@ -144,6 +163,13 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
       </Button>
       <div className="relative">
         <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-2000"}`}></div>
+
+        {!isLoadingPolicyTypes && !isReady && (
+          <div className="p-4 mb-8 text-sm text-red-700 border border-red-200 rounded bg-red-50">
+            Policy types are missing on the server, so policies cannot be saved. Required: {POLICY_TYPE_NAMES.houseRules}, {POLICY_TYPE_NAMES.paymentTerms}, {POLICY_TYPE_NAMES.cancellationTerms}.
+          </div>
+        )}
+
         <div className="mb-8 space-y-8">
           <div className="flex items-center justify-between">
             <h2 className="heading">House Rules</h2>

@@ -13,19 +13,12 @@ interface BookingsTableProps {
   error?: unknown;
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  Pending: "bg-yellow-300 text-yellow-700",
-  Confirmed: "bg-purple-300 text-purple-700",
-  Completed: "bg-green-300 text-green-700",
-  Canceled: "bg-red-300 text-red-700",
-};
-
 const Table = ({ bookings, isLoading, error }: BookingsTableProps) => {
   const columns = [
     {
       key: "activity.name" as keyof Booking,
       header: "Image",
-      render: (booking: Booking) => <Img src={booking.activity?.photos[0] || "/images/modern-villa-background.webp"} alt={booking.activity?.name} className="size-14" />,
+      render: (booking: Booking) => <Img src={booking.activity?.photos?.[0] || "/images/modern-villa-background.webp"} alt={booking.activity?.name || ""} className="size-14" />,
     },
     {
       key: "activity.name" as keyof Booking,
@@ -35,17 +28,17 @@ const Table = ({ bookings, isLoading, error }: BookingsTableProps) => {
     {
       key: "customer.name" as keyof Booking,
       header: "Full Name",
-      render: (booking: Booking) => booking.customer.name,
+      render: (booking: Booking) => booking.customer?.name,
     },
     {
       key: "customer.email" as keyof Booking,
       header: "Email",
-      render: (booking: Booking) => booking.customer.email,
+      render: (booking: Booking) => booking.customer?.email,
     },
     {
       key: "customer.phoneNumber" as keyof Booking,
       header: "Phone",
-      render: (booking: Booking) => booking.customer.phoneNumber,
+      render: (booking: Booking) => booking.customer?.phoneNumber,
     },
     {
       key: "activity.category.name" as keyof Booking,
@@ -55,7 +48,7 @@ const Table = ({ bookings, isLoading, error }: BookingsTableProps) => {
     {
       key: "status" as keyof Booking,
       header: "Status",
-      render: (booking: Booking) => <StatusBadge status={booking.status} colors={STATUS_COLORS} />,
+      render: (booking: Booking) => <StatusBadge status={booking.status} />,
     },
   ];
 
@@ -72,7 +65,9 @@ export const OrderPage = () => {
   } = useGetApi<Payload<Data<Booking[]>>>({
     key: ["get-bookings-activities", searchQuery, currentPage],
     url: "bookings",
-    params: { search: searchQuery, page: currentPage, type: "activity" },
+    // `type` alone is ignored by nestjs-paginate; villa bookings were leaking
+    // into this activity-only screen and rendering with no activity relation
+    params: { search: searchQuery, page: currentPage, "filter.type": "$eq:activity" },
   });
 
   const bookings = respBookings?.data.data || [];

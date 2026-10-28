@@ -4,15 +4,30 @@ import { Currency } from "./currency";
 import { Owner } from "./owner";
 import { Review } from "./review";
 
-interface Policy {
-  pivotId: string;
+export interface PolicyType {
   id: string;
   name: string;
-  typeId: string;
+}
+
+/**
+ * Read and write shapes differ, and conflating them was a real bug: the API
+ * returns the type as a nested `type: { id, name }` object, while create/update
+ * expect a flat `typeId`. The old declaration had only `typeId`, so every
+ * `policy.typeId` read was `undefined` at runtime with TypeScript none the
+ * wiser — which is why the villa edit form showed no policies at all.
+ */
+interface Policy {
+  pivotId?: string;
+  id?: string;
+  name: string;
+  /** Present on responses. */
+  type?: PolicyType;
+  /** Sent on create/update. */
+  typeId?: string;
   description: string;
   icon: Icon;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Villa {
@@ -55,9 +70,14 @@ export interface Villa {
   video360s: string[];
   floorPlans: string[];
   averageRating: number;
-  ownerId: string;
+  /**
+   * Sent on create/update, but absent from every response — the API returns the
+   * relation only as the nested `owner`/`currency` object below. Declaring them
+   * required made `data.ownerId` look safe while being `undefined` at runtime.
+   */
+  ownerId?: string;
   owner: Owner;
-  currencyId: string;
+  currencyId?: string;
   currency: Currency;
   createdAt: string;
   updatedAt: string;

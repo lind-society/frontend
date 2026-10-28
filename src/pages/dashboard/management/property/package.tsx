@@ -17,7 +17,7 @@ export const PackageTab = () => {
   const [selectedPackage, setSelectedPackage] = React.useState<Package | null>(null);
 
   const { data: respPackages, isLoading } = useGetApi<Payload<Data<Package[]>>>({ key: ["get-packages"], url: "packages" });
-  const { mutate: deletePackage, isPending } = useDeleteApi({ key: ["delete-package"], url: "/packages", redirectPath: "/dashboard/management/property" });
+  const { mutate: deletePackage, isPending } = useDeleteApi({ key: ["get-packages"], url: "/packages" });
 
   const openDeleteModal = (packages: Package) => {
     setSelectedPackage(packages);
@@ -61,6 +61,7 @@ export const PackageTab = () => {
                     <FaRegTrashAlt />
                   </button>
                   <h5 className="h-16 text-2xl font-semibold line-clamp-2">{item.name}</h5>
+                  {item.commissionPercentage !== null && <p className="text-lg font-bold text-primary">{item.commissionPercentage}% of rental revenue</p>}
                   <p className="leading-normal text-justify line-clamp-6">{item.description}</p>
                   <Button onClick={() => navigate(`/dashboard/management/property/package/edit/${item.id}`)} className="w-full btn-primary">
                     Edit

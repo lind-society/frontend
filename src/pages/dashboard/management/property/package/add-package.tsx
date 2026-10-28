@@ -16,6 +16,7 @@ interface PackageFormItem {
 interface PackageFormState {
   packageName: string;
   packageDescription: string;
+  packageCommissionPercentage: string;
   packageBenefits: PackageFormItem[];
 }
 
@@ -26,6 +27,7 @@ export const AddPackagePage = () => {
   const [formState, setFormState] = React.useState<PackageFormState>({
     packageName: "",
     packageDescription: "",
+    packageCommissionPercentage: "",
     packageBenefits: [],
   });
 
@@ -33,7 +35,7 @@ export const AddPackagePage = () => {
 
   const { data: respBenefits, isLoading } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "20" } });
 
-  const { mutate: addPackage, isPending } = useCreateApi<Partial<Package>>({ key: ["add-package"], url: "/packages", redirectPath: `/dashboard/management/property/package/add` });
+  const { mutate: addPackage, isPending } = useCreateApi<Partial<Package>>({ key: ["get-packages"], url: "/packages", redirectPath: `/dashboard/management/property` });
 
   const benefitOptions = React.useMemo(() => {
     return respBenefits?.data?.data.map((benefit) => ({ value: benefit.id, label: benefit.title })) || [];
@@ -70,6 +72,7 @@ export const AddPackagePage = () => {
     setFormState({
       packageName: "",
       packageDescription: "",
+      packageCommissionPercentage: "",
       packageBenefits: [newItem],
     });
     setIsDirty(false);
@@ -77,10 +80,15 @@ export const AddPackagePage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // `benefits` is optional on the backend, but every row here — including
+    // the empty one auto-added on mount — was sent regardless of whether a
+    // benefit had actually been picked, so an untouched row sent `{id: ""}`
+    // and the whole save 422'd on "id must be a UUID" with no indication why.
     const dataToSave = {
       name: formState.packageName,
       description: formState.packageDescription,
-      benefits: formState.packageBenefits.map((item) => ({ id: item.benefit?.value || "" })) as Package["benefits"],
+      commissionPercentage: formState.packageCommissionPercentage === "" ? null : Number(formState.packageCommissionPercentage),
+      benefits: formState.packageBenefits.filter((item) => item.benefit?.value).map((item) => ({ id: item.benefit!.value })) as Package["benefits"],
     };
     setIsDirty(false);
     addPackage(dataToSave);
@@ -151,6 +159,24 @@ export const AddPackagePage = () => {
               placeholder="Brief description of the package"
               value={formState.packageDescription}
               onChange={(e) => updateFormField("packageDescription", e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="flex items-center">
+            <label htmlFor="package-commission-percentage" className="block whitespace-nowrap min-w-60">
+              Commission (%)*
+            </label>
+            <input
+              id="package-commission-percentage"
+              type="number"
+              min={0}
+              max={100}
+              step={0.01}
+              className="input-text"
+              placeholder="8"
+              value={formState.packageCommissionPercentage}
+              onChange={(e) => updateFormField("packageCommissionPercentage", e.target.value)}
               required
             />
           </div>
