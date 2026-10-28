@@ -1,0 +1,39 @@
+# Ships main to the VPS. The build runs on the server (docker compose), so this
+# job only packs the source and hands it to /opt/lind-society/bin/deploy.sh,
+# which rolls back on a failed build or health check.
+#
+# Secrets: DEPLOY_SSH_KEY (key restricted on the server to `deploy <app>`),
+#          DEPLOY_KNOWN_HOSTS (ssh-keyscan of the VPS).
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  APP: frontend
+  HOST: root@185.196.21.56
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519
+
+      - name: Deploy
+        run: |
+          git ls-files -z | tar --null -czf - -T - \
+            | ssh -o BatchMode=yes "$HOST" deploy "$APP"

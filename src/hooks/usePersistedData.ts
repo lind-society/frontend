@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create, StoreApi, UseBoundStore } from "zustand";
 import { persist, PersistStorage } from "zustand/middleware";
 
 const createStorageProvider = (type: "localStorage" | "sessionStorage"): PersistStorage<any> => ({
@@ -23,6 +23,8 @@ interface DataStoreState<T> {
   clearData: () => void;
 }
 
+type DataStore<T> = UseBoundStore<StoreApi<DataStoreState<T>>>;
+
 // Keyed by storageType+storeName so every caller asking for the same store
 // (e.g. TopBar's currency picker and every page that also reads
 // "selected-currency") shares one Zustand instance instead of each getting
@@ -30,13 +32,13 @@ interface DataStoreState<T> {
 // the same storage key would each hydrate from localStorage, write its own
 // update back, and re-hydrate off the other's write, round-tripping forever
 // as "Maximum update depth exceeded".
-const storeCache = new Map<string, ReturnType<typeof create<DataStoreState<any>>>>();
+const storeCache = new Map<string, DataStore<any>>();
 
-export function usePersistentData<T>(storeName: string, storageType: "localStorage" | "sessionStorage" = "sessionStorage") {
+export function usePersistentData<T>(storeName: string, storageType: "localStorage" | "sessionStorage" = "sessionStorage"): DataStore<T> {
   const cacheKey = `${storageType}:${storeName}`;
   const cached = storeCache.get(cacheKey);
   if (cached) {
-    return cached as ReturnType<typeof create<DataStoreState<T>>>;
+    return cached as DataStore<T>;
   }
 
   const store = create<DataStoreState<T>>()(
