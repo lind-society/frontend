@@ -24,7 +24,10 @@ export const SectionPolicy = ({ title, categories, onUpdate, defaultPolicies }: 
   const otherDataPolicies = categories.filter((category) => !policies.some((f) => f.title === category));
 
   const addPolicies = (title: string) => {
-    setPolicies((prevPolicies) => [...prevPolicies, { id: crypto.randomUUID(), title, icon: { key: "key", url: "url" }, value: "" }]);
+    setPolicies((prevPolicies) => [
+      ...prevPolicies,
+      { id: crypto.randomUUID(), title, icon: { key: "key", url: "url" }, value: "" },
+    ]);
     if (otherDataPolicies?.length <= 1) {
       setModalPolicies(false);
     }

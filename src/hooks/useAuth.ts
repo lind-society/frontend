@@ -23,7 +23,11 @@ const cookies = new Cookies();
 export const authentication = {
   login: async (identifier: string, password: string): Promise<Payload<AuthResponse>> => {
     try {
-      const { data } = await axios.post<Payload<AuthResponse>>(`${API_URL}/auth/login`, { identifier, password }, { headers: { "Content-Type": "application/json" } });
+      const { data } = await axios.post<Payload<AuthResponse>>(
+        `${API_URL}/auth/login`,
+        { identifier, password },
+        { headers: { "Content-Type": "application/json" } },
+      );
       cookies.set(TOKEN_KEY, data.data.accessToken || "", COOKIES_CONFIG);
       cookies.set(USER_KEY, identifier, COOKIES_CONFIG);
       window.location.href = "/dashboard/main";

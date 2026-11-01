@@ -7,7 +7,21 @@ import { useInView } from "react-intersection-observer";
 import { MotionComponentProps } from "../types";
 
 export const Motion = React.forwardRef<HTMLElement, MotionComponentProps>(
-  ({ children, className, tag = "div", initialY = 0, animateY = 0, initialX = 0, animateX = 0, duration = 0.5, delay = 0, ...rest }, ref) => {
+  (
+    {
+      children,
+      className,
+      tag = "div",
+      initialY = 0,
+      animateY = 0,
+      initialX = 0,
+      animateX = 0,
+      duration = 0.5,
+      delay = 0,
+      ...rest
+    },
+    ref,
+  ) => {
     const [inViewRef, inView] = useInView({
       threshold: 0,
       triggerOnce: false,
@@ -42,7 +56,7 @@ export const Motion = React.forwardRef<HTMLElement, MotionComponentProps>(
         {children}
       </Component>
     );
-  }
+  },
 );
 
 Motion.displayName = "Motion";

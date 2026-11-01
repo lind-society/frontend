@@ -44,7 +44,15 @@ const SEASONS = [
   { value: "peak_season", label: "Peak Season" },
 ];
 
-export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVillaIds, handleDeletePriceRule, handleEditPriceRule, handleEditToggle, updateFieldPriceRule }: Rule) => {
+export const PriceRuleItem = ({
+  priceRule,
+  isUpdating,
+  deleteFieldPriceRuleVillaIds,
+  handleDeletePriceRule,
+  handleEditPriceRule,
+  handleEditToggle,
+  updateFieldPriceRule,
+}: Rule) => {
   const [searchModalValue, setSearchModalValue] = React.useState<string>("");
   const [searchQuery, setSearchQuery] = React.useState<string>("");
 
@@ -58,7 +66,8 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
     enabled: hasRange,
   });
 
-  const appliedVillas = respVillas?.data.data.filter((villa) => !priceRule.villas.some((item) => item.id === villa.id)) || [];
+  const appliedVillas =
+    respVillas?.data.data.filter((villa) => !priceRule.villas.some((item) => item.id === villa.id)) || [];
 
   const handleSearch = () => {
     setSearchQuery(searchModalValue);
@@ -68,7 +77,10 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
     <div className="relative p-6 border rounded-b bg-light border-dark/30">
       <div className={`absolute inset-0 pointer-events-none bg-gray/30 ${priceRule.isActive ? "-z-1" : "z-5"}`}></div>
       <div className={`absolute inset-0 pointer-events-none bg-gray/10 ${priceRule.isEditable ? "-z-1" : "z-5"}`}></div>
-      <button className={`absolute top-0 right-0 p-2 bg-red-500 text-light rounded-es-2xl z-5`} onClick={(e) => handleDeletePriceRule(e, priceRule.id)}>
+      <button
+        className={`absolute top-0 right-0 p-2 bg-red-500 text-light rounded-es-2xl z-5`}
+        onClick={(e) => handleDeletePriceRule(e, priceRule.id)}
+      >
         <FaTrash size={14} />
       </button>
       <div className="flex items-center justify-between px-4 pb-2 border-b border-dark/30">
@@ -82,7 +94,9 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
               className="h-9 input-text"
               autoFocus
             />
-            {priceRule.name === "" && <small className="text-red-600 whitespace-nowrap">rule title must be filled</small>}
+            {priceRule.name === "" && (
+              <small className="text-red-600 whitespace-nowrap">rule title must be filled</small>
+            )}
           </div>
         ) : (
           <div className="flex items-center justify-between gap-4 h-9">
@@ -178,7 +192,7 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
                 selected={priceRule.startDate}
                 toggleCalendarOnIconClick
                 closeOnScroll
-                onChange={(date) => updateFieldPriceRule(priceRule.id, "startDate", date)}
+                onChange={(date: Date | null) => updateFieldPriceRule(priceRule.id, "startDate", date)}
                 showIcon
                 disabled={!priceRule.isEditable}
                 className="datepicker-input"
@@ -191,7 +205,7 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
                 selected={priceRule.endDate}
                 toggleCalendarOnIconClick
                 closeOnScroll
-                onChange={(date) => updateFieldPriceRule(priceRule.id, "endDate", date)}
+                onChange={(date: Date | null) => updateFieldPriceRule(priceRule.id, "endDate", date)}
                 showIcon
                 disabled={!priceRule.isEditable}
                 className="datepicker-input"
@@ -312,7 +326,10 @@ export const PriceRuleItem = ({ priceRule, isUpdating, deleteFieldPriceRuleVilla
           ) : (
             <div className={`mt-4 border-dark/30 ${appliedVillas.length > 0 && "border-t border-b"}`}>
               {appliedVillas.map((villa) => (
-                <div key={villa.id} className={`flex items-center justify-between p-2 border-dark/30 ${appliedVillas.length > 0 && "[&:not(:last-child)]:border-b"}`}>
+                <div
+                  key={villa.id}
+                  className={`flex items-center justify-between p-2 border-dark/30 ${appliedVillas.length > 0 && "[&:not(:last-child)]:border-b"}`}
+                >
                   <div className="flex flex-col">
                     <small>
                       {villa.city}, {villa.state}, {villa.country}

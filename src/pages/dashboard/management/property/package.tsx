@@ -16,7 +16,10 @@ export const PackageTab = () => {
   const [deleteModal, setDeleteModal] = React.useState<boolean>(false);
   const [selectedPackage, setSelectedPackage] = React.useState<Package | null>(null);
 
-  const { data: respPackages, isLoading } = useGetApi<Payload<Data<Package[]>>>({ key: ["get-packages"], url: "packages" });
+  const { data: respPackages, isLoading } = useGetApi<Payload<Data<Package[]>>>({
+    key: ["get-packages"],
+    url: "packages",
+  });
   const { mutate: deletePackage, isPending } = useDeleteApi({ key: ["get-packages"], url: "/packages" });
 
   const openDeleteModal = (packages: Package) => {
@@ -57,13 +60,21 @@ export const PackageTab = () => {
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 text-primary">
               {respPackages?.data.data.map((item) => (
                 <div key={item.id} className="relative p-4 space-y-4 border rounded bg-light border-primary">
-                  <button onClick={() => openDeleteModal(item)} className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1">
+                  <button
+                    onClick={() => openDeleteModal(item)}
+                    className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1"
+                  >
                     <FaRegTrashAlt />
                   </button>
                   <h5 className="h-16 text-2xl font-semibold line-clamp-2">{item.name}</h5>
-                  {item.commissionPercentage !== null && <p className="text-lg font-bold text-primary">{item.commissionPercentage}% of rental revenue</p>}
+                  {item.commissionPercentage !== null && (
+                    <p className="text-lg font-bold text-primary">{item.commissionPercentage}% of rental revenue</p>
+                  )}
                   <p className="leading-normal text-justify line-clamp-6">{item.description}</p>
-                  <Button onClick={() => navigate(`/dashboard/management/property/package/edit/${item.id}`)} className="w-full btn-primary">
+                  <Button
+                    onClick={() => navigate(`/dashboard/management/property/package/edit/${item.id}`)}
+                    className="w-full btn-primary"
+                  >
                     Edit
                   </Button>
                 </div>

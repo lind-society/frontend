@@ -18,7 +18,13 @@ const Table = ({ bookings, isLoading, error }: BookingsTableProps) => {
     {
       key: "activity.name" as keyof Booking,
       header: "Image",
-      render: (booking: Booking) => <Img src={booking.activity?.photos?.[0] || "/images/modern-villa-background.webp"} alt={booking.activity?.name || ""} className="size-14" />,
+      render: (booking: Booking) => (
+        <Img
+          src={booking.activity?.photos?.[0] || "/images/modern-villa-background.webp"}
+          alt={booking.activity?.name || ""}
+          className="size-14"
+        />
+      ),
     },
     {
       key: "activity.name" as keyof Booking,
@@ -52,7 +58,16 @@ const Table = ({ bookings, isLoading, error }: BookingsTableProps) => {
     },
   ];
 
-  return <DataTable data={bookings} columns={columns} keyExtractor={(booking) => booking.id} isLoading={isLoading} error={error} emptyMessage="No one has order yet" />;
+  return (
+    <DataTable
+      data={bookings}
+      columns={columns}
+      keyExtractor={(booking) => booking.id}
+      isLoading={isLoading}
+      error={error}
+      emptyMessage="No one has order yet"
+    />
+  );
 };
 
 export const OrderPage = () => {

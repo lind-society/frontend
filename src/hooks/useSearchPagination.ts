@@ -58,7 +58,7 @@ export const useSearchPagination = (options?: SearchPaginationOptions): SearchPa
       newParams.set(pageParamName, String(newPage));
       setSearchParams(newParams);
     },
-    [pageParamName, searchParams, setSearchParams]
+    [pageParamName, searchParams, setSearchParams],
   );
 
   return {

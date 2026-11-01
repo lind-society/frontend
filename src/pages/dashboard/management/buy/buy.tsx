@@ -67,7 +67,10 @@ export const BuyPage = () => {
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="head-title">Buy Management</h1>
 
-        <Button onClick={() => navigate("/dashboard/management/buy/add")} className="flex items-center gap-2 btn-primary">
+        <Button
+          onClick={() => navigate("/dashboard/management/buy/add")}
+          className="flex items-center gap-2 btn-primary"
+        >
           <FaPlus /> Add New
         </Button>
       </header>
@@ -75,7 +78,14 @@ export const BuyPage = () => {
       <div className="space-y-8">
         <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
 
-        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} datas={properties} type="buy" message={`No buy added yet. Click "Add New" to create one.`} draftId={draftPropertyId} />
+        <CardContent
+          isLoading={isLoading}
+          openDeleteModal={openDeleteModal}
+          datas={properties}
+          type="buy"
+          message={`No buy added yet. Click "Add New" to create one.`}
+          draftId={draftPropertyId}
+        />
 
         <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
       </div>

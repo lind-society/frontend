@@ -34,12 +34,20 @@ export const AddMediaTab: React.FC<MediaProps> = ({ persistedDataKey, type, onCh
     if (!data.additionals?.length) return [];
 
     return Object.values(
-      data.additionals.reduce((acc, additional) => {
-        const key = additional.type;
-        if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
-        acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos ?? [] });
-        return acc;
-      }, {} as Record<string, Section>)
+      data.additionals.reduce(
+        (acc, additional) => {
+          const key = additional.type;
+          if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
+          acc[key].field.push({
+            id: crypto.randomUUID(),
+            name: additional.name,
+            description: additional.description,
+            photos: additional.photos ?? [],
+          });
+          return acc;
+        },
+        {} as Record<string, Section>,
+      ),
     );
   }, [data.additionals]);
 
@@ -62,7 +70,9 @@ export const AddMediaTab: React.FC<MediaProps> = ({ persistedDataKey, type, onCh
   React.useEffect(() => {
     if (!onChange) return;
 
-    const hasAnyAdditional = formState.additional.some((a) => a.field.some((b) => b.name !== "" && b.description !== "" && b.photos.length > 0));
+    const hasAnyAdditional = formState.additional.some((a) =>
+      a.field.some((b) => b.name !== "" && b.description !== "" && b.photos.length > 0),
+    );
 
     const isComplete = hasAnyAdditional && formState.photos.length > 0;
 
@@ -71,7 +81,12 @@ export const AddMediaTab: React.FC<MediaProps> = ({ persistedDataKey, type, onCh
         additionals: formState.additional.flatMap((section) =>
           section.field
             .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)
-            .map((field) => ({ name: field.name, type: section.title.toLowerCase(), description: field.description, photos: field.photos }))
+            .map((field) => ({
+              name: field.name,
+              type: section.title.toLowerCase(),
+              description: field.description,
+              photos: field.photos,
+            })),
         ) as AdditionalItem[],
         photos: formState.photos.filter((photo) => photo !== ""),
         videos: formState.videos.filter((video) => video !== ""),
@@ -107,7 +122,11 @@ export const AddMediaTab: React.FC<MediaProps> = ({ persistedDataKey, type, onCh
 
   const addField = (e: React.MouseEvent, additionalIndex: number) => {
     e.preventDefault();
-    updateAdditionalState(formState.additional.map((section, index) => (index === additionalIndex ? { ...section, field: [...section.field, createEmptyField()] } : section)));
+    updateAdditionalState(
+      formState.additional.map((section, index) =>
+        index === additionalIndex ? { ...section, field: [...section.field, createEmptyField()] } : section,
+      ),
+    );
   };
 
   const deleteField = (e: React.MouseEvent, additionalIndex: number, fieldId: string) => {
@@ -117,7 +136,13 @@ export const AddMediaTab: React.FC<MediaProps> = ({ persistedDataKey, type, onCh
 
     if (!window.confirm("Are you sure you want to delete?")) return;
 
-    updateAdditionalState(formState.additional.map((section, index) => (index === additionalIndex ? { ...section, field: section.field.filter((field) => field.id !== fieldId) } : section)));
+    updateAdditionalState(
+      formState.additional.map((section, index) =>
+        index === additionalIndex
+          ? { ...section, field: section.field.filter((field) => field.id !== fieldId) }
+          : section,
+      ),
+    );
   };
 
   const resetField = (e: React.MouseEvent, additionalIndex: number, fieldId: string) => {
@@ -128,18 +153,25 @@ export const AddMediaTab: React.FC<MediaProps> = ({ persistedDataKey, type, onCh
         index === additionalIndex
           ? {
               ...section,
-              field: section.field.map((field) => (field.id === fieldId ? { ...field, name: "", description: "", photos: [] } : field)),
+              field: section.field.map((field) =>
+                field.id === fieldId ? { ...field, name: "", description: "", photos: [] } : field,
+              ),
             }
-          : section
-      )
+          : section,
+      ),
     );
   };
 
   const updateField = (additionalIndex: number, fieldId: string, fieldName: "name" | "description", value: string) => {
     updateAdditionalState(
       formState.additional.map((section, index) =>
-        index === additionalIndex ? { ...section, field: section.field.map((field) => (field.id === fieldId ? { ...field, [fieldName]: value } : field)) } : section
-      )
+        index === additionalIndex
+          ? {
+              ...section,
+              field: section.field.map((field) => (field.id === fieldId ? { ...field, [fieldName]: value } : field)),
+            }
+          : section,
+      ),
     );
   };
 
@@ -155,10 +187,14 @@ export const AddMediaTab: React.FC<MediaProps> = ({ persistedDataKey, type, onCh
           sIndex === additionalIndex
             ? {
                 ...section,
-                field: section.field.map((field) => (field.id === fieldId ? { ...field, photos: [...field.photos, ...response.data.successFiles.map((file) => file.url)] } : field)),
+                field: section.field.map((field) =>
+                  field.id === fieldId
+                    ? { ...field, photos: [...field.photos, ...response.data.successFiles.map((file) => file.url)] }
+                    : field,
+                ),
               }
-            : section
-        )
+            : section,
+        ),
       );
     }
   };
@@ -176,29 +212,65 @@ export const AddMediaTab: React.FC<MediaProps> = ({ persistedDataKey, type, onCh
         sIndex === additionalIndex
           ? {
               ...section,
-              field: section.field.map((field) => (field.id === fieldId ? { ...field, photos: field.photos.filter((_, index) => index !== imgIndex) } : field)),
+              field: section.field.map((field) =>
+                field.id === fieldId
+                  ? { ...field, photos: field.photos.filter((_, index) => index !== imgIndex) }
+                  : field,
+              ),
             }
-          : section
-      )
+          : section,
+      ),
     );
   };
 
   return (
     <>
       <div className="space-y-8">
-        <UploadPhoto folder={type} type="photos" title="Photo" description="Catalog Photo *" fileUrl={formState.photos} setFileUrl={(photos) => updateFormState({ photos })} />
+        <UploadPhoto
+          folder={type}
+          type="photos"
+          title="Photo"
+          description="Catalog Photo *"
+          fileUrl={formState.photos}
+          setFileUrl={(photos) => updateFormState({ photos })}
+        />
 
-        <UploadPhoto folder={type} type="videos" title="Video" description="Catalog Video" fileUrl={formState.videos} setFileUrl={(videos) => updateFormState({ videos })} />
+        <UploadPhoto
+          folder={type}
+          type="videos"
+          title="Video"
+          description="Catalog Video"
+          fileUrl={formState.videos}
+          setFileUrl={(videos) => updateFormState({ videos })}
+        />
 
-        <UploadPhoto folder={type} type="video360s" title="360 Tour" description="360 Tour" fileUrl={formState.video360s} setFileUrl={(video360s) => updateFormState({ video360s })} />
+        <UploadPhoto
+          folder={type}
+          type="video360s"
+          title="360 Tour"
+          description="360 Tour"
+          fileUrl={formState.video360s}
+          setFileUrl={(video360s) => updateFormState({ video360s })}
+        />
 
-        <UploadPhoto folder={type} type="floor-plans" title="Floor Plans" description="Floor Plans" fileUrl={formState.floorPlans} setFileUrl={(floorPlans) => updateFormState({ floorPlans })} />
+        <UploadPhoto
+          folder={type}
+          type="floor-plans"
+          title="Floor Plans"
+          description="Floor Plans"
+          fileUrl={formState.floorPlans}
+          setFileUrl={(floorPlans) => updateFormState({ floorPlans })}
+        />
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="heading">Additional</h2>
             {availableAdditionalTypes.length > 0 && (
-              <Button onClick={() => setModalAdditional(true)} className="flex items-center gap-2 btn-primary" type="button">
+              <Button
+                onClick={() => setModalAdditional(true)}
+                className="flex items-center gap-2 btn-primary"
+                type="button"
+              >
                 <FaPlus /> Add Additional
               </Button>
             )}

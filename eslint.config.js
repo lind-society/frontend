@@ -23,6 +23,12 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+      // Rules introduced by the eslint 10 / react-hooks 7 upgrade. Existing
+      // code predates them, so they report instead of failing until cleaned up.
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/purity': 'warn',
+      'react-hooks/immutability': 'warn',
+      'preserve-caught-error': 'warn',
     },
   },
 )

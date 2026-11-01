@@ -22,7 +22,15 @@ interface FormState {
   owner: OptionType | null;
 }
 
-const FormField = ({ label, children, required = false }: { label: string; children: React.ReactNode; required?: boolean }) => (
+const FormField = ({
+  label,
+  children,
+  required = false,
+}: {
+  label: string;
+  children: React.ReactNode;
+  required?: boolean;
+}) => (
   <div className="flex items-center">
     <span className="block whitespace-nowrap min-w-60">
       {label} {required && "*"}
@@ -64,7 +72,10 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     return dataCondition ? dataAfterEdit : dataBeforeEdit;
   }, [dataAfterEdit, dataBeforeEdit]);
 
-  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
+  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({
+    key: ["currencies"],
+    url: "/currencies",
+  });
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: "/owners" });
 
   const [editMode, setEditMode] = React.useState<boolean>(false);
@@ -115,7 +126,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
   // anything until Save was pressed, so switching tabs (or closing the
   // browser) mid-edit silently threw the fields away.
   React.useEffect(() => {
-    const { name, secondaryName, highlight, currency, owner, price, isDiscount, soldStatus, ownershipType, discount } = formState;
+    const { name, secondaryName, highlight, currency, owner, price, isDiscount, soldStatus, ownershipType, discount } =
+      formState;
 
     const dataToSave = {
       name,
@@ -196,11 +208,25 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       <form className="relative mt-4 space-y-8" onSubmit={handleSubmitGeneral}>
         <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-5"}`}></div>
         <FormField label="Property name" required>
-          <input type="text" className="input-text" placeholder="Urna Santal Villa" value={formState.name} onChange={(e) => updateFormState("name", e.target.value)} required />
+          <input
+            type="text"
+            className="input-text"
+            placeholder="Urna Santal Villa"
+            value={formState.name}
+            onChange={(e) => updateFormState("name", e.target.value)}
+            required
+          />
         </FormField>
 
         <FormField label="Secondary property name" required>
-          <input type="text" className="input-text" placeholder="Urna Cangau" value={formState.secondaryName} onChange={(e) => updateFormState("secondaryName", e.target.value)} required />
+          <input
+            type="text"
+            className="input-text"
+            placeholder="Urna Cangau"
+            value={formState.secondaryName}
+            onChange={(e) => updateFormState("secondaryName", e.target.value)}
+            required
+          />
         </FormField>
 
         <FormField label="Owner" required>
@@ -229,7 +255,13 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
           <FormField label="Price" required>
             <div className="flex items-center w-full gap-4">
               <div className="flex items-center w-full gap-2 max-w-80">
-                <NumberInput className="input-text max-w-72 placeholder:text-dark" value={formState.price} onChange={(e) => handlePriceChange(e.target.value)} placeholder={`0`} required />
+                <NumberInput
+                  className="input-text max-w-72 placeholder:text-dark"
+                  value={formState.price}
+                  onChange={(e) => handlePriceChange(e.target.value)}
+                  placeholder={`0`}
+                  required
+                />
                 <p>{formState.currency ? formState.currency?.label : ""}</p>
               </div>
 
@@ -270,7 +302,9 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
             </div>
           </FormField>
           <div className="flex justify-end">
-            <p className="w-full text-sm italic whitespace-nowrap max-w-40">Final Price : {calculatePrice(formState.price, formState.discount, true)}</p>
+            <p className="w-full text-sm italic whitespace-nowrap max-w-40">
+              Final Price : {calculatePrice(formState.price, formState.discount, true)}
+            </p>
           </div>
         </div>
 

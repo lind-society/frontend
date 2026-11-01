@@ -4,7 +4,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
-import { Layout, AddMediaTab, AddLocationTab, AddKeyFeaturesTab, AddServiceFeaturesTab } from "../../../../../components/ui";
+import {
+  Layout,
+  AddMediaTab,
+  AddLocationTab,
+  AddKeyFeaturesTab,
+  AddServiceFeaturesTab,
+} from "../../../../../components/ui";
 
 import { Button, ToastMessage } from "../../../../../components";
 
@@ -35,7 +41,11 @@ export const AddHomeVillaPage = () => {
   const { pathname, hash } = useLocation();
   const navigate = useNavigate();
 
-  const { mutate: addVillas, isPending } = useCreateApi<Partial<Villa>>({ key: ["get-villas"], url: "/villas", redirectPath: "/dashboard/management/home-villa" });
+  const { mutate: addVillas, isPending } = useCreateApi<Partial<Villa>>({
+    key: ["get-villas"],
+    url: "/villas",
+    redirectPath: "/dashboard/management/home-villa",
+  });
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { data, clearData } = useStore();
 
@@ -64,7 +74,8 @@ export const AddHomeVillaPage = () => {
     return tabs.includes(hashTab as TabName) ? (hashTab as TabName) : "general";
   });
 
-  const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
+  const [tabValidationState, setTabValidationState] =
+    React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
   const [isWaiting, setIsWaiting] = React.useState<boolean>(true);
 
   React.useEffect(() => {

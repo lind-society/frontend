@@ -146,7 +146,10 @@ export const VillaPricingCalendar = ({ villaId, currency = "IDR" }: { villaId: s
 
   const cells: (CalendarDay | null)[] = [
     ...Array.from({ length: mondayOffset(first) }, () => null),
-    ...Array.from({ length: last.getDate() }, (_, i) => byDate.get(toKey(new Date(cursor.year, cursor.month, i + 1))) ?? null),
+    ...Array.from(
+      { length: last.getDate() },
+      (_, i) => byDate.get(toKey(new Date(cursor.year, cursor.month, i + 1))) ?? null,
+    ),
   ];
 
   const hasSelection = selected.size > 0;
@@ -307,11 +310,19 @@ export const VillaPricingCalendar = ({ villaId, currency = "IDR" }: { villaId: s
             Simpan
           </Button>
 
-          <Button className="w-full btn-outline" disabled={!hasSelection || apply.isPending} onClick={() => apply.mutate({ isBlocked: true })}>
+          <Button
+            className="w-full btn-outline"
+            disabled={!hasSelection || apply.isPending}
+            onClick={() => apply.mutate({ isBlocked: true })}
+          >
             Blokir Tanggal
           </Button>
 
-          <Button className="w-full btn-outline" disabled={!hasSelection || apply.isPending} onClick={() => apply.mutate({ isBlocked: false })}>
+          <Button
+            className="w-full btn-outline"
+            disabled={!hasSelection || apply.isPending}
+            onClick={() => apply.mutate({ isBlocked: false })}
+          >
             Buka Blokir
           </Button>
 

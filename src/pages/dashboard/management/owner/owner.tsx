@@ -59,7 +59,16 @@ const Table = ({ owners, isLoading, error }: OwnersTableProps) => {
     },
   ];
 
-  return <DataTable data={owners} columns={columns} keyExtractor={(owner) => owner.id} isLoading={isLoading} error={error} emptyMessage={`No owners added yet. Click "Add Owner" to create one.`} />;
+  return (
+    <DataTable
+      data={owners}
+      columns={columns}
+      keyExtractor={(owner) => owner.id}
+      isLoading={isLoading}
+      error={error}
+      emptyMessage={`No owners added yet. Click "Add Owner" to create one.`}
+    />
+  );
 };
 
 export const OwnerPage = () => {
@@ -69,7 +78,11 @@ export const OwnerPage = () => {
     data: respOwners,
     isPending,
     error,
-  } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners", searchQuery, currentPage], url: "/owners", params: { search: searchQuery, page: currentPage } });
+  } = useGetApiWithAuth<Payload<Data<Owner[]>>>({
+    key: ["owners", searchQuery, currentPage],
+    url: "/owners",
+    params: { search: searchQuery, page: currentPage },
+  });
 
   const owners = respOwners?.data.data || [];
   const totalPage = respOwners?.data.meta.totalPages || 1;

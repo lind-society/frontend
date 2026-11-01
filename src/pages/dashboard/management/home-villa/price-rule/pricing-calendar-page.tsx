@@ -51,7 +51,12 @@ export const PricingCalendarPage = () => {
 
           <div className="min-w-64">
             <label className="block mb-1 text-sm font-medium text-dark">Villa</label>
-            <select className="input-select w-full" value={villaId} onChange={(e) => setVillaId(e.target.value)} disabled={isLoading}>
+            <select
+              className="input-select w-full"
+              value={villaId}
+              onChange={(e) => setVillaId(e.target.value)}
+              disabled={isLoading}
+            >
               {isLoading && <option>Memuat...</option>}
               {villas?.map((villa) => (
                 <option key={villa.id} value={villa.id}>

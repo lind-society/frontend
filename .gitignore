@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 .env
+.env.*
+!.env.example
+
+# run logs
+logs/

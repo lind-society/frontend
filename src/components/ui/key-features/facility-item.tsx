@@ -15,7 +15,13 @@ interface FacilityItemProps {
   onDelete: (id: string) => void;
 }
 
-export const FacilityItem: React.FC<FacilityItemProps> = ({ facility, onUpdateField, onUpdateIcon, onReset, onDelete }) => {
+export const FacilityItem: React.FC<FacilityItemProps> = ({
+  facility,
+  onUpdateField,
+  onUpdateIcon,
+  onReset,
+  onDelete,
+}) => {
   const handleIconChange = (key: string | null, e: React.MouseEvent) => {
     const url = (e.target as HTMLImageElement).src;
     onUpdateIcon(facility.id, key, url);
@@ -30,7 +36,14 @@ export const FacilityItem: React.FC<FacilityItemProps> = ({ facility, onUpdateFi
 
       <div className="w-full space-y-1 ms-2">
         <label className="block text-sm">Title *</label>
-        <input type="text" placeholder="Title" className="input-text" value={facility.name} onChange={(e) => onUpdateField(facility.id, "name", e.target.value)} readOnly />
+        <input
+          type="text"
+          placeholder="Title"
+          className="input-text"
+          value={facility.name}
+          onChange={(e) => onUpdateField(facility.id, "name", e.target.value)}
+          readOnly
+        />
       </div>
 
       <div className="mx-8 space-y-0.5">

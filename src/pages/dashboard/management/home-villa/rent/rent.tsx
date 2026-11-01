@@ -27,7 +27,13 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
       key: "villa.name" as keyof Booking,
       header: "Image",
       // `villa?.photos[0]` still indexed undefined when the relation was absent
-      render: (booking: Booking) => <Img src={booking.villa?.photos?.[0] || "/images/modern-villa-background.webp"} alt={booking.villa?.name || ""} className="size-14" />,
+      render: (booking: Booking) => (
+        <Img
+          src={booking.villa?.photos?.[0] || "/images/modern-villa-background.webp"}
+          alt={booking.villa?.name || ""}
+          className="size-14"
+        />
+      ),
     },
     {
       key: "villa.name" as keyof Booking,
@@ -70,14 +76,27 @@ const Table = ({ bookings, onEdit, onApprove, onCancel, isLoading, error }: Book
       render: (booking: Booking) => (
         <div className="flex items-center justify-center gap-2">
           <FaEdit size={20} className="cursor-pointer text-primary" onClick={() => onEdit(booking.id)} />
-          {onApprove && <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking)} />}
-          {onCancel && <FaWindowClose size={20} className="text-red-600 cursor-pointer" onClick={() => onCancel(booking.id)} />}
+          {onApprove && (
+            <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking)} />
+          )}
+          {onCancel && (
+            <FaWindowClose size={20} className="text-red-600 cursor-pointer" onClick={() => onCancel(booking.id)} />
+          )}
         </div>
       ),
     },
   ];
 
-  return <DataTable data={bookings} columns={columns} keyExtractor={(booking) => booking.id} isLoading={isLoading} error={error} emptyMessage="No one has booked yet" />;
+  return (
+    <DataTable
+      data={bookings}
+      columns={columns}
+      keyExtractor={(booking) => booking.id}
+      isLoading={isLoading}
+      error={error}
+      emptyMessage="No one has booked yet"
+    />
+  );
 };
 
 export const RentPage = () => {
@@ -156,7 +175,14 @@ export const RentPage = () => {
 
       <div className="pb-8 mt-2 border rounded-b bg-light border-dark/30">
         <div className="pb-2 mb-4 overflow-x-auto scrollbar min-h-600">
-          <Table bookings={bookings} onEdit={handleEdit} onApprove={handleApprove} onCancel={handleCancel} isLoading={isPending} error={error} />
+          <Table
+            bookings={bookings}
+            onEdit={handleEdit}
+            onApprove={handleApprove}
+            onCancel={handleCancel}
+            isLoading={isPending}
+            error={error}
+          />
         </div>
         <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
       </div>

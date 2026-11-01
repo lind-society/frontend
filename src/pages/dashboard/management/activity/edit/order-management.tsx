@@ -56,14 +56,27 @@ const Table = ({ bookings, onApprove, onCancel, isLoading, error }: BookingsTabl
       header: "Actions",
       render: (booking: Booking) => (
         <div className="flex items-center justify-center gap-2">
-          {onApprove && <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking)} />}
-          {onCancel && <FaWindowClose size={20} className="text-red-600 cursor-pointer" onClick={() => onCancel(booking.id)} />}
+          {onApprove && (
+            <FaCheckSquare size={20} className="text-green-600 cursor-pointer" onClick={() => onApprove(booking)} />
+          )}
+          {onCancel && (
+            <FaWindowClose size={20} className="text-red-600 cursor-pointer" onClick={() => onCancel(booking.id)} />
+          )}
         </div>
       ),
     },
   ];
 
-  return <DataTable data={bookings} columns={columns} keyExtractor={(booking) => booking.id} isLoading={isLoading} error={error} emptyMessage="No one has booked yet" />;
+  return (
+    <DataTable
+      data={bookings}
+      columns={columns}
+      keyExtractor={(booking) => booking.id}
+      isLoading={isLoading}
+      error={error}
+      emptyMessage="No one has booked yet"
+    />
+  );
 };
 
 export const OrderManagementTab: React.FC = () => {
@@ -120,7 +133,13 @@ export const OrderManagementTab: React.FC = () => {
       <h2 className="mb-8 heading">Order Management</h2>
       <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
       <div className="pb-2 my-4 overflow-x-auto scrollbar min-h-600">
-        <Table bookings={bookings} onApprove={handleApprove} onCancel={handleCancel} isLoading={isPending} error={error} />
+        <Table
+          bookings={bookings}
+          onApprove={handleApprove}
+          onCancel={handleCancel}
+          isLoading={isPending}
+          error={error}
+        />
       </div>
       <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
     </>

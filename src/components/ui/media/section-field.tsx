@@ -19,20 +19,52 @@ interface SectionFieldProps {
   isLoading: boolean;
 }
 
-export const SectionField = ({ field, sectionTitle, onNameChange, onDescriptionChange, onUpdateImage, onRemoveImage, onAdd, onReset, onDelete, canDelete, isLoading }: SectionFieldProps) => {
+export const SectionField = ({
+  field,
+  sectionTitle,
+  onNameChange,
+  onDescriptionChange,
+  onUpdateImage,
+  onRemoveImage,
+  onAdd,
+  onReset,
+  onDelete,
+  canDelete,
+  isLoading,
+}: SectionFieldProps) => {
   return (
     <div className="space-y-2">
       <div className="flex items-center">
         <span className="block whitespace-nowrap min-w-60">Name*</span>
-        <input type="text" placeholder={sectionTitle} value={field.name} onChange={(e) => onNameChange(e.target.value)} className="input-text" />
+        <input
+          type="text"
+          placeholder={sectionTitle}
+          value={field.name}
+          onChange={(e) => onNameChange(e.target.value)}
+          className="input-text"
+        />
         <span className="px-8 whitespace-nowrap">Description*</span>
-        <input type="text" placeholder="King bed, Single bed, Bathroom" value={field.description} onChange={(e) => onDescriptionChange(e.target.value)} className="input-text" />
+        <input
+          type="text"
+          placeholder="King bed, Single bed, Bathroom"
+          value={field.description}
+          onChange={(e) => onDescriptionChange(e.target.value)}
+          className="input-text"
+        />
       </div>
 
       <div className="flex items-center pt-1">
         <span className="block whitespace-nowrap min-w-60">Photo*</span>
         <div className="relative">
-          <input type="file" id={field.id} onChange={onUpdateImage} hidden accept="image/*" multiple disabled={isLoading} />
+          <input
+            type="file"
+            id={field.id}
+            onChange={onUpdateImage}
+            hidden
+            accept="image/*"
+            multiple
+            disabled={isLoading}
+          />
           <label htmlFor={field.id} className="file-label">
             <FaUpload /> {isLoading ? "Waiting..." : "Browse"}
           </label>
@@ -46,7 +78,11 @@ export const SectionField = ({ field, sectionTitle, onNameChange, onDescriptionC
             <button onClick={() => onRemoveImage(index)} type="button" className="btn-close">
               <IoCloseOutline className="text-light" />
             </button>
-            <Img src={image || "/temp-business.webp"} alt={`Selected image ${index + 1}`} className="w-full h-48 rounded" />
+            <Img
+              src={image || "/temp-business.webp"}
+              alt={`Selected image ${index + 1}`}
+              className="w-full h-48 rounded"
+            />
           </div>
         ))}
       </div>

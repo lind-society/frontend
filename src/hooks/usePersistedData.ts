@@ -34,7 +34,10 @@ type DataStore<T> = UseBoundStore<StoreApi<DataStoreState<T>>>;
 // as "Maximum update depth exceeded".
 const storeCache = new Map<string, DataStore<any>>();
 
-export function usePersistentData<T>(storeName: string, storageType: "localStorage" | "sessionStorage" = "sessionStorage"): DataStore<T> {
+export function usePersistentData<T>(
+  storeName: string,
+  storageType: "localStorage" | "sessionStorage" = "sessionStorage",
+): DataStore<T> {
   const cacheKey = `${storageType}:${storeName}`;
   const cached = storeCache.get(cacheKey);
   if (cached) {
@@ -57,8 +60,8 @@ export function usePersistentData<T>(storeName: string, storageType: "localStora
       {
         name: storeName,
         storage: createStorageProvider(storageType),
-      }
-    )
+      },
+    ),
   );
 
   storeCache.set(cacheKey, store);

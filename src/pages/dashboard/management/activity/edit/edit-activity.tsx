@@ -72,9 +72,17 @@ export const EditActivityPage = () => {
     window.location.reload();
   };
 
-  const { mutate: editActivity, isPending } = useUpdateApi<Partial<Activity>>({ key: ["get-activities"], url: "/activities", redirectPath: "/dashboard/management/activity" });
+  const { mutate: editActivity, isPending } = useUpdateApi<Partial<Activity>>({
+    key: ["get-activities"],
+    url: "/activities",
+    redirectPath: "/dashboard/management/activity",
+  });
 
-  const { data: respActivity, isLoading } = useGetApi<Payload<Activity>>({ url: `activities/${id}`, key: ["get-activity", id], params: { baseCurrencyId: currency.value } });
+  const { data: respActivity, isLoading } = useGetApi<Payload<Activity>>({
+    url: `activities/${id}`,
+    key: ["get-activity", id],
+    params: { baseCurrencyId: currency.value },
+  });
 
   const [activeTab, setActiveTab] = React.useState<TabName>(() => {
     const hashTab = hash.replace("#", "");
@@ -132,7 +140,15 @@ export const EditActivityPage = () => {
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
-    const processData = deleteKeysObject(data, ["currency", "pivotId", "facilities", "priceAfterDiscount", "createdAt", "updatedAt", "id"]);
+    const processData = deleteKeysObject(data, [
+      "currency",
+      "pivotId",
+      "facilities",
+      "priceAfterDiscount",
+      "createdAt",
+      "updatedAt",
+      "id",
+    ]);
     editActivity({ updatedItem: processData, id: id || "" });
   };
 

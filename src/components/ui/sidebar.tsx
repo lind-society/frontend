@@ -14,7 +14,11 @@ export const Sidebar = ({ openNav }: { openNav: boolean }) => {
   };
 
   return (
-    <motion.aside variants={animation} animate={openNav ? "open" : "closed"} className="fixed h-screen py-6 space-y-8 overflow-auto text-center min-w-64 bg-primary text-light z-10000">
+    <motion.aside
+      variants={animation}
+      animate={openNav ? "open" : "closed"}
+      className="fixed h-screen py-6 space-y-8 overflow-auto text-center min-w-64 bg-primary text-light z-10000"
+    >
       <div className="mx-2 space-y-8">
         <Img className="mx-auto h-14 min-w-28 max-w-28" src="/logo-light.png" alt="logo lind society" />
         <span className="block text-2xl font-semibold text-light">Dashboard</span>
@@ -24,9 +28,13 @@ export const Sidebar = ({ openNav }: { openNav: boolean }) => {
           const isActive = pathname.includes(item.link);
           return (
             <div className="w-full px-4" key={index}>
-              <span className={`sidebar-menu group ${isActive ? "bg-light shadow-sm" : "bg-transparent"}`}>
+              <span className={`sidebar-menu group ${isActive ? "bg-light shadow-xs" : "bg-transparent"}`}>
                 <Link to={`/dashboard${item.link}`} className="block w-full">
-                  <p className={`text-sm group-hover:text-primary ${isActive ? "font-semibold text-primary" : "text-light/90"}`}>{item.title}</p>
+                  <p
+                    className={`text-sm group-hover:text-primary ${isActive ? "font-semibold text-primary" : "text-light/90"}`}
+                  >
+                    {item.title}
+                  </p>
                 </Link>
               </span>
             </div>

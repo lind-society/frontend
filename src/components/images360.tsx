@@ -19,7 +19,14 @@ export const Images360 = ({ src }: { src: string }) => {
       MarkersPlugin,
       {
         markers: [
-          { id: "image", position: { yaw: "95deg", pitch: "16deg" }, image: "/pin-red.png", anchor: "bottom center", size: { width: 32, height: 32 }, tooltip: "Monte Civetta, Dolomites, Italy" },
+          {
+            id: "image",
+            position: { yaw: "95deg", pitch: "16deg" },
+            image: "/pin-red.png",
+            anchor: "bottom center",
+            size: { width: 32, height: 32 },
+            tooltip: "Monte Civetta, Dolomites, Italy",
+          },
         ],
       },
     ],

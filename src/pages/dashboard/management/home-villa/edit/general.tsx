@@ -36,7 +36,15 @@ interface FormState {
   owner: OptionType | null;
 }
 
-const FormField = ({ label, children, required = false }: { label: string; children: React.ReactNode; required?: boolean }) => (
+const FormField = ({
+  label,
+  children,
+  required = false,
+}: {
+  label: string;
+  children: React.ReactNode;
+  required?: boolean;
+}) => (
   <div className="flex items-center">
     <span className="block whitespace-nowrap min-w-60">
       {label} {required && "*"}
@@ -64,7 +72,10 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
   const { data: dataBeforeEdit } = useStore();
   const { setData, data: dataAfterEdit } = useEdit();
 
-  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
+  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({
+    key: ["currencies"],
+    url: "/currencies",
+  });
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: "/owners" });
 
   const dataCondition =
@@ -142,7 +153,11 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
-  const updateNestedField = (category: "price" | "availability" | "discount" | "isDiscount", field: "daily" | "monthly" | "yearly", value: string | boolean) => {
+  const updateNestedField = (
+    category: "price" | "availability" | "discount" | "isDiscount",
+    field: "daily" | "monthly" | "yearly",
+    value: string | boolean,
+  ) => {
     setFormState((prev) => ({
       ...prev,
       [category]: {
@@ -180,7 +195,10 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     updateNestedField("discount", type, String(clamped));
   };
 
-  const handlePriceDailyChange = (type: "lowSeasonDailyPrice" | "highSeasonDailyPrice" | "peakSeasonDailyPrice", value: string) => {
+  const handlePriceDailyChange = (
+    type: "lowSeasonDailyPrice" | "highSeasonDailyPrice" | "peakSeasonDailyPrice",
+    value: string,
+  ) => {
     if (value === "") return updateFormState(type, "");
     const clamped = Math.min(Math.max(+value, 0), MAX_PRICE);
     updateFormState(type, String(clamped));
@@ -198,7 +216,23 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
   // anything until Save was pressed, so switching tabs (or closing the
   // browser) mid-edit silently threw the fields away.
   React.useEffect(() => {
-    const { name, secondaryName, highlight, currency, owner, discount, price, dailyPrice, lowSeasonDailyPrice, highSeasonDailyPrice, peakSeasonDailyPrice, availabilityQuotaPerMonth, availabilityQuotaPerYear, isDiscount, availability } = formState;
+    const {
+      name,
+      secondaryName,
+      highlight,
+      currency,
+      owner,
+      discount,
+      price,
+      dailyPrice,
+      lowSeasonDailyPrice,
+      highSeasonDailyPrice,
+      peakSeasonDailyPrice,
+      availabilityQuotaPerMonth,
+      availabilityQuotaPerYear,
+      isDiscount,
+      availability,
+    } = formState;
 
     const dataToSave = {
       name,
@@ -288,11 +322,25 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
         <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-2000"}`}></div>
 
         <FormField label="Name" required>
-          <input type="text" className="input-text" placeholder="Urna Santal Villa" value={formState.name} onChange={(e) => updateFormState("name", e.target.value)} required />
+          <input
+            type="text"
+            className="input-text"
+            placeholder="Urna Santal Villa"
+            value={formState.name}
+            onChange={(e) => updateFormState("name", e.target.value)}
+            required
+          />
         </FormField>
 
         <FormField label="Secondary name" required>
-          <input type="text" className="input-text" placeholder="Urna Cangau" value={formState.secondaryName} onChange={(e) => updateFormState("secondaryName", e.target.value)} required />
+          <input
+            type="text"
+            className="input-text"
+            placeholder="Urna Cangau"
+            value={formState.secondaryName}
+            onChange={(e) => updateFormState("secondaryName", e.target.value)}
+            required
+          />
         </FormField>
 
         <FormField label="Availability" required>
@@ -300,7 +348,12 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
             {(["daily", "monthly", "yearly"] as const).map((type) => (
               <div key={type} className="flex items-center gap-2">
                 <span className="block cursor-pointer">{capitalize(type)}</span>
-                <input type="checkbox" className="cursor-pointer accent-primary" checked={formState.availability[type]} onChange={() => handleAvailabilityChange(type)} />
+                <input
+                  type="checkbox"
+                  className="cursor-pointer accent-primary"
+                  checked={formState.availability[type]}
+                  onChange={() => handleAvailabilityChange(type)}
+                />
               </div>
             ))}
           </div>
@@ -331,7 +384,13 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
         {formState.availability["daily"] && (
           <div className="space-y-6">
             <FormField label="Daily Base Price" required>
-              <NumberInput className="input-text placeholder:text-dark" value={formState.dailyPrice} onChange={(e) => updateFormState("dailyPrice", e.target.value)} placeholder={`0`} required />
+              <NumberInput
+                className="input-text placeholder:text-dark"
+                value={formState.dailyPrice}
+                onChange={(e) => updateFormState("dailyPrice", e.target.value)}
+                placeholder={`0`}
+                required
+              />
               {formState.currency && <p className="pl-2">{formState.currency ? formState.currency?.label : ""}</p>}
             </FormField>
             <div className="grid grid-cols-3 gap-16 px-8">
@@ -430,13 +489,22 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                   </div>
                 </FormField>
                 <div className="flex justify-end">
-                  <p className="w-full text-sm italic whitespace-nowrap max-w-40">Final Price : {calculatePrice(formState.price[type], formState.discount[type], true)}</p>
+                  <p className="w-full text-sm italic whitespace-nowrap max-w-40">
+                    Final Price : {calculatePrice(formState.price[type], formState.discount[type], true)}
+                  </p>
                 </div>
 
                 <FormField label={`Minimum stay (${type})`} required>
                   <select
-                    onChange={(e) => updateFormState(type === "monthly" ? "availabilityQuotaPerMonth" : "availabilityQuotaPerYear", e.target.value)}
-                    value={type === "monthly" ? formState.availabilityQuotaPerMonth : formState.availabilityQuotaPerYear}
+                    onChange={(e) =>
+                      updateFormState(
+                        type === "monthly" ? "availabilityQuotaPerMonth" : "availabilityQuotaPerYear",
+                        e.target.value,
+                      )
+                    }
+                    value={
+                      type === "monthly" ? formState.availabilityQuotaPerMonth : formState.availabilityQuotaPerYear
+                    }
                     className="w-full input-select"
                   >
                     {[...Array(type === "monthly" ? 12 : 10)].map((_, index) => (

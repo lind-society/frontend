@@ -13,7 +13,8 @@ import { API } from "../../utils/api";
 
 /** Mirrors IWhatsappConnectionState in the backend. */
 interface WhatsappConnection {
-  status: "initializing" | "qr_required" | "authenticating" | "connected" | "disconnected" | "auth_failure" | "service_down";
+  status:
+    "initializing" | "qr_required" | "authenticating" | "connected" | "disconnected" | "auth_failure" | "service_down";
   qrImage: string | null;
   qrIssuedAt: string | null;
   linkedNumber: string | null;
@@ -148,7 +149,9 @@ export const WhatsappPage = () => {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="head-title">WhatsApp</h1>
-            <p className="mt-1 text-sm text-dark/60">Hubungkan nomor WhatsApp yang dipakai mengirim notifikasi booking.</p>
+            <p className="mt-1 text-sm text-dark/60">
+              Hubungkan nomor WhatsApp yang dipakai mengirim notifikasi booking.
+            </p>
           </div>
 
           <div className="flex gap-2">
@@ -171,7 +174,11 @@ export const WhatsappPage = () => {
           </div>
         </div>
 
-        {isError && <div className="p-4 text-sm text-red-700 border border-red-200 rounded bg-red-50">Tidak bisa membaca status WhatsApp. Pastikan Anda masih login.</div>}
+        {isError && (
+          <div className="p-4 text-sm text-red-700 border border-red-200 rounded bg-red-50">
+            Tidak bisa membaca status WhatsApp. Pastikan Anda masih login.
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex items-center justify-center p-16 bg-light rounded card-shadow">
@@ -194,8 +201,12 @@ export const WhatsappPage = () => {
                 <InfoRow label="Nama akun" value={data?.linkedName || "-"} />
                 <InfoRow label="Terakhir aktif" value={formatDateTime(data?.lastReadyAt ?? null)} />
                 <InfoRow label="Terakhir terputus" value={formatDateTime(data?.lastDisconnectedAt ?? null)} />
-                {data?.lastDisconnectReason && <InfoRow label="Penyebab" value={<span className="text-red-700">{data.lastDisconnectReason}</span>} />}
-                {data && data.retries > 0 && <InfoRow label="Percobaan sambung ulang" value={`${data.retries} dari ${data.maxRetries}`} />}
+                {data?.lastDisconnectReason && (
+                  <InfoRow label="Penyebab" value={<span className="text-red-700">{data.lastDisconnectReason}</span>} />
+                )}
+                {data && data.retries > 0 && (
+                  <InfoRow label="Percobaan sambung ulang" value={`${data.retries} dari ${data.maxRetries}`} />
+                )}
               </div>
 
               <p className="text-xs text-dark/50">Status diperbarui otomatis setiap 5 detik.</p>
@@ -206,7 +217,13 @@ export const WhatsappPage = () => {
               {status === "qr_required" && data?.qrImage ? (
                 <div className="space-y-4 text-center">
                   <h2 className="heading">Scan QR Ini</h2>
-                  <img src={data.qrImage} alt="QR code WhatsApp" className="mx-auto border rounded border-dark/10" width={280} height={280} />
+                  <img
+                    src={data.qrImage}
+                    alt="QR code WhatsApp"
+                    className="mx-auto border rounded border-dark/10"
+                    width={280}
+                    height={280}
+                  />
                   <ol className="space-y-1 text-sm text-left text-dark/80 list-decimal list-inside">
                     <li>Buka WhatsApp di HP yang akan dipakai.</li>
                     <li>
@@ -217,14 +234,17 @@ export const WhatsappPage = () => {
                     </li>
                     <li>Arahkan kamera ke QR di atas.</li>
                   </ol>
-                  <p className="text-xs text-dark/50">QR berganti otomatis setiap ±1 menit. Kalau gagal, tunggu QR berikutnya muncul.</p>
+                  <p className="text-xs text-dark/50">
+                    QR berganti otomatis setiap ±1 menit. Kalau gagal, tunggu QR berikutnya muncul.
+                  </p>
                 </div>
               ) : status === "connected" ? (
                 <div className="flex flex-col items-center justify-center h-full py-10 space-y-3 text-center">
                   <FaCheckCircle className="text-4xl text-green-600" />
                   <h2 className="heading">Sudah Terhubung</h2>
                   <p className="max-w-sm text-sm text-dark/60">
-                    Nomor ini yang akan mengirim notifikasi ke customer dan owner. Tidak perlu scan ulang selama tidak diputus dari HP.
+                    Nomor ini yang akan mengirim notifikasi ke customer dan owner. Tidak perlu scan ulang selama tidak
+                    diputus dari HP.
                   </p>
                 </div>
               ) : status === "service_down" ? (
@@ -232,14 +252,17 @@ export const WhatsappPage = () => {
                   <FaTimesCircle className="text-4xl text-red-600" />
                   <h2 className="heading">Layanan Belum Jalan</h2>
                   <p className="max-w-sm text-sm text-dark/60">
-                    Service WhatsApp dan antrean pesan (RabbitMQ) harus berjalan di server sebelum nomor bisa dihubungkan. Hubungi tim teknis.
+                    Service WhatsApp dan antrean pesan (RabbitMQ) harus berjalan di server sebelum nomor bisa
+                    dihubungkan. Hubungi tim teknis.
                   </p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full py-10 space-y-3 text-center">
                   <div className="loader size-10 after:size-10"></div>
                   <h2 className="heading">Menyiapkan Sambungan</h2>
-                  <p className="max-w-sm text-sm text-dark/60">Tunggu sebentar. Kalau QR tidak muncul dalam 1 menit, tekan &quot;Sambung Ulang&quot;.</p>
+                  <p className="max-w-sm text-sm text-dark/60">
+                    Tunggu sebentar. Kalau QR tidak muncul dalam 1 menit, tekan &quot;Sambung Ulang&quot;.
+                  </p>
                 </div>
               )}
             </div>

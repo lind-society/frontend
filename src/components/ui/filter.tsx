@@ -15,7 +15,12 @@ export const Filter = ({ setSearchTerm }: { setSearchTerm: (e: ChangeEvent<HTMLI
         <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
           <FaSearch size={20} />
         </div>
-        <input type="search" className="block w-full py-2 pl-10 pr-4 text-sm duration-300 rounded outline-none text-dark-blue" onChange={setSearchTerm} placeholder="Search" />
+        <input
+          type="search"
+          className="block w-full py-2 pl-10 pr-4 text-sm duration-300 rounded outline-hidden text-dark-blue"
+          onChange={setSearchTerm}
+          placeholder="Search"
+        />
       </div>
     </div>
   );

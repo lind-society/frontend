@@ -5,7 +5,13 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
 
 import { GeneralTab } from "./general";
-import { EditKeyFeaturesTab, EditLocationTab, EditMediaTab, EditServiceFeaturesTab, Layout } from "../../../../../components/ui";
+import {
+  EditKeyFeaturesTab,
+  EditLocationTab,
+  EditMediaTab,
+  EditServiceFeaturesTab,
+  Layout,
+} from "../../../../../components/ui";
 import { Button, ToastMessage } from "../../../../../components";
 
 import { FaArrowLeft, FaFileAlt, FaUpload } from "react-icons/fa";
@@ -67,9 +73,17 @@ export const EditBuyPage = () => {
     window.location.reload();
   };
 
-  const { mutate: editProperty, isPending } = useUpdateApi<Partial<Property>>({ key: ["get-properties"], url: "/properties", redirectPath: "/dashboard/management/buy" });
+  const { mutate: editProperty, isPending } = useUpdateApi<Partial<Property>>({
+    key: ["get-properties"],
+    url: "/properties",
+    redirectPath: "/dashboard/management/buy",
+  });
 
-  const { data: respProperty, isLoading } = useGetApi<Payload<Property>>({ url: `properties/${id}`, key: ["get-property", id], params: { baseCurrencyId: currency.value } });
+  const { data: respProperty, isLoading } = useGetApi<Payload<Property>>({
+    url: `properties/${id}`,
+    key: ["get-property", id],
+    params: { baseCurrencyId: currency.value },
+  });
 
   const [activeTab, setActiveTab] = React.useState<TabName>(() => {
     const hashTab = hash.replace("#", "");
@@ -133,7 +147,16 @@ export const EditBuyPage = () => {
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
-    const processData = deleteKeysObject(data, ["currency", "pivotId", "facilities", "priceAfterDiscount", "createdAt", "updatedAt", "id", "reviews"]);
+    const processData = deleteKeysObject(data, [
+      "currency",
+      "pivotId",
+      "facilities",
+      "priceAfterDiscount",
+      "createdAt",
+      "updatedAt",
+      "id",
+      "reviews",
+    ]);
     editProperty({ updatedItem: processData, id: id || "" });
   };
 

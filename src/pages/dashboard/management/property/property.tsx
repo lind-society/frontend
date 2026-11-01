@@ -57,7 +57,11 @@ export const PropertyPage = () => {
 
       <div className="flex">
         {tabs.map((tab) => (
-          <button key={tab} className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`} onClick={() => setActiveTab(tab)}>
+          <button
+            key={tab}
+            className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
+            onClick={() => setActiveTab(tab)}
+          >
             {formatTitleCase(tab)}
           </button>
         ))}

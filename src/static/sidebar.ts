@@ -14,6 +14,8 @@ export const sideBarMenu: sidebarMenuTypes[] = [
   { title: "Order Management", link: "/management/order" },
   { title: "Property Management", link: "/management/property" },
   { title: "Owner Management", link: "/management/owner" },
+  { title: "Blog Management", link: "/management/blog" },
+  { title: "Inquiries", link: "/inquiries" },
   { title: "Review", link: "/review" },
   { title: "WhatsApp", link: "/whatsapp" },
 ];

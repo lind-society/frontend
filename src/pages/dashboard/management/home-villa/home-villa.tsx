@@ -62,7 +62,10 @@ export const HomeVillaPage = () => {
       <header className="flex items-center justify-between pb-4 mb-6 border-b border-dark/30">
         <h1 className="head-title">Villa & Home Management</h1>
 
-        <Button onClick={() => navigate("/dashboard/management/home-villa/add")} className="flex items-center gap-2 btn-primary">
+        <Button
+          onClick={() => navigate("/dashboard/management/home-villa/add")}
+          className="flex items-center gap-2 btn-primary"
+        >
           <FaPlus /> Add New
         </Button>
       </header>
@@ -70,7 +73,14 @@ export const HomeVillaPage = () => {
       <div className="space-y-8">
         <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
 
-        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} datas={villas} type="home-villa" message={`No villa & home added yet. Click "Add New" to create one.`} draftId={draftVillaId} />
+        <CardContent
+          isLoading={isLoading}
+          openDeleteModal={openDeleteModal}
+          datas={villas}
+          type="home-villa"
+          message={`No villa & home added yet. Click "Add New" to create one.`}
+          draftId={draftVillaId}
+        />
 
         <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
       </div>

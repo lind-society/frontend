@@ -1,8 +1,30 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..800;1,400..700&display=swap");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Theme, colors and plugins still live in the JS config. */
+@config "../tailwind.config.js";
+
+/* Keep the v3 preflight defaults the design was built against. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
 
 body {
   font-family: "Inter", sans-serif !important;
@@ -171,10 +193,10 @@ input[type="number"]::-webkit-outer-spin-button {
     @apply text-base text-dark sm:text-lg md:text-xl;
   }
   .input-text {
-    @apply w-full p-2 text-sm border rounded text-dark outline-none border-dark/20 focus:border-primary focus:ring-1 focus:ring-primary;
+    @apply w-full p-2 text-sm border rounded text-dark outline-hidden border-dark/20 focus:border-primary focus:ring-1 focus:ring-primary;
   }
   .input-select {
-    @apply p-2 text-sm border border-dark/20 text-dark focus:border-primary outline-none rounded focus:ring-1 focus:ring-primary;
+    @apply p-2 text-sm border border-dark/20 text-dark focus:border-primary outline-hidden rounded focus:ring-1 focus:ring-primary;
   }
   .popover {
     @apply absolute p-4 space-y-2 -translate-x-1/2 border border-gray rounded shadow-lg left-1/2 w-full bg-light text-dark z-100;
@@ -189,7 +211,7 @@ input[type="number"]::-webkit-outer-spin-button {
     @apply relative flex items-center justify-center py-2 overflow-hidden duration-300 rounded hover:bg-light;
   }
   .pagination-number {
-    @apply size-10 sm:size-12 flex items-center justify-center text-center transition-all border rounded shadow-sm border-gray/50 text-dark;
+    @apply size-10 sm:size-12 flex items-center justify-center text-center transition-all border rounded shadow-xs border-gray/50 text-dark;
   }
   .pagination-button {
     @apply px-4 py-1 flex items-center gap-1 justify-center transition-all duration-300 rounded bg-light;

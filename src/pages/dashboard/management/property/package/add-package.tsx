@@ -33,9 +33,17 @@ export const AddPackagePage = () => {
 
   const [isDirty, setIsDirty] = React.useState<boolean>(false);
 
-  const { data: respBenefits, isLoading } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "20" } });
+  const { data: respBenefits, isLoading } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({
+    key: ["get-benefits"],
+    url: "/package-benefits",
+    params: { limit: "20" },
+  });
 
-  const { mutate: addPackage, isPending } = useCreateApi<Partial<Package>>({ key: ["get-packages"], url: "/packages", redirectPath: `/dashboard/management/property` });
+  const { mutate: addPackage, isPending } = useCreateApi<Partial<Package>>({
+    key: ["get-packages"],
+    url: "/packages",
+    redirectPath: `/dashboard/management/property`,
+  });
 
   const benefitOptions = React.useMemo(() => {
     return respBenefits?.data?.data.map((benefit) => ({ value: benefit.id, label: benefit.title })) || [];
@@ -52,12 +60,16 @@ export const AddPackagePage = () => {
   };
 
   const updateBenefit = (id: string, option: OptionType | null) => {
-    const updatedBenefits = formState.packageBenefits.map((item) => (item.id === id ? { ...item, benefit: option } : item));
+    const updatedBenefits = formState.packageBenefits.map((item) =>
+      item.id === id ? { ...item, benefit: option } : item,
+    );
     updateFormField("packageBenefits", updatedBenefits);
   };
 
   const resetBenefit = (id: string) => {
-    const updatedBenefits = formState.packageBenefits.map((item) => (item.id === id ? { ...item, benefit: null } : item));
+    const updatedBenefits = formState.packageBenefits.map((item) =>
+      item.id === id ? { ...item, benefit: null } : item,
+    );
     updateFormField("packageBenefits", updatedBenefits);
   };
 
@@ -87,8 +99,11 @@ export const AddPackagePage = () => {
     const dataToSave = {
       name: formState.packageName,
       description: formState.packageDescription,
-      commissionPercentage: formState.packageCommissionPercentage === "" ? null : Number(formState.packageCommissionPercentage),
-      benefits: formState.packageBenefits.filter((item) => item.benefit?.value).map((item) => ({ id: item.benefit!.value })) as Package["benefits"],
+      commissionPercentage:
+        formState.packageCommissionPercentage === "" ? null : Number(formState.packageCommissionPercentage),
+      benefits: formState.packageBenefits
+        .filter((item) => item.benefit?.value)
+        .map((item) => ({ id: item.benefit!.value })) as Package["benefits"],
     };
     setIsDirty(false);
     addPackage(dataToSave);
@@ -99,8 +114,8 @@ export const AddPackagePage = () => {
       (event) => {
         if (isDirty) event.preventDefault();
       },
-      [isDirty]
-    )
+      [isDirty],
+    ),
   );
 
   const handleNavigation = (to: number) => {

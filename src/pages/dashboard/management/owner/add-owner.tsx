@@ -12,7 +12,16 @@ import { deleteKeysObject } from "../../../../utils";
 
 import { OptionType, Owner, PhoneCodes } from "../../../../types";
 
-const initValue = { name: "", type: "", companyName: "", email: "", phoneNumber: "", address: "", website: "", status: "" };
+const initValue = {
+  name: "",
+  type: "",
+  companyName: "",
+  email: "",
+  phoneNumber: "",
+  address: "",
+  website: "",
+  status: "",
+};
 
 export const AddOwnerPage = () => {
   const [addModal, setAddModal] = React.useState<boolean>(false);
@@ -35,7 +44,14 @@ export const AddOwnerPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const ownerProcess = deleteKeysObject(owner, ["id", "activities", "properties", "villas", "createdAt", "updatedAt"]);
+    const ownerProcess = deleteKeysObject(owner, [
+      "id",
+      "activities",
+      "properties",
+      "villas",
+      "createdAt",
+      "updatedAt",
+    ]);
     addOwner(
       {
         ...ownerProcess,
@@ -63,19 +79,45 @@ export const AddOwnerPage = () => {
           {/* Property name */}
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-44">Full Name *</label>
-            <input type="text" className="input-text" value={owner.name} placeholder="Asya Faris" onChange={(e) => handleChange("name", e.target.value)} required />
+            <input
+              type="text"
+              className="input-text"
+              value={owner.name}
+              placeholder="Asya Faris"
+              onChange={(e) => handleChange("name", e.target.value)}
+              required
+            />
           </div>
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-44">Email *</label>
-            <input type="email" className="input-text" value={owner.email} placeholder="asyafaris@gmail.com" onChange={(e) => handleChange("email", e.target.value)} required />
+            <input
+              type="email"
+              className="input-text"
+              value={owner.email}
+              placeholder="asyafaris@gmail.com"
+              onChange={(e) => handleChange("email", e.target.value)}
+              required
+            />
           </div>
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-44">Address *</label>
-            <input type="text" className="input-text" value={owner.address} placeholder="Jln. Raya Sawahan No.12" onChange={(e) => handleChange("address", e.target.value)} required />
+            <input
+              type="text"
+              className="input-text"
+              value={owner.address}
+              placeholder="Jln. Raya Sawahan No.12"
+              onChange={(e) => handleChange("address", e.target.value)}
+              required
+            />
           </div>
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-44">Status *</label>
-            <select className="w-full input-select" value={owner.status} onChange={(e) => handleChange("status", e.target.value)} required>
+            <select
+              className="w-full input-select"
+              value={owner.status}
+              onChange={(e) => handleChange("status", e.target.value)}
+              required
+            >
               <option disabled value="">
                 Select status
               </option>
@@ -85,7 +127,12 @@ export const AddOwnerPage = () => {
           </div>
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-44">Type *</label>
-            <select className="w-full input-select" value={owner.type} onChange={(e) => handleChange("type", e.target.value)} required>
+            <select
+              className="w-full input-select"
+              value={owner.type}
+              onChange={(e) => handleChange("type", e.target.value)}
+              required
+            >
               <option disabled value="">
                 Select type
               </option>
@@ -99,7 +146,10 @@ export const AddOwnerPage = () => {
               <Select
                 className="w-full text-sm"
                 isClearable
-                options={phoneCodes?.map((phone) => ({ value: phone.dial_code, label: `${phone.name} (${phone.dial_code})` }))}
+                options={phoneCodes?.map((phone) => ({
+                  value: phone.dial_code,
+                  label: `${phone.name} (${phone.dial_code})`,
+                }))}
                 value={phoneCountryCode}
                 onChange={(option) => setPhoneCountryCode(option)}
                 placeholder="Select Currency"
@@ -122,11 +172,23 @@ export const AddOwnerPage = () => {
 
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-44">Company Name *</label>
-            <input type="text" className="input-text" value={owner.companyName} placeholder="icodeu" onChange={(e) => handleChange("companyName", e.target.value)} />
+            <input
+              type="text"
+              className="input-text"
+              value={owner.companyName}
+              placeholder="icodeu"
+              onChange={(e) => handleChange("companyName", e.target.value)}
+            />
           </div>
           <div className="flex items-center">
             <label className="block whitespace-nowrap min-w-44">Website</label>
-            <input type="text" className="input-text" value={owner.website} placeholder="www.icodeu.com" onChange={(e) => handleChange("website", e.target.value)} />
+            <input
+              type="text"
+              className="input-text"
+              value={owner.website}
+              placeholder="www.icodeu.com"
+              onChange={(e) => handleChange("website", e.target.value)}
+            />
           </div>
 
           <div className="flex justify-end gap-4">

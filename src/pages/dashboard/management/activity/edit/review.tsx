@@ -49,12 +49,25 @@ const Table = ({ reviews, onCancel, isLoading, error }: ReviewsTableProps) => {
       key: "actions",
       header: "Actions",
       render: (review: Review) => (
-        <div className="flex items-center justify-center gap-2">{onCancel && <FaTrash size={16} className="text-red-600 cursor-pointer" onClick={() => onCancel(review.id)} />}</div>
+        <div className="flex items-center justify-center gap-2">
+          {onCancel && (
+            <FaTrash size={16} className="text-red-600 cursor-pointer" onClick={() => onCancel(review.id)} />
+          )}
+        </div>
       ),
     },
   ];
 
-  return <DataTable data={reviews} columns={columns} keyExtractor={(review) => review.id} isLoading={isLoading} error={error} emptyMessage="reviews not found" />;
+  return (
+    <DataTable
+      data={reviews}
+      columns={columns}
+      keyExtractor={(review) => review.id}
+      isLoading={isLoading}
+      error={error}
+      emptyMessage="reviews not found"
+    />
+  );
 };
 
 export const ReviewTab: React.FC = () => {

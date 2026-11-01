@@ -34,7 +34,11 @@ export const AddActivityPage = () => {
   const { pathname, hash } = useLocation();
   const navigate = useNavigate();
 
-  const { mutate: addActivity, isPending } = useCreateApi<Partial<Activity>>({ key: ["get-activities"], url: "/activities", redirectPath: "/dashboard/management/activity" });
+  const { mutate: addActivity, isPending } = useCreateApi<Partial<Activity>>({
+    key: ["get-activities"],
+    url: "/activities",
+    redirectPath: "/dashboard/management/activity",
+  });
   const useStore = usePersistentData<Partial<Activity>>("add-activity");
   const { data, clearData } = useStore();
 
@@ -64,7 +68,8 @@ export const AddActivityPage = () => {
     return tabs.includes(hashTab as TabName) ? (hashTab as TabName) : "general";
   });
 
-  const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
+  const [tabValidationState, setTabValidationState] =
+    React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
   const [isWaiting, setIsWaiting] = React.useState<boolean>(true);
 
   React.useEffect(() => {

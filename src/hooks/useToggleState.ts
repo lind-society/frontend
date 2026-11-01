@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, RefObject } from "react";
 
 import { useMediaQuery } from "./useMediaQuery";
 
-export const useToggleState = (initialValue = false): [RefObject<HTMLDivElement>, boolean, () => void] => {
+export const useToggleState = (initialValue = false): [RefObject<HTMLDivElement | null>, boolean, () => void] => {
   const [state, setState] = useState(initialValue);
   const isBigScreen = useMediaQuery("(min-width: 1024px)");
 

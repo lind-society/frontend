@@ -48,7 +48,10 @@ const Pagination = ({ setPage, page, totalPage }: PaginationProps) => {
       </button>
 
       <button type="button" onClick={handleNextPage} disabled={page === totalPage || totalPage === 0}>
-        <IoIosArrowForward size={20} className={page === totalPage || totalPage === 0 ? "text-primary/50" : "text-primary"} />
+        <IoIosArrowForward
+          size={20}
+          className={page === totalPage || totalPage === 0 ? "text-primary/50" : "text-primary"}
+        />
       </button>
     </div>
   );
@@ -164,7 +167,14 @@ export const MainPage = () => {
             <h2 className="text-xl font-bold">Booking Statistics</h2>
           </div>
           <ResponsiveContainer width="100%" height={800}>
-            <BarChart data={respBookingStatistics?.data.totalPerMonth.map((item) => ({ name: item.monthName.substring(0, 3), value: item.total })) || data}>
+            <BarChart
+              data={
+                respBookingStatistics?.data.totalPerMonth.map((item) => ({
+                  name: item.monthName.substring(0, 3),
+                  value: item.total,
+                })) || data
+              }
+            >
               <XAxis dataKey="name" />
               <YAxis />
               <Bar dataKey="value" fill="#2e5153" />
@@ -175,10 +185,20 @@ export const MainPage = () => {
         <div className="p-6 rounded-lg shadow bg-light min-h-400">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold">Recent Rent Home & Villa</h2>
-            <Pagination page={currentPageBookingVilla} setPage={setCurrentPageBookingVilla} totalPage={totalPageBookingVilla} />
+            <Pagination
+              page={currentPageBookingVilla}
+              setPage={setCurrentPageBookingVilla}
+              totalPage={totalPageBookingVilla}
+            />
           </div>
-          {isErrorBookingVilla && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
-          {!isErrorBookingVilla && bookingsVilla.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has booked yet</p>}
+          {isErrorBookingVilla && (
+            <p className="flex items-center justify-center text-center text-red-500 min-h-200">
+              Error loading data. Please try again.
+            </p>
+          )}
+          {!isErrorBookingVilla && bookingsVilla.length < 1 && (
+            <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has booked yet</p>
+          )}
           <div className="space-y-2">
             {bookingsVilla.map((booking) => (
               <div key={booking.id} className="flex items-center justify-between py-2 text-sm">
@@ -195,10 +215,20 @@ export const MainPage = () => {
         <div className="p-6 shadow bg-light rounded-xl min-h-400">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold">Recent Order Activity</h2>
-            <Pagination page={currentPageBookingActivity} setPage={setCurrentPageBookingActivity} totalPage={totalPageBookingActivity} />
+            <Pagination
+              page={currentPageBookingActivity}
+              setPage={setCurrentPageBookingActivity}
+              totalPage={totalPageBookingActivity}
+            />
           </div>
-          {isErrorBookingActivity && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
-          {!isErrorBookingActivity && bookingsActivity.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has order yet</p>}
+          {isErrorBookingActivity && (
+            <p className="flex items-center justify-center text-center text-red-500 min-h-200">
+              Error loading data. Please try again.
+            </p>
+          )}
+          {!isErrorBookingActivity && bookingsActivity.length < 1 && (
+            <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has order yet</p>
+          )}
           <ul className="space-y-2">
             {bookingsActivity.map((booking) => (
               <li key={booking.id} className="flex items-center justify-between py-2 text-sm">
@@ -216,8 +246,16 @@ export const MainPage = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold">Best Sellers</h2>
           </div>
-          {isErrorVillasBestSeller && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
-          {!isErrorVillasBestSeller && respVillasBestSeller?.data.data.length! < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No one has booking yet</p>}
+          {isErrorVillasBestSeller && (
+            <p className="flex items-center justify-center text-center text-red-500 min-h-200">
+              Error loading data. Please try again.
+            </p>
+          )}
+          {!isErrorVillasBestSeller && respVillasBestSeller?.data.data.length! < 1 && (
+            <p className="flex items-center justify-center text-center text-dark/50 min-h-200">
+              No one has booking yet
+            </p>
+          )}
           <ul className="space-y-4">
             {respVillasBestSeller?.data.data.map((villa, index) => (
               <li key={index} className="flex items-center justify-between">
@@ -227,7 +265,10 @@ export const MainPage = () => {
                     {villa.city}, {villa.country}
                   </p>
                 </div>
-                <Button onClick={() => navigate(`/dashboard/management/home-villa/edit/${villa.id}`)} className="btn-primary">
+                <Button
+                  onClick={() => navigate(`/dashboard/management/home-villa/edit/${villa.id}`)}
+                  className="btn-primary"
+                >
                   {villa.totalBooking} Bookings →
                 </Button>
               </li>
@@ -240,8 +281,14 @@ export const MainPage = () => {
             <h2 className="text-xl font-bold">Customer Reviews</h2>
             <Pagination page={currentPageReview} setPage={setCurrentPageReview} totalPage={totalPageReviews} />
           </div>
-          {isErrorReview && <p className="flex items-center justify-center text-center text-red-500 min-h-200">Error loading data. Please try again.</p>}
-          {!isErrorReview && reviews.length < 1 && <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No customer review</p>}
+          {isErrorReview && (
+            <p className="flex items-center justify-center text-center text-red-500 min-h-200">
+              Error loading data. Please try again.
+            </p>
+          )}
+          {!isErrorReview && reviews.length < 1 && (
+            <p className="flex items-center justify-center text-center text-dark/50 min-h-200">No customer review</p>
+          )}
           <ul className="space-y-4">
             {reviews.map((review) => (
               <li key={review.id} className="flex items-center justify-between border-b last:border-none">
@@ -251,7 +298,9 @@ export const MainPage = () => {
                   </p>
                   <p className="text-sm text-dark">{review?.villa?.name || review?.activity?.name}</p>
                 </div>
-                <div className="flex text-yellow-500">{[...Array(5)].map((_, i) => (i < review.rating ? <FaStar key={i} /> : <FaRegStar key={i} />))}</div>
+                <div className="flex text-yellow-500">
+                  {[...Array(5)].map((_, i) => (i < review.rating ? <FaStar key={i} /> : <FaRegStar key={i} />))}
+                </div>
               </li>
             ))}
           </ul>

@@ -42,14 +42,22 @@ export const LoginPage = () => {
     }
   };
 
-  const { isSuccess } = useGetApiWithAuth({ key: ["profile"], url: `/admins/profile`, enabled: authentication.isAuthenticated() });
+  const { isSuccess } = useGetApiWithAuth({
+    key: ["profile"],
+    url: `/admins/profile`,
+    enabled: authentication.isAuthenticated(),
+  });
 
   if (isSuccess) {
     return <Navigate to="/dashboard/main" />;
   }
 
   return (
-    <Background src="/images/modern-villa-background.webp" alt="login background" className="flex items-center justify-center min-h-screen">
+    <Background
+      src="/images/modern-villa-background.webp"
+      alt="login background"
+      className="flex items-center justify-center min-h-screen"
+    >
       <div className="relative w-full max-w-md p-8 rounded-lg shadow-lg bg-light">
         <div className="flex flex-col items-center mb-8">
           <Img src="/logo-brand.png" alt="LIND Society" className="h-12 mb-4" />
@@ -66,7 +74,16 @@ export const LoginPage = () => {
             <label htmlFor="identifier" className="block mb-2 text-sm font-medium text-primary">
               Username or Email
             </label>
-            <input type="text" id="identifier" name="identifier" value={formData.identifier} onChange={handleChange} className="input-text" placeholder="Enter your username or email" required />
+            <input
+              type="text"
+              id="identifier"
+              name="identifier"
+              value={formData.identifier}
+              onChange={handleChange}
+              className="input-text"
+              placeholder="Enter your username or email"
+              required
+            />
           </div>
 
           <div className="mb-4">
@@ -84,7 +101,11 @@ export const LoginPage = () => {
                 placeholder="Enter your password"
                 required
               />
-              <button type="button" className="absolute -translate-y-1/2 primary text-dark right-3 top-1/2" onClick={() => setShowPassword(!showPassword)}>
+              <button
+                type="button"
+                className="absolute -translate-y-1/2 primary text-dark right-3 top-1/2"
+                onClick={() => setShowPassword(!showPassword)}
+              >
                 {showPassword ? <FaEye size={24} /> : <FaEyeSlash size={24} />}
               </button>
             </div>
@@ -92,7 +113,11 @@ export const LoginPage = () => {
 
           {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
 
-          <button type="submit" className="flex items-center justify-center w-full px-4 py-2 transition-colors duration-300 rounded btn-primary" disabled={isLoading}>
+          <button
+            type="submit"
+            className="flex items-center justify-center w-full px-4 py-2 transition-colors duration-300 rounded btn-primary"
+            disabled={isLoading}
+          >
             {isLoading ? (
               <div className="flex justify-center">
                 <div className="loader size-6 after:size-6"></div>

@@ -32,7 +32,10 @@ export const PriceRulePage = () => {
     }
   }, []);
 
-  const { data: respPriceRules, isLoading: loadingPriceRule } = useGetApiWithAuth<Payload<Data<PriceRule[]>>>({ key: ["villa-price-rules"], url: "/villa-price-rules" });
+  const { data: respPriceRules, isLoading: loadingPriceRule } = useGetApiWithAuth<Payload<Data<PriceRule[]>>>({
+    key: ["villa-price-rules"],
+    url: "/villa-price-rules",
+  });
   const { mutate: createPriceRule, isPending: isCreating } = useCreateApi<Partial<PriceRule>>({
     key: ["villa-price-rules"],
     url: "/villa-price-rules",
@@ -137,16 +140,22 @@ export const PriceRulePage = () => {
   };
 
   const updateFieldPriceRule = (priceRuleId: string, key: keyof FormState, value: FormState[keyof FormState]) => {
-    setPriceRules((prevPriceRules) => prevPriceRules.map((priceRule) => (priceRule.id === priceRuleId ? { ...priceRule, [key]: value } : priceRule)));
+    setPriceRules((prevPriceRules) =>
+      prevPriceRules.map((priceRule) => (priceRule.id === priceRuleId ? { ...priceRule, [key]: value } : priceRule)),
+    );
   };
 
   const deleteFieldPriceRuleVillaIds = (priceRuleId: string, villaIdsIndex: number) => {
     setPriceRules((prevPriceRules) =>
       prevPriceRules.map((priceRule) =>
         priceRule.id === priceRuleId
-          ? { ...priceRule, villaIds: priceRule.villaIds.filter((_, index) => index !== villaIdsIndex), villas: priceRule.villas.filter((_, index) => index !== villaIdsIndex) }
-          : priceRule
-      )
+          ? {
+              ...priceRule,
+              villaIds: priceRule.villaIds.filter((_, index) => index !== villaIdsIndex),
+              villas: priceRule.villas.filter((_, index) => index !== villaIdsIndex),
+            }
+          : priceRule,
+      ),
     );
   };
 
@@ -157,10 +166,10 @@ export const PriceRulePage = () => {
           ? action === "toggle"
             ? { ...priceRule, isEditingName: !priceRule.isEditingName }
             : priceRule.name !== ""
-            ? { ...priceRule, isEditingName: false }
-            : priceRule
-          : priceRule
-      )
+              ? { ...priceRule, isEditingName: false }
+              : priceRule
+          : priceRule,
+      ),
     );
   };
 

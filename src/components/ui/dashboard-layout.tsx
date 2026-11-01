@@ -34,7 +34,12 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
     <div className="relative flex bg-light">
       <Toaster position="bottom-center" containerClassName="!z-max" />
       <Sidebar openNav={openNav} />
-      <motion.div className="flex-1 w-full" variants={containerVariants} animate={openNav ? "open" : "closed"} initial={false}>
+      <motion.div
+        className="flex-1 w-full"
+        variants={containerVariants}
+        animate={openNav ? "open" : "closed"}
+        initial={false}
+      >
         <TopBar handleOpenNav={() => setOpenNav((prev) => !prev)} />
         <div className="w-full duration-300 text-primary">
           <div className="w-full min-h-screen p-2 sm:p-4 bg-gray">

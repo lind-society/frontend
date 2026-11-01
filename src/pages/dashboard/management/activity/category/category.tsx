@@ -18,10 +18,20 @@ export const ActivityCategoryPage = () => {
   const [deleteModal, setDeleteModal] = React.useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = React.useState<Category | null>(null);
 
-  const { data: respCategories, isLoading } = useGetApi<Payload<Data<Category[]>>>({ key: ["get-activity-categories"], url: "activity-categories", params: { limit: "100" } });
+  const { data: respCategories, isLoading } = useGetApi<Payload<Data<Category[]>>>({
+    key: ["get-activity-categories"],
+    url: "activity-categories",
+    params: { limit: "100" },
+  });
 
-  const { mutate: addCategory, isPending: isAdding } = useCreateApi<{ name: string }>({ key: ["get-activity-categories"], url: "/activity-categories" });
-  const { mutate: deleteCategory, isPending: isDeleting } = useDeleteApi({ key: ["get-activity-categories"], url: "/activity-categories" });
+  const { mutate: addCategory, isPending: isAdding } = useCreateApi<{ name: string }>({
+    key: ["get-activity-categories"],
+    url: "/activity-categories",
+  });
+  const { mutate: deleteCategory, isPending: isDeleting } = useDeleteApi({
+    key: ["get-activity-categories"],
+    url: "/activity-categories",
+  });
 
   const categories = respCategories?.data.data || [];
 
@@ -61,7 +71,14 @@ export const ActivityCategoryPage = () => {
       <div className="p-8 border rounded-b bg-light border-dark/30">
         <h2 className="heading">Add Category</h2>
         <form className="flex items-center gap-4 mt-6" onSubmit={handleAddCategory}>
-          <input type="text" className="input-text" placeholder="e.g. Adventure" value={name} onChange={(e) => setName(e.target.value)} required />
+          <input
+            type="text"
+            className="input-text"
+            placeholder="e.g. Adventure"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
           <Button type="submit" className={`btn-primary whitespace-nowrap ${isAdding && "animate-pulse"}`}>
             Add Category
           </Button>
@@ -76,13 +93,18 @@ export const ActivityCategoryPage = () => {
             <div className="loader size-12 after:size-12"></div>
           </div>
         ) : categories.length === 0 ? (
-          <p className="p-4 text-center text-dark/50">No categories added yet. Add one above to use it when creating an activity.</p>
+          <p className="p-4 text-center text-dark/50">
+            No categories added yet. Add one above to use it when creating an activity.
+          </p>
         ) : (
           <div className="mt-6 space-y-2">
             {categories.map((category) => (
               <div key={category.id} className="flex items-center justify-between p-4 border rounded border-dark/30">
                 <span className="font-medium text-primary">{category.name}</span>
-                <button onClick={() => openDeleteModal(category)} className="p-2 text-sm bg-red-500 rounded-full hover:bg-red-600 text-light">
+                <button
+                  onClick={() => openDeleteModal(category)}
+                  className="p-2 text-sm bg-red-500 rounded-full hover:bg-red-600 text-light"
+                >
                   <FaRegTrashAlt />
                 </button>
               </div>
@@ -94,7 +116,8 @@ export const ActivityCategoryPage = () => {
       <Modal onClose={closeDeleteModal} isVisible={deleteModal}>
         <h2 className="heading">Delete Category</h2>
         <p className="mt-2 mb-6">
-          Are you sure you want to delete "{selectedCategory?.name}"? Activities using it will be left without a category.
+          Are you sure you want to delete "{selectedCategory?.name}"? Activities using it will be left without a
+          category.
         </p>
         <div className="flex justify-end">
           <Button type="submit" className={`btn-red ${isDeleting && "animate-pulse"}`} onClick={handleDeleteCategory}>

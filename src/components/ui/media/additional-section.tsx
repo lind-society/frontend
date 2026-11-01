@@ -15,7 +15,16 @@ interface AdditionalSectionProps {
   isLoading: boolean;
 }
 
-export const AdditionalSection = ({ section, onFieldAdd, onFieldUpdate, onFieldDelete, onFieldReset, onRemoveImage, onUpdateImage, isLoading }: AdditionalSectionProps) => {
+export const AdditionalSection = ({
+  section,
+  onFieldAdd,
+  onFieldUpdate,
+  onFieldDelete,
+  onFieldReset,
+  onRemoveImage,
+  onUpdateImage,
+  isLoading,
+}: AdditionalSectionProps) => {
   return (
     <div className="space-y-2">
       <h2 className="text-lg font-bold">{section.title}</h2>

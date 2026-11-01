@@ -44,7 +44,10 @@ export const EditKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKe
   }, [responseFacilities?.data.data, facilities]);
 
   const addFacility = (facilityId: string, name: string, icon: Facility["icon"]) => {
-    setFacilities((prevFacilities) => [{ id: facilityId, name, icon, description: "", includeDescription: true }, ...prevFacilities]);
+    setFacilities((prevFacilities) => [
+      { id: facilityId, name, icon, description: "", includeDescription: true },
+      ...prevFacilities,
+    ]);
 
     if (availableFacilities?.length! <= 1) {
       setModalVisible(false);
@@ -59,16 +62,26 @@ export const EditKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKe
 
   const resetFacility = (id: string) => {
     setFacilities((prevFacilities) =>
-      prevFacilities.map((facility) => (facility.id === id ? { ...facility, name: "", icon: { url: "", key: "" }, description: "", includeDescription: true } : facility))
+      prevFacilities.map((facility) =>
+        facility.id === id
+          ? { ...facility, name: "", icon: { url: "", key: "" }, description: "", includeDescription: true }
+          : facility,
+      ),
     );
   };
 
   const updateFacilityField = (id: string, field: keyof Facility, value: string | boolean) => {
-    setFacilities((prevFacilities) => prevFacilities.map((feature) => (feature.id === id ? { ...feature, [field]: value } : feature)));
+    setFacilities((prevFacilities) =>
+      prevFacilities.map((feature) => (feature.id === id ? { ...feature, [field]: value } : feature)),
+    );
   };
 
   const updateFacilityIcon = (id: string, key: string | null, url: string) => {
-    setFacilities((prevFacilities) => prevFacilities.map((facility) => (facility.id === id ? { ...facility, icon: { url, key: key ?? "" } } : facility)));
+    setFacilities((prevFacilities) =>
+      prevFacilities.map((facility) =>
+        facility.id === id ? { ...facility, icon: { url, key: key ?? "" } } : facility,
+      ),
+    );
   };
 
   const handleSubmitService = (e: React.MouseEvent) => {
@@ -99,7 +112,11 @@ export const EditKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKe
       }));
 
     const hasChanges = facilities.every((newFacility) =>
-      tempData?.some((oldFacility) => newFacility.description === oldFacility.description && newFacility.includeDescription === oldFacility.includeDescription)
+      tempData?.some(
+        (oldFacility) =>
+          newFacility.description === oldFacility.description &&
+          newFacility.includeDescription === oldFacility.includeDescription,
+      ),
     );
     onChange(!hasChanges);
   }, [facilities]);
@@ -116,7 +133,7 @@ export const EditKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKe
               icon: facility.icon,
               description: data.facilities?.find((item) => item.id === facility.id)?.description || "",
               includeDescription: true,
-            }))
+            })),
         );
       } else {
         setFacilities(
@@ -128,7 +145,7 @@ export const EditKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKe
               icon: facility.icon,
               description: "",
               includeDescription: true,
-            }))
+            })),
         );
       }
     }
@@ -163,7 +180,14 @@ export const EditKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKe
         <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-5"}`}></div>
 
         {facilities.map((facility) => (
-          <FacilityItem key={facility.id} facility={facility} onUpdateField={updateFacilityField} onUpdateIcon={updateFacilityIcon} onReset={resetFacility} onDelete={deleteFacility} />
+          <FacilityItem
+            key={facility.id}
+            facility={facility}
+            onUpdateField={updateFacilityField}
+            onUpdateIcon={updateFacilityIcon}
+            onReset={resetFacility}
+            onDelete={deleteFacility}
+          />
         ))}
 
         <div className={`justify-end gap-4 mt-8 ${editMode ? "flex" : "hidden"}`}>
@@ -172,7 +196,12 @@ export const EditKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKe
           </Button>
         </div>
       </div>
-      <AddFacilityModal isVisible={modalVisible} onClose={() => setModalVisible(false)} availableFacilities={availableFacilities || []} onAddFacility={addFacility} />
+      <AddFacilityModal
+        isVisible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        availableFacilities={availableFacilities || []}
+        onAddFacility={addFacility}
+      />
     </>
   );
 };

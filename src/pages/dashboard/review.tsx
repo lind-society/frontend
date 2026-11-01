@@ -42,7 +42,16 @@ const Table = ({ reviews, isLoading, error }: ReviewsTableProps) => {
     },
   ];
 
-  return <DataTable data={reviews} columns={columns} keyExtractor={(review) => review.id} isLoading={isLoading} error={error} emptyMessage="No one has review yet" />;
+  return (
+    <DataTable
+      data={reviews}
+      columns={columns}
+      keyExtractor={(review) => review.id}
+      isLoading={isLoading}
+      error={error}
+      emptyMessage="No one has review yet"
+    />
+  );
 };
 
 export const ReviewPage = () => {
@@ -52,7 +61,11 @@ export const ReviewPage = () => {
     data: respReviews,
     isPending,
     error,
-  } = useGetApi<Payload<Data<Review[]>>>({ key: ["get-reviews-villas", searchQuery, currentPage], url: "reviews", params: { search: searchQuery, page: currentPage } });
+  } = useGetApi<Payload<Data<Review[]>>>({
+    key: ["get-reviews-villas", searchQuery, currentPage],
+    url: "reviews",
+    params: { search: searchQuery, page: currentPage },
+  });
 
   const reviews = respReviews?.data.data || [];
   const totalPages = respReviews?.data.meta.totalPages || 1;

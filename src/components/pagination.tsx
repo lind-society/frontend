@@ -16,9 +16,11 @@ export const Pagination = ({ setPage, page, totalPage, isNumbering, withQuerySyn
     }
   };
 
-  const getButtonClass = (isDisabled: boolean) => `pagination-button group ${isDisabled ? "text-dark/50" : "hover:text-light hover:bg-primary"}`;
+  const getButtonClass = (isDisabled: boolean) =>
+    `pagination-button group ${isDisabled ? "text-dark/50" : "hover:text-light hover:bg-primary"}`;
 
-  const getIconClass = (isDisabled: boolean) => `duration-300 ${isDisabled ? "fill-dark/50" : "fill-primary group-hover:fill-light"}`;
+  const getIconClass = (isDisabled: boolean) =>
+    `duration-300 ${isDisabled ? "fill-dark/50" : "fill-primary group-hover:fill-light"}`;
 
   const handleNextPage = () => {
     updatePage(Math.min(page + 1, totalPage));
@@ -59,18 +61,28 @@ export const Pagination = ({ setPage, page, totalPage, isNumbering, withQuerySyn
         {isNumbering &&
           pageNumbers.map((numberPage, index) =>
             typeof numberPage === "number" ? (
-              <button key={index} type="button" onClick={() => updatePage(numberPage)} className={`pagination-number ${numberPage === page ? "bg-primary text-light" : "bg-light text-dark"}`}>
+              <button
+                key={index}
+                type="button"
+                onClick={() => updatePage(numberPage)}
+                className={`pagination-number ${numberPage === page ? "bg-primary text-light" : "bg-light text-dark"}`}
+              >
                 {numberPage}
               </button>
             ) : (
               <span key={index} className="p-0 text-3xl sm:p-1">
                 {numberPage}
               </span>
-            )
+            ),
           )}
       </div>
 
-      <button className={getButtonClass(page === totalPage || totalPage === 0)} type="button" onClick={handleNextPage} disabled={page === totalPage || totalPage === 0}>
+      <button
+        className={getButtonClass(page === totalPage || totalPage === 0)}
+        type="button"
+        onClick={handleNextPage}
+        disabled={page === totalPage || totalPage === 0}
+      >
         Next
         <IoIosArrowForward size={20} className={getIconClass(page === totalPage || totalPage === 0)} />
       </button>

@@ -56,7 +56,10 @@ const CardContent = ({ isLoading, activities, openDeleteModal, draftActivityId }
       {activities.map((activity) => (
         <div key={activity.id} className="w-full card-shadow max-w-72">
           <div className="relative w-full">
-            <button onClick={() => openDeleteModal(activity)} className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1">
+            <button
+              onClick={() => openDeleteModal(activity)}
+              className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1"
+            >
               <FaRegTrashAlt />
             </button>
             <button onClick={() => toggleFavorite(activity.id)} className="absolute p-2 top-2 left-2 z-1">
@@ -67,7 +70,11 @@ const CardContent = ({ isLoading, activities, openDeleteModal, draftActivityId }
                 <FaFileAlt size={10} /> Draft
               </span>
             )}
-            <Img src={activity.photos && activity.photos.length > 0 ? activity.photos[0] : defaultImage} alt={activity.name} className="object-cover w-full h-60" />
+            <Img
+              src={activity.photos && activity.photos.length > 0 ? activity.photos[0] : defaultImage}
+              alt={activity.name}
+              className="object-cover w-full h-60"
+            />
           </div>
           <div className="text-primary bg-light">
             <div className="flex items-center justify-between gap-2 px-4 py-2 text-sm border-b border-dark/30">
@@ -152,7 +159,10 @@ export const ActivityPage = () => {
           <Button onClick={() => navigate("/dashboard/management/activity/category")} className="btn-outline">
             Categories
           </Button>
-          <Button onClick={() => navigate("/dashboard/management/activity/add")} className="flex items-center gap-2 btn-primary">
+          <Button
+            onClick={() => navigate("/dashboard/management/activity/add")}
+            className="flex items-center gap-2 btn-primary"
+          >
             <FaPlus /> Add New
           </Button>
         </div>
@@ -161,7 +171,12 @@ export const ActivityPage = () => {
       <div className="space-y-8">
         <SearchBox value={inputValue} onChange={setInputValue} onSearch={handleSearch} />
 
-        <CardContent isLoading={isLoading} openDeleteModal={openDeleteModal} activities={activities} draftActivityId={draftActivityId} />
+        <CardContent
+          isLoading={isLoading}
+          openDeleteModal={openDeleteModal}
+          activities={activities}
+          draftActivityId={draftActivityId}
+        />
 
         <Pagination page={currentPage} setPage={handlePageChange} totalPage={totalPages} isNumbering />
       </div>

@@ -24,7 +24,13 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
   const { setData, data } = useStore();
 
-  const { houseRulesId, paymentTermsId, cancellationTermsId, isReady, isLoading: isLoadingPolicyTypes } = useVillaPolicyTypes();
+  const {
+    houseRulesId,
+    paymentTermsId,
+    cancellationTermsId,
+    isReady,
+    isLoading: isLoadingPolicyTypes,
+  } = useVillaPolicyTypes();
 
   // Grouped by type name: responses carry `type.name`, and the draft held in
   // session storage carries the `typeId` that was about to be sent. Matching on
@@ -33,7 +39,12 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
     data.policies?.filter((policy) => policy.type?.name === typeName || (typeId && policy.typeId === typeId)) ?? [];
 
   const toEditableRows = (policies: NonNullable<Villa["policies"]>) =>
-    policies.map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description }));
+    policies.map((policy) => ({
+      id: crypto.randomUUID(),
+      icon: policy.icon,
+      title: policy.name,
+      value: policy.description,
+    }));
 
   const savedHouseRules = policiesOfType(POLICY_TYPE_NAMES.houseRules, houseRulesId);
 
@@ -42,7 +53,9 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
     : houseRulesLists.map((title) => ({ id: crypto.randomUUID(), icon: { key: "key", url: "url" }, title, value: "" }));
 
   const defaultPaymentTerms = toEditableRows(policiesOfType(POLICY_TYPE_NAMES.paymentTerms, paymentTermsId));
-  const defaultCancellationTerms = toEditableRows(policiesOfType(POLICY_TYPE_NAMES.cancellationTerms, cancellationTermsId));
+  const defaultCancellationTerms = toEditableRows(
+    policiesOfType(POLICY_TYPE_NAMES.cancellationTerms, cancellationTermsId),
+  );
 
   const [houseRules, setHouseRules] = React.useState<Policies[]>(defaultHouseRules);
   const [paymentTerms, setPaymentTerms] = React.useState<Policies[]>(defaultPaymentTerms);
@@ -106,8 +119,8 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
     <>
       {!isLoadingPolicyTypes && !isReady && (
         <div className="p-4 mb-8 text-sm text-red-700 border border-red-200 rounded bg-red-50">
-          Policy types are missing on the server, so policies cannot be saved yet. Required: {POLICY_TYPE_NAMES.houseRules}, {POLICY_TYPE_NAMES.paymentTerms},{" "}
-          {POLICY_TYPE_NAMES.cancellationTerms}.
+          Policy types are missing on the server, so policies cannot be saved yet. Required:{" "}
+          {POLICY_TYPE_NAMES.houseRules}, {POLICY_TYPE_NAMES.paymentTerms}, {POLICY_TYPE_NAMES.cancellationTerms}.
         </div>
       )}
 
@@ -133,9 +146,19 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
         </div>
       </div>
 
-      <SectionPolicy title="Payment Terms" categories={paymentTermsLists} defaultPolicies={paymentTerms} onUpdate={updatePolicies} />
+      <SectionPolicy
+        title="Payment Terms"
+        categories={paymentTermsLists}
+        defaultPolicies={paymentTerms}
+        onUpdate={updatePolicies}
+      />
 
-      <SectionPolicy title="Cancellation Terms" categories={cancellationTermsLists} defaultPolicies={cancellationTerms} onUpdate={updatePolicies} />
+      <SectionPolicy
+        title="Cancellation Terms"
+        categories={cancellationTermsLists}
+        defaultPolicies={cancellationTerms}
+        onUpdate={updatePolicies}
+      />
     </>
   );
 };

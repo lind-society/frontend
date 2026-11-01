@@ -33,7 +33,13 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
     return dataAfterEdit.policies ? dataAfterEdit : dataBeforeEdit;
   }, [dataAfterEdit, dataBeforeEdit]);
 
-  const { houseRulesId, paymentTermsId, cancellationTermsId, isReady, isLoading: isLoadingPolicyTypes } = useVillaPolicyTypes();
+  const {
+    houseRulesId,
+    paymentTermsId,
+    cancellationTermsId,
+    isReady,
+    isLoading: isLoadingPolicyTypes,
+  } = useVillaPolicyTypes();
 
   // The API returns the type as a nested object; a locally edited draft still
   // carries the flat `typeId` it was about to send. Both are matched so an
@@ -42,7 +48,12 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
     data.policies?.filter((policy) => policy.type?.name === typeName || (typeId && policy.typeId === typeId)) ?? [];
 
   const toEditableRows = (policies: NonNullable<Villa["policies"]>) =>
-    policies.map((policy) => ({ id: crypto.randomUUID(), icon: policy.icon, title: policy.name, value: policy.description }));
+    policies.map((policy) => ({
+      id: crypto.randomUUID(),
+      icon: policy.icon,
+      title: policy.name,
+      value: policy.description,
+    }));
 
   const savedHouseRules = policiesOfType(POLICY_TYPE_NAMES.houseRules, houseRulesId);
 
@@ -51,7 +62,9 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
     : houseRulesLists.map((title) => ({ id: crypto.randomUUID(), icon: { key: "key", url: "url" }, title, value: "" }));
 
   const defaultPaymentTerms = toEditableRows(policiesOfType(POLICY_TYPE_NAMES.paymentTerms, paymentTermsId));
-  const defaultCancellationTerms = toEditableRows(policiesOfType(POLICY_TYPE_NAMES.cancellationTerms, cancellationTermsId));
+  const defaultCancellationTerms = toEditableRows(
+    policiesOfType(POLICY_TYPE_NAMES.cancellationTerms, cancellationTermsId),
+  );
 
   const [editMode, setEditMode] = React.useState<boolean>(false);
 
@@ -96,7 +109,10 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
       return index < defaultCancellationTerms.length && current.value !== defaultCancellationTerms[index].value;
     });
 
-    const lengthChanged = houseRules.length !== defaultHouseRules.length || paymentTerms.length !== defaultPaymentTerms.length || cancellationTerms.length !== defaultCancellationTerms.length;
+    const lengthChanged =
+      houseRules.length !== defaultHouseRules.length ||
+      paymentTerms.length !== defaultPaymentTerms.length ||
+      cancellationTerms.length !== defaultCancellationTerms.length;
 
     const hasChanges = houseRulesChanged || paymentTermsChanged || cancellationTermsChanged || lengthChanged;
 
@@ -112,7 +128,10 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
     if (!isHouseRulesComplete) return;
 
     if (!isReady) {
-      ToastMessage({ message: "Policy types are not available on the server, cannot save policies.", color: "#ef4444" });
+      ToastMessage({
+        message: "Policy types are not available on the server, cannot save policies.",
+        color: "#ef4444",
+      });
       return;
     }
 
@@ -166,7 +185,8 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
 
         {!isLoadingPolicyTypes && !isReady && (
           <div className="p-4 mb-8 text-sm text-red-700 border border-red-200 rounded bg-red-50">
-            Policy types are missing on the server, so policies cannot be saved. Required: {POLICY_TYPE_NAMES.houseRules}, {POLICY_TYPE_NAMES.paymentTerms}, {POLICY_TYPE_NAMES.cancellationTerms}.
+            Policy types are missing on the server, so policies cannot be saved. Required:{" "}
+            {POLICY_TYPE_NAMES.houseRules}, {POLICY_TYPE_NAMES.paymentTerms}, {POLICY_TYPE_NAMES.cancellationTerms}.
           </div>
         )}
 
@@ -192,9 +212,19 @@ export const VillaPoliciesTab: React.FC<{ onChange?: (hasChanges: boolean) => vo
           </div>
         </div>
 
-        <SectionPolicy title="Payment Terms" categories={paymentTermsLists} defaultPolicies={paymentTerms} onUpdate={updatePolicies} />
+        <SectionPolicy
+          title="Payment Terms"
+          categories={paymentTermsLists}
+          defaultPolicies={paymentTerms}
+          onUpdate={updatePolicies}
+        />
 
-        <SectionPolicy title="Cancellation Terms" categories={cancellationTermsLists} defaultPolicies={cancellationTerms} onUpdate={updatePolicies} />
+        <SectionPolicy
+          title="Cancellation Terms"
+          categories={cancellationTermsLists}
+          defaultPolicies={cancellationTerms}
+          onUpdate={updatePolicies}
+        />
 
         <div className={`justify-end gap-4 ${editMode ? "flex" : "hidden"}`} onClick={handleSubmitPolicies}>
           <Button className="btn-primary" type="submit">

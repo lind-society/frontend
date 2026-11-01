@@ -21,7 +21,10 @@ export const TopBar = ({ handleOpenNav }: { handleOpenNav: () => void }) => {
   const { setData, data } = useStore();
 
   const { data: user } = useGetApiWithAuth<Payload<User>>({ key: ["profile"], url: `/admins/profile` });
-  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
+  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({
+    key: ["currencies"],
+    url: "/currencies",
+  });
 
   const [loading, setLoading] = React.useState<boolean>(false);
 
@@ -73,14 +76,21 @@ export const TopBar = ({ handleOpenNav }: { handleOpenNav: () => void }) => {
         <div ref={ref} className="flex items-center gap-4">
           <Select
             className="w-full text-sm min-w-80 text-dark"
-            options={currencies?.data.data.map((currency) => ({ value: currency.id, label: `${currency.name} (${currency.code})` }))}
+            options={currencies?.data.data.map((currency) => ({
+              value: currency.id,
+              label: `${currency.name} (${currency.code})`,
+            }))}
             value={currency}
             onChange={handleCurrencyChange}
             placeholder="Select Currency"
             required
           />
           <div className="relative flex items-center gap-2 cursor-pointer text-dark" onClick={toggleDropdown}>
-            <Img src="/logo-circle.png" className="p-1 border rounded-full size-8 sm:size-10 border-gray/50" alt="user-profile" />
+            <Img
+              src="/logo-circle.png"
+              className="p-1 border rounded-full size-8 sm:size-10 border-gray/50"
+              alt="user-profile"
+            />
             <div className="mr-1">
               <p className="text-sm font-semibold sm:text-base">{user?.data.username}</p>
               <p className="text-xs tracking-tight sm:text-sm">{user?.data.email}</p>

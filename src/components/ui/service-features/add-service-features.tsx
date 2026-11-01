@@ -24,43 +24,62 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
   const { data, setData } = useStore();
 
   const defaultFeature: Feature[] = Object.values(
-    data.features?.reduce((acc, feature) => {
-      const key = feature.type;
-      if (!acc[key]) acc[key] = { id: crypto.randomUUID(), name: feature.type, icon: feature.icon, isEditing: false, items: [] };
-      acc[key].items.push({
-        id: crypto.randomUUID(),
-        title: feature.name,
-        free: feature.free,
-        price: String(feature.price),
-        currency: { label: feature.currency.code, value: feature.currency.id },
-        hidden: false,
-      });
-      return acc;
-    }, {} as Record<string, Feature>) || {}
+    data.features?.reduce(
+      (acc, feature) => {
+        const key = feature.type;
+        if (!acc[key])
+          acc[key] = { id: crypto.randomUUID(), name: feature.type, icon: feature.icon, isEditing: false, items: [] };
+        acc[key].items.push({
+          id: crypto.randomUUID(),
+          title: feature.name,
+          free: feature.free,
+          price: String(feature.price),
+          currency: { label: feature.currency.code, value: feature.currency.id },
+          hidden: false,
+        });
+        return acc;
+      },
+      {} as Record<string, Feature>,
+    ) || {},
   );
 
   const [features, setFeatures] = React.useState<Feature[]>(defaultFeature.length > 0 ? defaultFeature : mainFeatures);
   const [modalFeature, setModalFeature] = React.useState<boolean>(false);
   const [idIcon, setIdIcon] = React.useState<string>();
 
-  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
+  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({
+    key: ["currencies"],
+    url: "/currencies",
+  });
 
-  const otherFeatures = [...mainFeatures, ...optionalFeatures].filter((feature) => !features.some((item) => item.name === feature.name));
+  const otherFeatures = [...mainFeatures, ...optionalFeatures].filter(
+    (feature) => !features.some((item) => item.name === feature.name),
+  );
 
   const updateFeatureIcon = (key: string | null, e: React.MouseEvent) => {
     const url = (e.target as HTMLImageElement).src;
-    setFeatures((prevFeatures) => prevFeatures.map((feature) => (feature.id === idIcon ? { ...feature, icon: { url, key: key ?? "" } } : feature)));
+    setFeatures((prevFeatures) =>
+      prevFeatures.map((feature) => (feature.id === idIcon ? { ...feature, icon: { url, key: key ?? "" } } : feature)),
+    );
   };
 
   const handleFeatureNameUpdate = (featureId: string, name: string) => {
-    setFeatures((prevFeatures) => prevFeatures.map((feature) => (feature.id === featureId ? { ...feature, name } : feature)));
+    setFeatures((prevFeatures) =>
+      prevFeatures.map((feature) => (feature.id === featureId ? { ...feature, name } : feature)),
+    );
   };
 
   const handleFeatureEdit = (featureId: string, action: "toggle" | "finish") => {
     setFeatures((prevFeatures) =>
       prevFeatures.map((feature) =>
-        feature.id === featureId ? (action === "toggle" ? { ...feature, isEditing: !feature.isEditing } : feature.name !== "" ? { ...feature, isEditing: false } : feature) : feature
-      )
+        feature.id === featureId
+          ? action === "toggle"
+            ? { ...feature, isEditing: !feature.isEditing }
+            : feature.name !== ""
+              ? { ...feature, isEditing: false }
+              : feature
+          : feature,
+      ),
     );
   };
 
@@ -108,8 +127,8 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
               items: [{ id: crypto.randomUUID(), title: "", free: true, price: "", currency: null, hidden: false }],
               isEditing: false,
             }
-          : feature
-      )
+          : feature,
+      ),
     );
   };
 
@@ -124,10 +143,13 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
         feature.id === featureId
           ? {
               ...feature,
-              items: [...feature.items, { id: crypto.randomUUID(), title: "", free: true, price: "", hidden: false, currency: null }],
+              items: [
+                ...feature.items,
+                { id: crypto.randomUUID(), title: "", free: true, price: "", hidden: false, currency: null },
+              ],
             }
-          : feature
-      )
+          : feature,
+      ),
     );
   };
 
@@ -135,7 +157,11 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
     if (features.find((feature) => feature.id === featureId)?.items.length! <= 1) return;
     if (!window.confirm("Are you sure you want to delete item?")) return;
 
-    setFeatures((prevFeatures) => prevFeatures.map((feature) => (feature.id === featureId ? { ...feature, items: feature.items.filter((item) => item.id !== itemId) } : feature)));
+    setFeatures((prevFeatures) =>
+      prevFeatures.map((feature) =>
+        feature.id === featureId ? { ...feature, items: feature.items.filter((item) => item.id !== itemId) } : feature,
+      ),
+    );
   };
 
   const resetItem = (featureId: string, itemId: string) => {
@@ -146,14 +172,31 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
         feature.id === featureId
           ? {
               ...feature,
-              items: feature.items.map((item) => (item.id === itemId ? { id: item.id, title: "", free: true, price: "", icon: { url: "", value: "" }, currency: null, hidden: false } : item)),
+              items: feature.items.map((item) =>
+                item.id === itemId
+                  ? {
+                      id: item.id,
+                      title: "",
+                      free: true,
+                      price: "",
+                      icon: { url: "", value: "" },
+                      currency: null,
+                      hidden: false,
+                    }
+                  : item,
+              ),
             }
-          : feature
-      )
+          : feature,
+      ),
     );
   };
 
-  const updateItems = (featureId: string, itemId: string, key: keyof ItemFeature, value: string | boolean | OptionType | null) => {
+  const updateItems = (
+    featureId: string,
+    itemId: string,
+    key: keyof ItemFeature,
+    value: string | boolean | OptionType | null,
+  ) => {
     setFeatures((prevFeatures) =>
       prevFeatures.map((feature) =>
         feature.id === featureId
@@ -161,8 +204,8 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
               ...feature,
               items: feature.items.map((item) => (item.id === itemId ? { ...item, [key]: value } : item)),
             }
-          : feature
-      )
+          : feature,
+      ),
     );
   };
 
@@ -186,7 +229,7 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
               discount: null,
               currencyId: item.currency?.value || baseCurrency,
               currency: { code: item.currency?.label || "IDR", id: item.currency?.value || baseCurrency },
-            }))
+            })),
         ) as Features[],
       };
 
@@ -221,13 +264,27 @@ export const AddServiceFeaturesTab: React.FC<ServiceFeatures> = ({ persistedData
 
           <div className="space-y-4">
             {feature.items.map((item) => (
-              <FeatureItem key={item.id} feature={feature} item={item} currencies={currencies} onUpdateItem={updateItems} onResetItem={resetItem} onDeleteItem={deleteItem} />
+              <FeatureItem
+                key={item.id}
+                feature={feature}
+                item={item}
+                currencies={currencies}
+                onUpdateItem={updateItems}
+                onResetItem={resetItem}
+                onDeleteItem={deleteItem}
+              />
             ))}
           </div>
         </div>
       ))}
 
-      <CategoryModal isVisible={modalFeature} onClose={() => setModalFeature(false)} otherFeatures={otherFeatures} onAddOtherFeature={addOtherFeature} onAddNewCategory={addFeature} />
+      <CategoryModal
+        isVisible={modalFeature}
+        onClose={() => setModalFeature(false)}
+        otherFeatures={otherFeatures}
+        onAddOtherFeature={addOtherFeature}
+        onAddNewCategory={addFeature}
+      />
     </>
   );
 };

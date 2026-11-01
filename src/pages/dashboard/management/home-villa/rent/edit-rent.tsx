@@ -31,8 +31,15 @@ export const EditRentPage = () => {
   const [phoneCountryCode, setPhoneCountryCode] = React.useState<OptionType | null>(null);
   const [currency, setCurrency] = React.useState<OptionType | null>(null);
 
-  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
-  const { data: respBooking } = useGetApi<Payload<Booking>>({ key: ["get-booking", id], url: `bookings/${id}`, params: { type: "villa" } });
+  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({
+    key: ["currencies"],
+    url: "/currencies",
+  });
+  const { data: respBooking } = useGetApi<Payload<Booking>>({
+    key: ["get-booking", id],
+    url: `bookings/${id}`,
+    params: { type: "villa" },
+  });
   const { data: phoneCodes } = useGetApi<PhoneCodes[]>({ key: ["get-phone-dial-codes"], url: "regions/phone-codes" });
   const { mutate: editBooking } = useUpdateApi<Partial<Booking>>({ key: ["get-booking", id], url: "/bookings" });
 
@@ -70,7 +77,10 @@ export const EditRentPage = () => {
       setStatus(respBooking.data.status);
       setCheckInDate(respBooking.data.checkInDate ? new Date(respBooking.data.checkInDate) : null);
       setCheckOutDate(respBooking.data.checkOutDate ? new Date(respBooking.data.checkOutDate) : null);
-      setPhoneCountryCode({ value: findPhoneCode?.dial_code || "", label: `${findPhoneCode?.name} (${findPhoneCode?.dial_code})` });
+      setPhoneCountryCode({
+        value: findPhoneCode?.dial_code || "",
+        label: `${findPhoneCode?.name} (${findPhoneCode?.dial_code})`,
+      });
       setCurrency({ value: findCurrency?.id || "", label: findCurrency?.code || "" });
     }
   }, [respBooking, currencies, phoneCodes]);
@@ -94,11 +104,23 @@ export const EditRentPage = () => {
           {/* Property name */}
           <div className="flex items-center">
             <span className="block whitespace-nowrap min-w-60">Property name</span>
-            <input type="text" className="input-text" placeholder="Urna Santal Villa" value={respBooking?.data.villa?.name || ""} readOnly />
+            <input
+              type="text"
+              className="input-text"
+              placeholder="Urna Santal Villa"
+              value={respBooking?.data.villa?.name || ""}
+              readOnly
+            />
           </div>
           <div className="flex items-center">
             <span className="block whitespace-nowrap min-w-60">Secondary property name</span>
-            <input type="text" className="input-text" placeholder="Urna Cangau" value={respBooking?.data.villa?.secondaryName || ""} readOnly />
+            <input
+              type="text"
+              className="input-text"
+              placeholder="Urna Cangau"
+              value={respBooking?.data.villa?.secondaryName || ""}
+              readOnly
+            />
           </div>
 
           {/* Rent */}
@@ -118,7 +140,15 @@ export const EditRentPage = () => {
               <div className="relative flex items-center w-full gap-4">
                 <span className="whitespace-nowrap">Check In</span>
                 <div className="w-full datepicker-container">
-                  <DatePicker dateFormat="dd/MM/yyyy" selected={checkInDate} toggleCalendarOnIconClick closeOnScroll onChange={(date) => setCheckInDate(date)} showIcon className="!pl-8 input-text" />
+                  <DatePicker
+                    dateFormat="dd/MM/yyyy"
+                    selected={checkInDate}
+                    toggleCalendarOnIconClick
+                    closeOnScroll
+                    onChange={(date: Date | null) => setCheckInDate(date)}
+                    showIcon
+                    className="!pl-8 input-text"
+                  />
                 </div>
               </div>
               <div className="relative flex items-center w-full gap-4">
@@ -129,7 +159,7 @@ export const EditRentPage = () => {
                     selected={checkOutDate}
                     toggleCalendarOnIconClick
                     closeOnScroll
-                    onChange={(date) => setCheckOutDate(date)}
+                    onChange={(date: Date | null) => setCheckOutDate(date)}
                     showIcon
                     className="!pl-8 input-text"
                   />
@@ -169,11 +199,23 @@ export const EditRentPage = () => {
           {/* Identity email, name */}
           <div className="flex items-center">
             <span className="block whitespace-nowrap min-w-60">Email</span>
-            <input type="text" className="input-text" placeholder="johndoe.10@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input
+              type="text"
+              className="input-text"
+              placeholder="johndoe.10@gmail.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div className="flex items-center">
             <span className="block whitespace-nowrap min-w-60">Name</span>
-            <input type="text" className="input-text" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
+            <input
+              type="text"
+              className="input-text"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
 
           {/* price */}
@@ -182,7 +224,10 @@ export const EditRentPage = () => {
               <span className="block whitespace-nowrap min-w-60">Phone Number</span>
               <Select
                 className="w-full text-sm"
-                options={phoneCodes?.map((phone) => ({ value: phone.dial_code, label: `${phone.name} (${phone.dial_code})` }))}
+                options={phoneCodes?.map((phone) => ({
+                  value: phone.dial_code,
+                  label: `${phone.name} (${phone.dial_code})`,
+                }))}
                 value={phoneCountryCode}
                 onChange={(option) => setPhoneCountryCode(option)}
                 placeholder="Select Currency"

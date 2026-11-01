@@ -4,7 +4,13 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
 
-import { EditKeyFeaturesTab, EditLocationTab, EditMediaTab, EditServiceFeaturesTab, Layout } from "../../../../../components/ui";
+import {
+  EditKeyFeaturesTab,
+  EditLocationTab,
+  EditMediaTab,
+  EditServiceFeaturesTab,
+  Layout,
+} from "../../../../../components/ui";
 
 import { Button, ToastMessage } from "../../../../../components";
 
@@ -19,9 +25,26 @@ import { OptionType, Payload, Villa } from "../../../../../types";
 
 import { deleteKeysObject, formatTitleCase } from "../../../../../utils";
 
-type TabName = "rent-management" | "general" | "media" | "location" | "key-features" | "service-features" | "villa-policies" | "review";
+type TabName =
+  | "rent-management"
+  | "general"
+  | "media"
+  | "location"
+  | "key-features"
+  | "service-features"
+  | "villa-policies"
+  | "review";
 
-const tabs: TabName[] = ["rent-management", "general", "media", "location", "key-features", "service-features", "villa-policies", "review"];
+const tabs: TabName[] = [
+  "rent-management",
+  "general",
+  "media",
+  "location",
+  "key-features",
+  "service-features",
+  "villa-policies",
+  "review",
+];
 
 export const EditHomeVillaPage = () => {
   const { pathname, hash } = useLocation();
@@ -72,11 +95,19 @@ export const EditHomeVillaPage = () => {
     window.location.reload();
   };
 
-  const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({ key: ["get-villas"], url: "/villas", redirectPath: "/dashboard/management/home-villa" });
+  const { mutate: editVilla, isPending } = useUpdateApi<Partial<Villa>>({
+    key: ["get-villas"],
+    url: "/villas",
+    redirectPath: "/dashboard/management/home-villa",
+  });
 
   // currency.value is part of the request, so it must be part of the cache key —
   // otherwise switching currency keeps serving the previously cached villa
-  const { data: respVilla, isLoading } = useGetApi<Payload<Villa>>({ url: `villas/${id}`, key: ["get-villa", id, currency.value], params: { baseCurrencyId: currency.value } });
+  const { data: respVilla, isLoading } = useGetApi<Payload<Villa>>({
+    url: `villas/${id}`,
+    key: ["get-villa", id, currency.value],
+    params: { baseCurrencyId: currency.value },
+  });
 
   const [activeTab, setActiveTab] = React.useState<TabName>(() => {
     const hashTab = hash.replace("#", "");
@@ -143,7 +174,15 @@ export const EditHomeVillaPage = () => {
 
   const handlePublish = (e: React.MouseEvent) => {
     e.preventDefault();
-    const processData = deleteKeysObject(data, ["currency", "pivotId", "facilities", "priceAfterDiscount", "createdAt", "updatedAt", "id"]);
+    const processData = deleteKeysObject(data, [
+      "currency",
+      "pivotId",
+      "facilities",
+      "priceAfterDiscount",
+      "createdAt",
+      "updatedAt",
+      "id",
+    ]);
     // Publish never cleared the local "edit-villa" draft on success, so the
     // "Unpublished changes" banner here — and the Draft ribbon on this villa's
     // card back on the list page, which reads the same store — kept showing

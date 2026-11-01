@@ -34,7 +34,14 @@ const TableHeader = <T,>({ columns }: TableHeaderProps<T>) => {
   );
 };
 
-export const DataTable = <T,>({ data, columns, keyExtractor, isLoading = false, error = null, emptyMessage = "No data found" }: DataTableProps<T>) => {
+export const DataTable = <T,>({
+  data,
+  columns,
+  keyExtractor,
+  isLoading = false,
+  error = null,
+  emptyMessage = "No data found",
+}: DataTableProps<T>) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -60,7 +67,11 @@ export const DataTable = <T,>({ data, columns, keyExtractor, isLoading = false, 
             return (
               <tr key={keyExtractor(item)} className="h-full border-b">
                 {columns.map((column, columnIndex) => {
-                  const cellContent = column.render ? column.render(item) : typeof column.key === "string" ? (item[column.key as keyof T] as React.ReactNode) : (item[column.key] as React.ReactNode);
+                  const cellContent = column.render
+                    ? column.render(item)
+                    : typeof column.key === "string"
+                      ? (item[column.key as keyof T] as React.ReactNode)
+                      : (item[column.key] as React.ReactNode);
 
                   return (
                     <td key={columnIndex} className={column.className || "px-4 py-3.5 whitespace-nowrap"}>

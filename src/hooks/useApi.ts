@@ -34,7 +34,15 @@ const STALE_TIME = 60 * 1000;
 // JwtAuthGuard with no @Public() override — used to 401 on every request
 // because bare axios never sent a token at all. Rent & Order management were
 // unusable for exactly this reason.
-export const useGetApi = <T>({ key, url, params, gcTime = GC_TIME, staleTime = STALE_TIME, enabled = true, select }: FetchOptions<T>) => {
+export const useGetApi = <T>({
+  key,
+  url,
+  params,
+  gcTime = GC_TIME,
+  staleTime = STALE_TIME,
+  enabled = true,
+  select,
+}: FetchOptions<T>) => {
   return useQuery<T, Error>({
     queryKey: key,
     queryFn: async () => {
@@ -48,7 +56,17 @@ export const useGetApi = <T>({ key, url, params, gcTime = GC_TIME, staleTime = S
   });
 };
 
-export const useGetApiWithAuth = <T>({ key, url, params, enabled = true }: { key: QueryKey; url: string; params?: Record<string, any>; enabled?: boolean }) => {
+export const useGetApiWithAuth = <T>({
+  key,
+  url,
+  params,
+  enabled = true,
+}: {
+  key: QueryKey;
+  url: string;
+  params?: Record<string, any>;
+  enabled?: boolean;
+}) => {
   return useQuery<T | undefined>({
     queryKey: key,
     queryFn: async () => {

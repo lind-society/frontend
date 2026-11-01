@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { MotionProps } from "framer-motion";
 
 export interface MotionComponentProps extends MotionProps {

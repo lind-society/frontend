@@ -66,9 +66,15 @@ export const EditLocationTab: React.FC<LocationProps> = ({ persistedDataKey, edi
     placeDistance: "",
   });
 
-  const [selectedCountry, setSelectedCountry] = React.useState<OptionType | null>(formState.country ? { label: formState.country, value: formState.country } : null);
-  const [selectedProvince, setSelectedProvince] = React.useState<OptionType | null>(formState.state ? { label: formState.state, value: formState.state } : null);
-  const [selectedCity, setSelectedCity] = React.useState<OptionType | null>(formState.city ? { label: formState.city, value: formState.city } : null);
+  const [selectedCountry, setSelectedCountry] = React.useState<OptionType | null>(
+    formState.country ? { label: formState.country, value: formState.country } : null,
+  );
+  const [selectedProvince, setSelectedProvince] = React.useState<OptionType | null>(
+    formState.state ? { label: formState.state, value: formState.state } : null,
+  );
+  const [selectedCity, setSelectedCity] = React.useState<OptionType | null>(
+    formState.city ? { label: formState.city, value: formState.city } : null,
+  );
 
   const {
     data: respCoordinates,
@@ -104,7 +110,14 @@ export const EditLocationTab: React.FC<LocationProps> = ({ persistedDataKey, edi
   const handleSubmitLocation = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const requiredFields: Array<keyof LocationFormState> = ["address", "postalCode", "mapLink", "country", "state", "city"];
+    const requiredFields: Array<keyof LocationFormState> = [
+      "address",
+      "postalCode",
+      "mapLink",
+      "country",
+      "state",
+      "city",
+    ];
     const isComplete = requiredFields.every((field) => {
       if (field === "country" || field === "state" || field === "city") {
         return formState[field] !== null;
@@ -180,11 +193,24 @@ export const EditLocationTab: React.FC<LocationProps> = ({ persistedDataKey, edi
         />
 
         <FormField label="Address" required>
-          <input type="text" required className="input-text" placeholder="Jln. Soekarno Hatta No. 59" value={formState.address} onChange={(e) => updateFormState("address", e.target.value)} />
+          <input
+            type="text"
+            required
+            className="input-text"
+            placeholder="Jln. Soekarno Hatta No. 59"
+            value={formState.address}
+            onChange={(e) => updateFormState("address", e.target.value)}
+          />
         </FormField>
 
         <FormField label="Postal code" required>
-          <NumberInput required className="input-text" placeholder="1234567" value={formState.postalCode} onChange={(e) => updateFormState("postalCode", e.target.value)} />
+          <NumberInput
+            required
+            className="input-text"
+            placeholder="1234567"
+            value={formState.postalCode}
+            onChange={(e) => updateFormState("postalCode", e.target.value)}
+          />
         </FormField>
 
         <FormField label="Google Map Link" required>
@@ -200,7 +226,9 @@ export const EditLocationTab: React.FC<LocationProps> = ({ persistedDataKey, edi
 
         <FormField label="Map Link">
           {error && <span className="text-red-600">please input a correct map link</span>}
-          {!isLoading && !!formState.mapLink && !error && <GoogleMaps lat={respCoordinates?.latitude || 0} lng={respCoordinates?.longitude || 0} />}
+          {!isLoading && !!formState.mapLink && !error && (
+            <GoogleMaps lat={respCoordinates?.latitude || 0} lng={respCoordinates?.longitude || 0} />
+          )}
         </FormField>
 
         <div className="space-y-2">
@@ -219,7 +247,11 @@ export const EditLocationTab: React.FC<LocationProps> = ({ persistedDataKey, edi
               value={formState.placeDistance}
               onChange={(e) => setFormState((prev) => ({ ...prev, placeDistance: e.target.value }))}
             />
-            <Button type="button" className="flex items-center gap-2 btn-primary whitespace-nowrap" onClick={addPlaceNearby}>
+            <Button
+              type="button"
+              className="flex items-center gap-2 btn-primary whitespace-nowrap"
+              onClick={addPlaceNearby}
+            >
               <FaPlus size={20} /> Add
             </Button>
           </div>

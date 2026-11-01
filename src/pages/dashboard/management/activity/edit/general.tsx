@@ -32,7 +32,15 @@ interface FormState {
   owner: OptionType | null;
 }
 
-const FormField = ({ label, children, required = false }: { label: string; children: React.ReactNode; required?: boolean }) => (
+const FormField = ({
+  label,
+  children,
+  required = false,
+}: {
+  label: string;
+  children: React.ReactNode;
+  required?: boolean;
+}) => (
   <div className="flex items-center">
     <span className="block whitespace-nowrap min-w-60">
       {label} {required && "*"}
@@ -82,8 +90,14 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     return dataCondition ? dataAfterEdit : dataBeforeEdit;
   }, [dataAfterEdit, dataBeforeEdit]);
 
-  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({ key: ["currencies"], url: "/currencies" });
-  const { data: categories } = useGetApiWithAuth<Payload<Data<Category[]>>>({ key: ["activity-categories"], url: "/activity-categories" });
+  const { data: currencies } = useGetApiWithAuth<Payload<Data<Currency[]>>>({
+    key: ["currencies"],
+    url: "/currencies",
+  });
+  const { data: categories } = useGetApiWithAuth<Payload<Data<Category[]>>>({
+    key: ["activity-categories"],
+    url: "/activity-categories",
+  });
   const { data: owners } = useGetApiWithAuth<Payload<Data<Owner[]>>>({ key: ["owners"], url: "/owners" });
 
   const [editMode, setEditMode] = React.useState<boolean>(false);
@@ -130,7 +144,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
 
   const calculatePrice = (price: string, discount: string) => {
     if (price === "") return "0";
-    const result = +price - +price * (+discount || 0) / 100;
+    const result = +price - (+price * (+discount || 0)) / 100;
     return Number.isInteger(result) ? result.toString() : result.toFixed(2);
   };
 
@@ -157,7 +171,24 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
   // anything until Save was pressed, so switching tabs (or closing the
   // browser) mid-edit silently threw the fields away.
   React.useEffect(() => {
-    const { name, secondaryName, highlight, currency, owner, discount, price, priceUnit, category, dailyLimit, closingHour, duration, endDate, openingHour, startDate, isDiscount } = formState;
+    const {
+      name,
+      secondaryName,
+      highlight,
+      currency,
+      owner,
+      discount,
+      price,
+      priceUnit,
+      category,
+      dailyLimit,
+      closingHour,
+      duration,
+      endDate,
+      openingHour,
+      startDate,
+      isDiscount,
+    } = formState;
 
     const dataToSave = {
       name,
@@ -234,11 +265,25 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
         <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-2000"}`}></div>
 
         <FormField label="Name" required>
-          <input type="text" className="input-text" placeholder="Activity Name" value={formState.name} onChange={(e) => updateFormState("name", e.target.value)} required />
+          <input
+            type="text"
+            className="input-text"
+            placeholder="Activity Name"
+            value={formState.name}
+            onChange={(e) => updateFormState("name", e.target.value)}
+            required
+          />
         </FormField>
 
         <FormField label="Secondary name" required>
-          <input type="text" className="input-text" placeholder="Secondary Activity Name" value={formState.secondaryName} onChange={(e) => updateFormState("secondaryName", e.target.value)} required />
+          <input
+            type="text"
+            className="input-text"
+            placeholder="Secondary Activity Name"
+            value={formState.secondaryName}
+            onChange={(e) => updateFormState("secondaryName", e.target.value)}
+            required
+          />
         </FormField>
 
         <FormField label="Contact Person (Owner)" required>
@@ -309,7 +354,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 selected={formState.startDate}
                 toggleCalendarOnIconClick
                 closeOnScroll
-                onChange={(date) => updateFormState("startDate", date)}
+                onChange={(date: Date | null) => updateFormState("startDate", date)}
                 showIcon
                 className="datepicker-input"
               />
@@ -322,7 +367,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 selected={formState.endDate}
                 toggleCalendarOnIconClick
                 closeOnScroll
-                onChange={(date) => updateFormState("endDate", date)}
+                onChange={(date: Date | null) => updateFormState("endDate", date)}
                 showIcon
                 className="datepicker-input"
               />
@@ -342,7 +387,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 timeIntervals={15}
                 timeCaption="Time"
                 dateFormat="h:mm aa"
-                onChange={(date) => updateFormState("openingHour", date)}
+                onChange={(date: Date | null) => updateFormState("openingHour", date)}
                 showIcon
                 className="datepicker-input"
               />
@@ -359,7 +404,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
                 timeIntervals={15}
                 timeCaption="Time"
                 dateFormat="h:mm aa"
-                onChange={(date) => updateFormState("closingHour", date)}
+                onChange={(date: Date | null) => updateFormState("closingHour", date)}
                 showIcon
                 className="datepicker-input"
               />
@@ -371,7 +416,13 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
           <FormField label="Price" required>
             <div className="flex items-center w-full gap-4">
               <div className="flex items-center w-full gap-2 max-w-80">
-                <NumberInput className="input-text max-w-72 placeholder:text-dark" value={formState.price} onChange={(e) => handlePriceChange(e.target.value)} placeholder={`0`} required />
+                <NumberInput
+                  className="input-text max-w-72 placeholder:text-dark"
+                  value={formState.price}
+                  onChange={(e) => handlePriceChange(e.target.value)}
+                  placeholder={`0`}
+                  required
+                />
                 <p>{formState.currency ? formState.currency?.label : ""}</p>
                 <p>/</p>
                 <input
@@ -420,12 +471,18 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
             </div>
           </FormField>
           <div className="flex justify-end">
-            <p className="w-full text-sm italic whitespace-nowrap max-w-40">Final Price : {calculatePrice(formState.price, formState.discount)}</p>
+            <p className="w-full text-sm italic whitespace-nowrap max-w-40">
+              Final Price : {calculatePrice(formState.price, formState.discount)}
+            </p>
           </div>
         </div>
 
         <FormField label="Daily Limit" required>
-          <select onChange={(e) => updateFormState("dailyLimit", e.target.value)} value={formState.dailyLimit} className="w-full input-select">
+          <select
+            onChange={(e) => updateFormState("dailyLimit", e.target.value)}
+            value={formState.dailyLimit}
+            className="w-full input-select"
+          >
             {[...Array(31)].map((_, index) => (
               <option key={index} value={index + 1}>
                 {index + 1}

@@ -5,13 +5,21 @@ import toast from "react-hot-toast";
 import { API } from "../utils/api";
 
 interface UseFileUpload<T> {
-  uploadFile: (files: File | File[], folder: string, type: "photos" | "videos" | "video360s" | "floor-plans") => Promise<{ response: T | null }>;
+  uploadFile: (
+    files: File | File[],
+    folder: string,
+    type: "photos" | "videos" | "video360s" | "floor-plans",
+  ) => Promise<{ response: T | null }>;
   isLoading: boolean;
 }
 
 export const useUploads = <T>(): UseFileUpload<T> => {
   const [loading, setLoading] = useState<boolean>(false);
-  const uploadFile = async (files: File | File[], folder: string, type: "photos" | "videos" | "video360s" | "floor-plans"): Promise<{ response: T | null }> => {
+  const uploadFile = async (
+    files: File | File[],
+    folder: string,
+    type: "photos" | "videos" | "video360s" | "floor-plans",
+  ): Promise<{ response: T | null }> => {
     setLoading(true);
     const formData = new FormData();
     if (Array.isArray(files)) {

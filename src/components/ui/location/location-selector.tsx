@@ -23,8 +23,20 @@ const fetchCities = async (country: string, provinceId: string) => {
   return data.map((c: any) => ({ value: c.id, label: c.name }));
 };
 
-export const LocationSelector = ({ selectedCity, selectedCountry, selectedProvince, setSelectedCity, setSelectedCountry, setSelectedProvince }: LocationSelectorProps) => {
-  const { data: countries = [] } = useQuery({ queryKey: ["countries"], queryFn: fetchCountries, gcTime: GC_TIME, staleTime: STALE_TIME });
+export const LocationSelector = ({
+  selectedCity,
+  selectedCountry,
+  selectedProvince,
+  setSelectedCity,
+  setSelectedCountry,
+  setSelectedProvince,
+}: LocationSelectorProps) => {
+  const { data: countries = [] } = useQuery({
+    queryKey: ["countries"],
+    queryFn: fetchCountries,
+    gcTime: GC_TIME,
+    staleTime: STALE_TIME,
+  });
   const { data: provinces = [], refetch: refetchProvinces } = useQuery({
     queryKey: ["provinces", selectedCountry?.value],
     queryFn: () => fetchProvinces(selectedCountry!.value),
@@ -80,7 +92,16 @@ export const LocationSelector = ({ selectedCity, selectedCountry, selectedProvin
 
       <div className="flex items-center">
         <label className="block whitespace-nowrap min-w-60">City *</label>
-        <Select isClearable required className="w-full" options={cities} value={selectedCity} onChange={(option) => setSelectedCity(option)} placeholder="Select City" isDisabled={!selectedProvince} />
+        <Select
+          isClearable
+          required
+          className="w-full"
+          options={cities}
+          value={selectedCity}
+          onChange={(option) => setSelectedCity(option)}
+          placeholder="Select City"
+          isDisabled={!selectedProvince}
+        />
       </div>
     </>
   );

@@ -12,25 +12,56 @@ interface FeatureItemProps {
   feature: Feature;
   item: ItemFeature;
   currencies?: Payload<Data<Currency[]>>;
-  onUpdateItem: (featureId: string, itemId: string, key: keyof ItemFeature, value: string | boolean | OptionType | null) => void;
+  onUpdateItem: (
+    featureId: string,
+    itemId: string,
+    key: keyof ItemFeature,
+    value: string | boolean | OptionType | null,
+  ) => void;
   onResetItem: (featureId: string, itemId: string) => void;
   onDeleteItem: (featureId: string, itemId: string) => void;
 }
 
-export const FeatureItem = ({ feature, item, currencies, onUpdateItem, onResetItem, onDeleteItem }: FeatureItemProps) => (
+export const FeatureItem = ({
+  feature,
+  item,
+  currencies,
+  onUpdateItem,
+  onResetItem,
+  onDeleteItem,
+}: FeatureItemProps) => (
   <div className="flex w-full gap-8 p-2 mt-2">
     <div className="w-full space-y-1">
       <label className="block text-sm">Title *</label>
-      <input type="text" placeholder="Title" value={item.title} onChange={(e) => onUpdateItem(feature.id, item.id, "title", e.target.value)} className="input-text" required />
+      <input
+        type="text"
+        placeholder="Title"
+        value={item.title}
+        onChange={(e) => onUpdateItem(feature.id, item.id, "title", e.target.value)}
+        className="input-text"
+        required
+      />
     </div>
     <div className="space-y-1">
       <label className="block text-sm">Free *</label>
       <div className="flex items-center gap-8 pt-1.5">
         <label className="flex items-center gap-2">
-          Yes <input type="checkbox" className="accent-primary size-4" checked={item.free} onChange={() => onUpdateItem(feature.id, item.id, "free", true)} />
+          Yes{" "}
+          <input
+            type="checkbox"
+            className="accent-primary size-4"
+            checked={item.free}
+            onChange={() => onUpdateItem(feature.id, item.id, "free", true)}
+          />
         </label>
         <label className="flex items-center gap-2">
-          No <input type="checkbox" className="accent-primary size-4" checked={!item.free} onChange={() => onUpdateItem(feature.id, item.id, "free", false)} />
+          No{" "}
+          <input
+            type="checkbox"
+            className="accent-primary size-4"
+            checked={!item.free}
+            onChange={() => onUpdateItem(feature.id, item.id, "free", false)}
+          />
         </label>
       </div>
     </div>

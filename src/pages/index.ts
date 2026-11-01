@@ -36,3 +36,6 @@ export * from "./dashboard/management/activity/add/add-activity";
 export * from "./dashboard/management/activity/edit/edit-activity";
 
 export * from "./dashboard/management/activity/order/order";
+
+export * from "./dashboard/inquiries";
+export * from "./dashboard/management/blog/blog";

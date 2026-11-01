@@ -11,7 +11,13 @@ import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
 
 import { capitalize } from "../../../utils";
 
-import { additionalEqual, arraysEqual, createEmptyField, createInitialSections, DEFAULT_SECTION_TITLES } from "./helpers";
+import {
+  additionalEqual,
+  arraysEqual,
+  createEmptyField,
+  createInitialSections,
+  DEFAULT_SECTION_TITLES,
+} from "./helpers";
 
 import { AdditionalItem, FileData, Payload } from "../../../types";
 import { FormStateType, MediaPersistedType, Section } from "./types";
@@ -34,18 +40,28 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
   const { mutate: deleteFile } = useCreateApi({ key: [type], url: "/storages" });
 
   const data = React.useMemo(() => {
-    return dataAfterEdit.photos || dataAfterEdit.video360s || dataAfterEdit.videos || dataAfterEdit.additionals ? dataAfterEdit : dataBeforeEdit;
+    return dataAfterEdit.photos || dataAfterEdit.video360s || dataAfterEdit.videos || dataAfterEdit.additionals
+      ? dataAfterEdit
+      : dataBeforeEdit;
   }, [dataAfterEdit, dataBeforeEdit]);
 
   const defaultAdditional = React.useMemo(() => {
     if (!data.additionals) return [];
 
-    const groupedAdditionals = data.additionals.reduce((acc, additional) => {
-      const key = additional.type;
-      if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
-      acc[key].field.push({ id: crypto.randomUUID(), name: additional.name, description: additional.description, photos: additional.photos ?? [] });
-      return acc;
-    }, {} as Record<string, Section>);
+    const groupedAdditionals = data.additionals.reduce(
+      (acc, additional) => {
+        const key = additional.type;
+        if (!acc[key]) acc[key] = { title: capitalize(additional.type), field: [] };
+        acc[key].field.push({
+          id: crypto.randomUUID(),
+          name: additional.name,
+          description: additional.description,
+          photos: additional.photos ?? [],
+        });
+        return acc;
+      },
+      {} as Record<string, Section>,
+    );
 
     return Object.values(groupedAdditionals);
   }, [data.additionals]);
@@ -84,7 +100,11 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
   const addField = (e: React.MouseEvent, additionalIndex: number) => {
     e.preventDefault();
 
-    updateAdditionalState(formState.additional.map((section, index) => (index === additionalIndex ? { ...section, field: [...section.field, createEmptyField()] } : section)));
+    updateAdditionalState(
+      formState.additional.map((section, index) =>
+        index === additionalIndex ? { ...section, field: [...section.field, createEmptyField()] } : section,
+      ),
+    );
   };
 
   const deleteField = (e: React.MouseEvent, additionalIndex: number, fieldId: string) => {
@@ -94,7 +114,13 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
 
     if (!window.confirm("Are you sure you want to delete this field?")) return;
 
-    updateAdditionalState(formState.additional.map((section, index) => (index === additionalIndex ? { ...section, field: section.field.filter((field) => field.id !== fieldId) } : section)));
+    updateAdditionalState(
+      formState.additional.map((section, index) =>
+        index === additionalIndex
+          ? { ...section, field: section.field.filter((field) => field.id !== fieldId) }
+          : section,
+      ),
+    );
   };
 
   const resetField = (e: React.MouseEvent, additionalIndex: number, fieldId: string) => {
@@ -105,14 +131,21 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
         index === additionalIndex
           ? {
               ...section,
-              field: section.field.map((field) => (field.id === fieldId ? { ...field, name: "", description: "", photos: [] } : field)),
+              field: section.field.map((field) =>
+                field.id === fieldId ? { ...field, name: "", description: "", photos: [] } : field,
+              ),
             }
-          : section
-      )
+          : section,
+      ),
     );
   };
 
-  const handleInputChange = (additionalIndex: number, fieldId: string, fieldName: "name" | "description", value: string) => {
+  const handleInputChange = (
+    additionalIndex: number,
+    fieldId: string,
+    fieldName: "name" | "description",
+    value: string,
+  ) => {
     updateAdditionalState(
       formState.additional.map((section, index) =>
         index === additionalIndex
@@ -120,8 +153,8 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
               ...section,
               field: section.field.map((field) => (field.id === fieldId ? { ...field, [fieldName]: value } : field)),
             }
-          : section
-      )
+          : section,
+      ),
     );
   };
 
@@ -137,10 +170,14 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
           sIndex === additionalIndex
             ? {
                 ...section,
-                field: section.field.map((field) => (field.id === fieldId ? { ...field, photos: [...field.photos, ...response.data.successFiles.map((file) => file.url)] } : field)),
+                field: section.field.map((field) =>
+                  field.id === fieldId
+                    ? { ...field, photos: [...field.photos, ...response.data.successFiles.map((file) => file.url)] }
+                    : field,
+                ),
               }
-            : section
-        )
+            : section,
+        ),
       );
     }
   };
@@ -157,17 +194,23 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
         sIndex === additionalIndex
           ? {
               ...section,
-              field: section.field.map((field) => (field.id === fieldId ? { ...field, photos: field.photos.filter((_, index) => index !== imgIndex) } : field)),
+              field: section.field.map((field) =>
+                field.id === fieldId
+                  ? { ...field, photos: field.photos.filter((_, index) => index !== imgIndex) }
+                  : field,
+              ),
             }
-          : section
-      )
+          : section,
+      ),
     );
   };
 
   const handleSubmitMedia = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const hasAnyAdditional = formState.additional.some((a) => a.field.some((b) => b.name !== "" && b.description !== "" && b.photos.length > 0));
+    const hasAnyAdditional = formState.additional.some((a) =>
+      a.field.some((b) => b.name !== "" && b.description !== "" && b.photos.length > 0),
+    );
 
     const isComplete = hasAnyAdditional && formState.photos.length > 0;
 
@@ -177,7 +220,12 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
       additionals: formState.additional.flatMap((section) =>
         section.field
           .filter((field) => field.name !== "" && field.description !== "" && field.photos.length > 0)
-          .map((field) => ({ name: field.name, type: section.title.toLowerCase(), description: field.description, photos: field.photos }))
+          .map((field) => ({
+            name: field.name,
+            type: section.title.toLowerCase(),
+            description: field.description,
+            photos: field.photos,
+          })),
       ) as AdditionalItem[],
       photos: formState.photos,
       videos: formState.videos,
@@ -210,7 +258,7 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
           type: section.title.toLowerCase(),
           description: field.description,
           photos: field.photos,
-        }))
+        })),
     ) as AdditionalItem[];
 
     // `data.videos`/`video360s`/`floorPlans` come straight from the API and
@@ -248,19 +296,51 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
       <form className="relative space-y-8" onSubmit={handleSubmitMedia}>
         <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-2000"}`}></div>
 
-        <UploadPhoto folder={type} type="photos" title="Photo" description="Catalog Photo *" fileUrl={formState.photos} setFileUrl={(photos) => updateFormState({ photos })} />
+        <UploadPhoto
+          folder={type}
+          type="photos"
+          title="Photo"
+          description="Catalog Photo *"
+          fileUrl={formState.photos}
+          setFileUrl={(photos) => updateFormState({ photos })}
+        />
 
-        <UploadPhoto folder={type} type="videos" title="Video" description="Catalog Video" fileUrl={formState.videos} setFileUrl={(videos) => updateFormState({ videos })} />
+        <UploadPhoto
+          folder={type}
+          type="videos"
+          title="Video"
+          description="Catalog Video"
+          fileUrl={formState.videos}
+          setFileUrl={(videos) => updateFormState({ videos })}
+        />
 
-        <UploadPhoto folder={type} type="video360s" title="360 Tour" description="360 Tour *" fileUrl={formState.video360s} setFileUrl={(video360s) => updateFormState({ video360s })} />
+        <UploadPhoto
+          folder={type}
+          type="video360s"
+          title="360 Tour"
+          description="360 Tour *"
+          fileUrl={formState.video360s}
+          setFileUrl={(video360s) => updateFormState({ video360s })}
+        />
 
-        <UploadPhoto folder={type} type="floor-plans" title="Floor Plans" description="Floor Plans" fileUrl={formState.floorPlans} setFileUrl={(floorPlans) => updateFormState({ floorPlans })} />
+        <UploadPhoto
+          folder={type}
+          type="floor-plans"
+          title="Floor Plans"
+          description="Floor Plans"
+          fileUrl={formState.floorPlans}
+          setFileUrl={(floorPlans) => updateFormState({ floorPlans })}
+        />
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="heading">Additional</h2>
             {availableAdditionalTypes.length > 0 && (
-              <Button onClick={() => setModalAdditional(true)} className="flex items-center gap-2 btn-primary" type="button">
+              <Button
+                onClick={() => setModalAdditional(true)}
+                className="flex items-center gap-2 btn-primary"
+                type="button"
+              >
                 <FaPlus /> Add Additional
               </Button>
             )}
@@ -271,7 +351,9 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
                 key={section.title}
                 section={section}
                 onFieldAdd={(e) => addField(e, additionalIndex)}
-                onFieldUpdate={(fieldId, fieldName, value) => handleInputChange(additionalIndex, fieldId, fieldName, value)}
+                onFieldUpdate={(fieldId, fieldName, value) =>
+                  handleInputChange(additionalIndex, fieldId, fieldName, value)
+                }
                 onFieldDelete={(e, fieldId) => deleteField(e, additionalIndex, fieldId)}
                 onFieldReset={(e, fieldId) => resetField(e, additionalIndex, fieldId)}
                 onRemoveImage={(fieldId, imgIndex) => removeImage(additionalIndex, fieldId, imgIndex)}

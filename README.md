@@ -1,50 +1,42 @@
-# React + TypeScript + Vite
+# Lind Society — Admin Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Back office for the team: villas, properties for sale, activities, owners,
+bookings, reviews, blog posts and the inquiries guests send from the website.
 
-Currently, two official plugins are available:
+Built with React 19, Vite, React Router, TanStack Query and Tailwind CSS 4.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Getting started
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+cp .env.example .env     # point VITE_BASE_API_URL at the backend
+pnpm install
+pnpm dev                 # http://localhost:4781
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+The first admin account does not exist on a fresh database; create it from the
+backend folder: `pnpm admin:create --email you@example.com --password Secret123`.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+| Script           | What it does                        |
+| ---------------- | ----------------------------------- |
+| `pnpm dev`       | Dev server with hot reload          |
+| `pnpm build`     | Type-check and build to `dist/`     |
+| `pnpm preview`   | Serve the production build          |
+| `pnpm lint`      | ESLint                              |
+| `pnpm typecheck` | TypeScript                          |
+| `pnpm format`    | Prettier (`format:check` to verify) |
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## Environment
+
+| Variable                  | Description                                           |
+| ------------------------- | ----------------------------------------------------- |
+| `VITE_BASE_API_URL`       | Backend API base, e.g. `http://localhost:4782/api/v1` |
+| `VITE_SECONDARY_API_URL`  | Fallback API base (same value is fine)                |
+| `VITE_GOOGLE_MAP_API_URL` | Google Maps key, optional                             |
+
+`VITE_*` values are inlined at build time, so changing one needs a rebuild.
+
+## Pages
+
+Dashboard sections live under `src/pages/dashboard`. **Inquiries** is the inbox
+for the website's contact, villa, property and early-bird forms; **Blog
+Management** writes the articles shown on the journal.

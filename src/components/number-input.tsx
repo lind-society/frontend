@@ -13,7 +13,7 @@ export const NumberInput = (props: NumberInputProps) => {
           (event) => {
             event.preventDefault();
           },
-          { passive: false }
+          { passive: false },
         );
       }}
       onBlur={(e) => {

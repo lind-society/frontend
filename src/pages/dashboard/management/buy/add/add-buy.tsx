@@ -4,7 +4,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
 
-import { AddKeyFeaturesTab, AddLocationTab, AddMediaTab, AddServiceFeaturesTab, Layout } from "../../../../../components/ui";
+import {
+  AddKeyFeaturesTab,
+  AddLocationTab,
+  AddMediaTab,
+  AddServiceFeaturesTab,
+  Layout,
+} from "../../../../../components/ui";
 
 import { Button, ToastMessage } from "../../../../../components";
 
@@ -33,7 +39,11 @@ export const AddBuyPage = () => {
   const { pathname, hash } = useLocation();
   const navigate = useNavigate();
 
-  const { mutate: addProperty, isPending } = useCreateApi<Partial<Property>>({ key: ["get-properties"], url: "/properties", redirectPath: "/dashboard/management/buy" });
+  const { mutate: addProperty, isPending } = useCreateApi<Partial<Property>>({
+    key: ["get-properties"],
+    url: "/properties",
+    redirectPath: "/dashboard/management/buy",
+  });
 
   const useStore = usePersistentData<Partial<Property>>("add-property");
 
@@ -67,7 +77,8 @@ export const AddBuyPage = () => {
     return tabs.includes(hashTab as TabName) ? (hashTab as TabName) : "general";
   });
 
-  const [tabValidationState, setTabValidationState] = React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
+  const [tabValidationState, setTabValidationState] =
+    React.useState<Record<TabName, boolean>>(getInitialTabValidationState);
   const [isWaiting, setIsWaiting] = React.useState<boolean>(true);
 
   React.useEffect(() => {
@@ -132,17 +143,21 @@ export const AddBuyPage = () => {
               Discard Draft
             </Button>
           )}
-          {!tabValidationState["general"] && !tabValidationState["key-features"] && !tabValidationState["location"] && !tabValidationState["media"] && !tabValidationState["service-features"] && (
-            <Button onClick={handlePublish} className="btn-primary">
-              {isPending ? (
-                <div className="loader size-4 after:size-4"></div>
-              ) : (
-                <div className="flex items-center gap-2 ">
-                  <FaUpload /> Publish
-                </div>
-              )}
-            </Button>
-          )}
+          {!tabValidationState["general"] &&
+            !tabValidationState["key-features"] &&
+            !tabValidationState["location"] &&
+            !tabValidationState["media"] &&
+            !tabValidationState["service-features"] && (
+              <Button onClick={handlePublish} className="btn-primary">
+                {isPending ? (
+                  <div className="loader size-4 after:size-4"></div>
+                ) : (
+                  <div className="flex items-center gap-2 ">
+                    <FaUpload /> Publish
+                  </div>
+                )}
+              </Button>
+            )}
         </div>
       </header>
 

@@ -1,5 +1,5 @@
 # Ships main to the VPS. The build runs on the server (docker compose), so this
-# job only packs the source and hands it to /opt/lind-society/bin/deploy.sh,
+# job only packs the source and hands it to /opt/lind_society/bin/deploy.sh,
 # which rolls back on a failed build or health check.
 #
 # Secrets: DEPLOY_SSH_KEY (key restricted on the server to `deploy <app>`),

@@ -13,10 +13,27 @@ export const BenefitsTab = () => {
   const [formState, setFormState] = React.useState<Benefit[]>([]);
   const [isEditing, setIsEditing] = React.useState<Record<string, boolean>>({});
 
-  const { data: respBenefits, isLoading, refetch } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "100" } });
-  const { mutate: createBenefit, isPending: isCreating } = useCreateApi<Partial<Benefit>>({ key: ["add-benefit"], url: "/package-benefits" });
-  const { mutate: updateBenefit, isPending: isUpdating } = useUpdateApi<Partial<Benefit>>({ key: ["update-benefit"], url: "/package-benefits" });
-  const { mutate: deleteBenefit, isPending: isDeleting } = useDeleteApi({ key: ["delete-benefit"], url: "/package-benefits" });
+  const {
+    data: respBenefits,
+    isLoading,
+    refetch,
+  } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({
+    key: ["get-benefits"],
+    url: "/package-benefits",
+    params: { limit: "100" },
+  });
+  const { mutate: createBenefit, isPending: isCreating } = useCreateApi<Partial<Benefit>>({
+    key: ["add-benefit"],
+    url: "/package-benefits",
+  });
+  const { mutate: updateBenefit, isPending: isUpdating } = useUpdateApi<Partial<Benefit>>({
+    key: ["update-benefit"],
+    url: "/package-benefits",
+  });
+  const { mutate: deleteBenefit, isPending: isDeleting } = useDeleteApi({
+    key: ["delete-benefit"],
+    url: "/package-benefits",
+  });
 
   React.useEffect(() => {
     if (respBenefits?.data?.data) {
@@ -103,7 +120,9 @@ export const BenefitsTab = () => {
       </div>
       <form className="space-y-8" onSubmit={handleSubmit}>
         <div className="space-y-4">
-          {formState.length === 0 && <p className="p-4 text-center text-dark/50">No benefits added yet. Click "Add Benefit" to create one.</p>}
+          {formState.length === 0 && (
+            <p className="p-4 text-center text-dark/50">No benefits added yet. Click "Add Benefit" to create one.</p>
+          )}
 
           {formState.map((benefit, index) => (
             <div key={benefit.id} className="flex items-center w-full gap-8">
@@ -125,14 +144,24 @@ export const BenefitsTab = () => {
 
               <div className="flex gap-4">
                 {isEditing[benefit.id] && (
-                  <button type="button" onClick={() => saveBenefit(benefit.id, benefit)} disabled={isCreating || isUpdating} className="text-blue-500">
+                  <button
+                    type="button"
+                    onClick={() => saveBenefit(benefit.id, benefit)}
+                    disabled={isCreating || isUpdating}
+                    className="text-blue-500"
+                  >
                     <IoIosSave className={isCreating || isUpdating ? "animate-pulse" : ""} size={20} />
                   </button>
                 )}
                 <button type="button" onClick={() => toggleEditing(benefit.id)}>
                   <FaEdit size={20} />
                 </button>
-                <button type="button" onClick={() => removeBenefit(benefit.id)} disabled={isDeleting} className="text-red-500">
+                <button
+                  type="button"
+                  onClick={() => removeBenefit(benefit.id)}
+                  disabled={isDeleting}
+                  className="text-red-500"
+                >
                   <FaTrash className={isDeleting ? "animate-pulse" : ""} />
                 </button>
               </div>
@@ -144,7 +173,11 @@ export const BenefitsTab = () => {
           <Button type="button" onClick={resetBenefit} className="btn-outline">
             Reset
           </Button>
-          <Button type="submit" className={`btn-primary ${(isCreating || isUpdating) && "animate-pulse"}`} disabled={isCreating || isUpdating}>
+          <Button
+            type="submit"
+            className={`btn-primary ${(isCreating || isUpdating) && "animate-pulse"}`}
+            disabled={isCreating || isUpdating}
+          >
             Save All Changes
           </Button>
         </div>

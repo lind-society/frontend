@@ -14,7 +14,12 @@ interface AddFacilityModalProps {
   onAddFacility: (facilityId: string, name: string, icon: Facilities["icon"]) => void;
 }
 
-export const AddFacilityModal: React.FC<AddFacilityModalProps> = ({ isVisible, onClose, availableFacilities, onAddFacility }) => {
+export const AddFacilityModal: React.FC<AddFacilityModalProps> = ({
+  isVisible,
+  onClose,
+  availableFacilities,
+  onAddFacility,
+}) => {
   return (
     <Modal isVisible={isVisible} onClose={onClose}>
       <h2 className="text-lg font-bold">Add Key Features</h2>

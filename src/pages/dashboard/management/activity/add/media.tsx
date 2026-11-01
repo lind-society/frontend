@@ -50,9 +50,23 @@ export const AddMediaTab: React.FC<{ onChange?: (hasChanges: boolean) => void }>
 
   return (
     <>
-      <UploadPhoto folder="activity" type="photos" title="Photo" description="Catalog Photo *" fileUrl={formState.photos} setFileUrl={(photos) => updateFormState({ photos })} />
+      <UploadPhoto
+        folder="activity"
+        type="photos"
+        title="Photo"
+        description="Catalog Photo *"
+        fileUrl={formState.photos}
+        setFileUrl={(photos) => updateFormState({ photos })}
+      />
 
-      <UploadPhoto folder="activity" type="videos" title="Video" description="Catalog Video" fileUrl={formState.videos} setFileUrl={(videos) => updateFormState({ videos })} />
+      <UploadPhoto
+        folder="activity"
+        type="videos"
+        title="Video"
+        description="Catalog Video"
+        fileUrl={formState.videos}
+        setFileUrl={(videos) => updateFormState({ videos })}
+      />
     </>
   );
 };

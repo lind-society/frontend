@@ -94,9 +94,23 @@ export const EditMediaTab: React.FC<{ onChange?: (hasChanges: boolean) => void }
       </Button>
       <form className="relative" onSubmit={handleSubmitMedia}>
         <div className={`absolute inset-0 ${editMode ? "-z-1" : "z-2000"}`}></div>
-        <UploadPhoto folder="activity" type="photos" title="Photo" description="Catalog Photo *" fileUrl={formState.photos} setFileUrl={(photos) => updateFormState({ photos })} />
+        <UploadPhoto
+          folder="activity"
+          type="photos"
+          title="Photo"
+          description="Catalog Photo *"
+          fileUrl={formState.photos}
+          setFileUrl={(photos) => updateFormState({ photos })}
+        />
 
-        <UploadPhoto folder="activity" type="videos" title="Video" description="Catalog Video" fileUrl={formState.videos} setFileUrl={(videos) => updateFormState({ videos })} />
+        <UploadPhoto
+          folder="activity"
+          type="videos"
+          title="Video"
+          description="Catalog Video"
+          fileUrl={formState.videos}
+          setFileUrl={(videos) => updateFormState({ videos })}
+        />
         <div className={`justify-end gap-4 ${editMode ? "flex" : "hidden"}`}>
           <Button className="btn-primary" type="submit">
             Save

@@ -40,10 +40,17 @@ export const CardContent = ({ isLoading, datas, type, openDeleteModal, message, 
       {datas.map((data) => (
         <div key={data.id} className="w-full card-shadow max-w-72">
           <div className="relative w-full">
-            <button onClick={() => openDeleteModal(data)} className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1">
+            <button
+              onClick={() => openDeleteModal(data)}
+              className="absolute p-2 text-sm bg-red-500 rounded-full top-2 right-2 hover:bg-red-600 text-light z-1"
+            >
               <FaRegTrashAlt />
             </button>
-            <Img src={data.photos && data.photos.length > 0 ? data.photos[0] : defaultImage} alt={data.name} className="object-cover w-full h-60" />
+            <Img
+              src={data.photos && data.photos.length > 0 ? data.photos[0] : defaultImage}
+              alt={data.name}
+              className="object-cover w-full h-60"
+            />
             {data.id === draftId && (
               <span className="absolute z-1 flex items-center gap-1 px-2 py-1 text-xs text-yellow-800 bg-yellow-200 rounded-full top-2 left-2">
                 <FaFileAlt size={10} /> Draft

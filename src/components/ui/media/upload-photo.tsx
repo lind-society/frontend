@@ -19,7 +19,15 @@ interface UploadPhotoProps {
   setFileUrl: (urls: string[]) => void;
 }
 
-const ViewFiles = ({ children, index, handleRemoveFiles }: { children: React.ReactNode; handleRemoveFiles: (index: number) => void; index: number }) => {
+const ViewFiles = ({
+  children,
+  index,
+  handleRemoveFiles,
+}: {
+  children: React.ReactNode;
+  handleRemoveFiles: (index: number) => void;
+  index: number;
+}) => {
   return (
     <div className="relative">
       <button onClick={() => handleRemoveFiles(index)} type="button" className="btn-close">
@@ -62,12 +70,29 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
         <div className="flex items-center">
           <p className="whitespace-nowrap min-w-60">{description}</p>
           <div className="relative">
-            <input type="file" ref={fileInputRef} id={type} onChange={handleFilesChange} hidden accept={type === "videos" ? "video/*" : "image/*"} multiple disabled={isLoading} />
+            <input
+              type="file"
+              ref={fileInputRef}
+              id={type}
+              onChange={handleFilesChange}
+              hidden
+              accept={type === "videos" ? "video/*" : "image/*"}
+              multiple
+              disabled={isLoading}
+            />
             <label htmlFor={type} className="file-label">
               <FaUpload /> {isLoading ? "Waiting..." : "Browse"}
             </label>
           </div>
-          <span className="pl-2 text-sm text-primary whitespace-nowrap">{type === "photos" ? "Max. 5mb" : type === "floor-plans" ? "Max. 5mb" : type === "video360s" ? "Max. 15mb" : "Max. 50mb"}</span>
+          <span className="pl-2 text-sm text-primary whitespace-nowrap">
+            {type === "photos"
+              ? "Max. 5mb"
+              : type === "floor-plans"
+                ? "Max. 5mb"
+                : type === "video360s"
+                  ? "Max. 15mb"
+                  : "Max. 50mb"}
+          </span>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4">
@@ -75,7 +100,11 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
           <>
             {fileUrl.map((image, index) => (
               <ViewFiles key={index} handleRemoveFiles={handleRemoveFiles} index={index}>
-                <Img src={image || "/images/modern-villa-background.webp"} alt={`Selected image ${index + 1}`} className="w-full rounded aspect-square" />
+                <Img
+                  src={image || "/images/modern-villa-background.webp"}
+                  alt={`Selected image ${index + 1}`}
+                  className="w-full rounded aspect-square"
+                />
               </ViewFiles>
             ))}
           </>
@@ -104,7 +133,11 @@ export const UploadPhoto = ({ folder, type, title, description, fileUrl, setFile
           <>
             {fileUrl.map((image, index) => (
               <ViewFiles key={index} handleRemoveFiles={handleRemoveFiles} index={index}>
-                <Img src={image || "/images/modern-villa-background.webp"} alt={`Selected image ${index + 1}`} className="w-full rounded aspect-square" />
+                <Img
+                  src={image || "/images/modern-villa-background.webp"}
+                  alt={`Selected image ${index + 1}`}
+                  className="w-full rounded aspect-square"
+                />
               </ViewFiles>
             ))}
           </>

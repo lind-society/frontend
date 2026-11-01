@@ -25,6 +25,8 @@ import {
   RentPage,
   OrderPage,
   ReviewPage,
+  InquiriesPage,
+  BlogPage,
   WhatsappPage,
   PriceRulePage,
   PricingCalendarPage,
@@ -56,6 +58,8 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard/main" element={<MainPage />} />
           <Route path="/dashboard/review" element={<ReviewPage />} />
+          <Route path="/dashboard/inquiries" element={<InquiriesPage />} />
+          <Route path="/dashboard/management/blog" element={<BlogPage />} />
           <Route path="/dashboard/whatsapp" element={<WhatsappPage />} />
           <Route path="/dashboard/management/home-villa" element={<HomeVillaPage />} />
           <Route path="/dashboard/management/home-villa/add" element={<AddHomeVillaPage />} />

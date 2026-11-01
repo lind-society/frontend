@@ -34,9 +34,17 @@ export const EditPackagePage = () => {
 
   const [isDirty, setIsDirty] = React.useState<boolean>(false);
 
-  const { data: respBenefits } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({ key: ["get-benefits"], url: "/package-benefits", params: { limit: "20" } });
+  const { data: respBenefits } = useGetApiWithAuth<Payload<Data<Benefit[]>>>({
+    key: ["get-benefits"],
+    url: "/package-benefits",
+    params: { limit: "20" },
+  });
   const { data: respPackage, isLoading } = useGetApi<Payload<Package>>({ key: ["get-package"], url: `packages/${id}` });
-  const { mutate: editPackage, isPending } = useUpdateApi<Partial<Package>>({ key: ["get-packages"], url: "/packages", redirectPath: `/dashboard/management/property` });
+  const { mutate: editPackage, isPending } = useUpdateApi<Partial<Package>>({
+    key: ["get-packages"],
+    url: "/packages",
+    redirectPath: `/dashboard/management/property`,
+  });
 
   const benefitOptions = React.useMemo(() => {
     return respBenefits?.data?.data.map((benefit) => ({ value: benefit.id, label: benefit.title })) || [];
@@ -53,7 +61,9 @@ export const EditPackagePage = () => {
   };
 
   const updateBenefit = (id: string, option: OptionType | null) => {
-    const updatedBenefits = formState.packageBenefits.map((item) => (item.id === id ? { ...item, benefit: option } : item));
+    const updatedBenefits = formState.packageBenefits.map((item) =>
+      item.id === id ? { ...item, benefit: option } : item,
+    );
     updateFormField("packageBenefits", updatedBenefits);
   };
 
@@ -61,7 +71,9 @@ export const EditPackagePage = () => {
     if (!respPackage) return;
 
     const benefit = respPackage.data.benefits.find((item) => item.id === id);
-    const updatedBenefits = formState.packageBenefits.map((item) => (item.id === id ? { ...item, benefit: { label: benefit?.title || "", value: benefit?.id || "" } } : item));
+    const updatedBenefits = formState.packageBenefits.map((item) =>
+      item.id === id ? { ...item, benefit: { label: benefit?.title || "", value: benefit?.id || "" } } : item,
+    );
     updateFormField("packageBenefits", updatedBenefits);
   };
 
@@ -76,7 +88,10 @@ export const EditPackagePage = () => {
       setFormState({
         packageName: respPackage.data.name,
         packageDescription: respPackage.data.description,
-        packageCommissionPercentage: respPackage.data.commissionPercentage === null || respPackage.data.commissionPercentage === undefined ? "" : String(respPackage.data.commissionPercentage),
+        packageCommissionPercentage:
+          respPackage.data.commissionPercentage === null || respPackage.data.commissionPercentage === undefined
+            ? ""
+            : String(respPackage.data.commissionPercentage),
         packageBenefits: respPackage.data.benefits.map((item) => ({
           benefit: { label: item.title, value: item.id },
           id: item.id,
@@ -93,8 +108,11 @@ export const EditPackagePage = () => {
     const dataToSave = {
       name: formState.packageName,
       description: formState.packageDescription,
-      commissionPercentage: formState.packageCommissionPercentage === "" ? null : Number(formState.packageCommissionPercentage),
-      benefits: formState.packageBenefits.filter((item) => item.benefit?.value).map((item) => ({ id: item.benefit!.value })) as Package["benefits"],
+      commissionPercentage:
+        formState.packageCommissionPercentage === "" ? null : Number(formState.packageCommissionPercentage),
+      benefits: formState.packageBenefits
+        .filter((item) => item.benefit?.value)
+        .map((item) => ({ id: item.benefit!.value })) as Package["benefits"],
     };
     setIsDirty(false);
     editPackage({ updatedItem: dataToSave, id: id || "" });
@@ -107,8 +125,8 @@ export const EditPackagePage = () => {
           event.preventDefault();
         }
       },
-      [isDirty]
-    )
+      [isDirty],
+    ),
   );
 
   const handleNavigation = (to: number | string) => {
@@ -127,8 +145,14 @@ export const EditPackagePage = () => {
       setFormState({
         packageName: respPackage.data.name,
         packageDescription: respPackage.data.description,
-        packageCommissionPercentage: respPackage.data.commissionPercentage === null || respPackage.data.commissionPercentage === undefined ? "" : String(respPackage.data.commissionPercentage),
-        packageBenefits: respPackage.data.benefits.map((item) => ({ benefit: { label: item.title, value: item.id }, id: item.id })),
+        packageCommissionPercentage:
+          respPackage.data.commissionPercentage === null || respPackage.data.commissionPercentage === undefined
+            ? ""
+            : String(respPackage.data.commissionPercentage),
+        packageBenefits: respPackage.data.benefits.map((item) => ({
+          benefit: { label: item.title, value: item.id },
+          id: item.id,
+        })),
       });
       setIsDirty(false);
     }

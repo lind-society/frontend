@@ -19,11 +19,27 @@ interface FeatureHeaderProps {
   setIdIcon: (id: string) => void;
 }
 
-export const FeatureHeader = ({ feature, onEdit, onBlur, onAddItem, onReset, onDelete, onIconChange, setIdIcon }: FeatureHeaderProps) => (
+export const FeatureHeader = ({
+  feature,
+  onEdit,
+  onBlur,
+  onAddItem,
+  onReset,
+  onDelete,
+  onIconChange,
+  setIdIcon,
+}: FeatureHeaderProps) => (
   <div className="flex items-center justify-between min-h-10">
     {feature.isEditing ? (
       <div className="flex items-center gap-4 max-w-80">
-        <input type="text" value={feature.name} onChange={(e) => onEdit(feature.id, e.target.value)} onBlur={() => onBlur(feature.id, "finish")} className="input-text" autoFocus />
+        <input
+          type="text"
+          value={feature.name}
+          onChange={(e) => onEdit(feature.id, e.target.value)}
+          onBlur={() => onBlur(feature.id, "finish")}
+          className="input-text"
+          autoFocus
+        />
         {feature.name === "" && <small className="text-red-600 whitespace-nowrap">title must be filled</small>}
       </div>
     ) : (
