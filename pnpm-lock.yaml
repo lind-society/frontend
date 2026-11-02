@@ -8,12 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@emotion/react':
-        specifier: ^11.14.0
-        version: 11.14.0(@types/react@19.3.0)(react@19.3.1)
-      '@emotion/styled':
-        specifier: ^11.14.1
-        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.3.0)(react@19.3.1))(@types/react@19.3.0)(react@19.3.1)
       '@mui/material':
         specifier: ^7.3.11
         version: 7.3.11(@emotion/react@11.14.0(@types/react@19.3.0)(react@19.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.3.0)(react@19.3.1))(@types/react@19.3.0)(react@19.3.1))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -37,7 +31,7 @@ importers:
         version: 14.9.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       photo-sphere-viewer-lensflare-plugin:
         specifier: ^2.1.4
-        version: 2.1.4(@photo-sphere-viewer/core@5.15.1)(three@0.175.0)
+        version: 2.1.4(@photo-sphere-viewer/core@5.15.1)(three@0.185.1)
       react:
         specifier: ^19.3.1
         version: 19.3.1
@@ -1790,9 +1784,6 @@ packages:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
 
-  three@0.175.0:
-    resolution: {integrity: sha512-nNE3pnTHxXN/Phw768u0Grr7W4+rumGg/H6PgeseNJojkJtmeHJfZWi41Gp2mpXl1pg1pf1zjwR4McM1jTqkpg==}
-
   three@0.185.1:
     resolution: {integrity: sha512-5aojFCXKwnjBRZvUnt3WFfEcvUJgkN5LlijRFN95hMy8WVkG4I0QNcJE+OuWvuJ0bOdStrbfXn0pkd6/QyiAlg==}
 
@@ -2105,6 +2096,7 @@ snapshots:
   '@emotion/is-prop-valid@1.4.0':
     dependencies:
       '@emotion/memoize': 0.9.0
+    optional: true
 
   '@emotion/memoize@0.9.0': {}
 
@@ -2148,6 +2140,7 @@ snapshots:
       '@types/react': 19.3.0
     transitivePeerDependencies:
       - supports-color
+    optional: true
 
   '@emotion/unitless@0.10.0': {}
 
@@ -3314,10 +3307,10 @@ snapshots:
 
   path-type@4.0.0: {}
 
-  photo-sphere-viewer-lensflare-plugin@2.1.4(@photo-sphere-viewer/core@5.15.1)(three@0.175.0):
+  photo-sphere-viewer-lensflare-plugin@2.1.4(@photo-sphere-viewer/core@5.15.1)(three@0.185.1):
     dependencies:
       '@photo-sphere-viewer/core': 5.15.1
-      three: 0.175.0
+      three: 0.185.1
 
   picocolors@1.1.1: {}
 
@@ -3537,8 +3530,6 @@ snapshots:
   tailwindcss@4.3.3: {}
 
   tapable@2.3.3: {}
-
-  three@0.175.0: {}
 
   three@0.185.1: {}
 
