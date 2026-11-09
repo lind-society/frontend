@@ -23,7 +23,7 @@ import { RentManagementTab } from "./rent-management";
 
 import { OptionType, Payload, Villa } from "../../../../../types";
 
-import { deleteKeysObject, formatTitleCase } from "../../../../../utils";
+import { deleteKeysObject, formatTabLabel } from "../../../../../utils";
 
 type TabName =
   | "rent-management"
@@ -38,10 +38,10 @@ type TabName =
 const tabs: TabName[] = [
   "rent-management",
   "general",
-  "media",
-  "location",
   "key-features",
   "service-features",
+  "media",
+  "location",
   "villa-policies",
   "review",
 ];
@@ -230,7 +230,7 @@ export const EditHomeVillaPage = () => {
             className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
             onClick={() => handleNavigateAway(tab)}
           >
-            {formatTitleCase(tab)}
+            {formatTabLabel(tab)}
           </button>
         ))}
       </div>

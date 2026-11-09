@@ -19,13 +19,13 @@ import { GeneralTab } from "./general";
 import { FaArrowLeft, FaFileAlt, FaUpload } from "react-icons/fa";
 import { GrLinkNext } from "react-icons/gr";
 
-import { deleteKeysObject, formatTitleCase } from "../../../../../utils";
+import { deleteKeysObject, formatTabLabel } from "../../../../../utils";
 
 import { Property } from "../../../../../types";
 
 type TabName = "general" | "media" | "location" | "key-features" | "service-features";
 
-const tabs: TabName[] = ["general", "media", "location", "key-features", "service-features"];
+const tabs: TabName[] = ["general", "key-features", "service-features", "media", "location"];
 
 const getInitialTabValidationState = (): Record<TabName, boolean> => ({
   general: JSON.parse(sessionStorage.getItem("general") || "true"),
@@ -168,7 +168,7 @@ export const AddBuyPage = () => {
             className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
             onClick={() => handleNavigateAway(tab)}
           >
-            {formatTitleCase(tab)}
+            {formatTabLabel(tab)}
           </button>
         ))}
       </div>

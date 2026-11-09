@@ -16,13 +16,13 @@ import { Button, ToastMessage } from "../../../../../components";
 
 import { FaArrowLeft, FaFileAlt, FaUpload } from "react-icons/fa";
 
-import { deleteKeysObject, formatTitleCase } from "../../../../../utils";
+import { deleteKeysObject, formatTabLabel } from "../../../../../utils";
 
 import { OptionType, Payload, Property } from "../../../../../types";
 
 type TabName = "general" | "media" | "location" | "key-features" | "service-features";
 
-const tabs: TabName[] = ["general", "media", "location", "key-features", "service-features"];
+const tabs: TabName[] = ["general", "key-features", "service-features", "media", "location"];
 
 export const EditBuyPage = () => {
   const { pathname, hash } = useLocation();
@@ -200,7 +200,7 @@ export const EditBuyPage = () => {
             className={`px-4 py-1.5 border border-dark/30 rounded-t-md ${activeTab === tab ? "bg-primary text-light" : "bg-light text-primary"}`}
             onClick={() => handleNavigateAway(tab)}
           >
-            {formatTitleCase(tab)}
+            {formatTabLabel(tab)}
           </button>
         ))}
       </div>

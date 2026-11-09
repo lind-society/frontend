@@ -3,3 +3,4 @@ export * from "./formatTitleCase";
 export * from "./capitalize";
 export * from "./deleteKeysObject";
 export * from "./convertDate";
+export * from "./formatTabLabel";

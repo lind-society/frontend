@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  APP: frontend
+  APP: admin
   HOST: root@185.196.21.56
 
 jobs:

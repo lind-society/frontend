@@ -3,6 +3,7 @@ name: lind-admin
 
 services:
   admin:
+    container_name: lind-admin
     build: .
     image: lind-admin:latest
     restart: unless-stopped

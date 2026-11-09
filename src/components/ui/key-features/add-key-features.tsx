@@ -137,11 +137,11 @@ export const AddKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKey
     <>
       <div className="flex items-center justify-between mb-4">
         <h2 className="heading">Key Features</h2>
-        {availableFacilities?.length! > 0 && (
+        {
           <Button onClick={() => setModalVisible(true)} className="flex items-center gap-2 btn-primary">
             <FaPlus /> Add Key Features
           </Button>
-        )}
+        }
       </div>
 
       {facilities.map((facility) => (

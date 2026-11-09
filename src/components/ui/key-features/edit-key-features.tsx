@@ -156,7 +156,7 @@ export const EditKeyFeaturesTab: React.FC<KeyFeaturesProps> = ({ persistedDataKe
       <div className="flex items-center justify-between mb-4">
         <h2 className="heading">Key Features</h2>
         <div className="flex items-center gap-2">
-          {editMode && availableFacilities?.length! > 0 && (
+          {editMode && (
             <Button onClick={() => setModalVisible(true)} className="flex items-center gap-2 btn-primary">
               <FaPlus /> Add Key Features
             </Button>

@@ -71,7 +71,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     isDiscount: data.discount ? false : true,
     discount: String(data.discount || ""),
     dailyLimit: String(data.dailyLimit || ""),
-    duration: data.duration || "Temporary",
+    duration: (data.duration || "temporary").toLowerCase(),
     startDate: new Date(data.startDate || Date.now()),
     endDate: new Date(data.endDate || Date.now()),
     openingHour: new Date(timeStringToDate(data.openingHour || "00:00") || Date.now()),
@@ -135,6 +135,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       startDate,
       isDiscount,
     } = formState;
+    // A permanent activity has no date window: the dates are locked and not sent.
+    const isPermanent = duration === "permanent";
 
     const dataToSave = {
       name,
@@ -144,8 +146,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       priceUnit: priceUnit || "session",
       discount: isDiscount ? 0 : +discount || 0,
       duration,
-      startDate: startDate?.toDateString() || "",
-      endDate: endDate?.toDateString() || "",
+      startDate: isPermanent ? undefined : startDate?.toDateString() || "",
+      endDate: isPermanent ? undefined : endDate?.toDateString() || "",
       openingHour: dateToTimeString(openingHour),
       closingHour: dateToTimeString(closingHour),
       dailyLimit: +dailyLimit || 0,
@@ -168,11 +170,10 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       dailyLimit,
       closingHour,
       duration,
-      endDate,
       openingHour,
-      startDate,
     ];
-    const isComplete = requiredFields.every((field) => !!field);
+    const hasDates = isPermanent || (!!startDate && !!endDate);
+    const isComplete = hasDates && requiredFields.every((field) => !!field);
 
     onChange(!isComplete);
   }, [formState]);
@@ -254,18 +255,19 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
         </FormField>
 
         <FormField label="Duration" required>
-          {(["Permanent", "Temporary"] as const).map((duration, index) => (
-            <div key={index} className="flex items-center gap-2 ms-4">
-              <label className="cursor-pointer" htmlFor={`${duration}-${index}`}>
-                {duration}
-              </label>
+          {(["permanent", "temporary"] as const).map((duration) => (
+            <div key={duration} className="flex items-center gap-2 ms-4">
               <input
-                type="checkbox"
-                id={`${duration}-${index}`}
+                type="radio"
+                name="duration"
+                id={`duration-${duration}`}
                 className="cursor-pointer accent-primary"
-                checked={formState.duration.includes(duration)}
+                checked={formState.duration === duration}
                 onChange={() => updateFormState("duration", duration)}
               />
+              <label className="capitalize cursor-pointer" htmlFor={`duration-${duration}`}>
+                {duration}
+              </label>
             </div>
           ))}
         </FormField>
@@ -287,6 +289,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
               <DatePicker
                 dateFormat="dd/MM/yyyy"
                 selected={formState.startDate}
+                disabled={formState.duration === "permanent"}
                 toggleCalendarOnIconClick
                 closeOnScroll
                 onChange={(date: Date | null) => updateFormState("startDate", date)}
@@ -300,6 +303,7 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
               <DatePicker
                 dateFormat="dd/MM/yyyy"
                 selected={formState.endDate}
+                disabled={formState.duration === "permanent"}
                 toggleCalendarOnIconClick
                 closeOnScroll
                 onChange={(date: Date | null) => updateFormState("endDate", date)}
