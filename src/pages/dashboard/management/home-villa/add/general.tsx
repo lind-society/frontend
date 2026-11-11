@@ -16,6 +16,8 @@ interface FormState {
   name: string;
   secondaryName: string;
   highlight: string;
+  whatsIncluded: string;
+  goodToKnow: string;
   availability: {
     daily: boolean;
     monthly: boolean;
@@ -51,6 +53,13 @@ const FormField = ({
   </div>
 );
 
+// One bullet per non-empty line, as the backend stores them.
+const toLines = (value: string) =>
+  value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
 export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> = ({ onChange }) => {
   // store data to session storage
   const useStore = usePersistentData<Partial<Villa>>("add-villa");
@@ -66,6 +75,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
     name: data.name || "",
     secondaryName: data.secondaryName || "",
     highlight: data.highlight || "",
+    whatsIncluded: (data.whatsIncluded || []).join("\n"),
+    goodToKnow: (data.goodToKnow || []).join("\n"),
     availability: {
       daily: data.availability?.daily ?? true,
       monthly: data.availability?.monthly ?? false,
@@ -179,6 +190,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       name,
       secondaryName,
       highlight,
+      whatsIncluded,
+      goodToKnow,
       currency,
       owner,
       discount,
@@ -197,6 +210,8 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
       name,
       secondaryName,
       highlight,
+      whatsIncluded: toLines(whatsIncluded),
+      goodToKnow: toLines(goodToKnow),
       // Same race as Edit's General tab: `currency`/`owner` start null and only
       // resolve once the currencies/owners lookups finish matching a resumed
       // draft's stored id back to an option. Falling straight to "" wiped out
@@ -249,6 +264,26 @@ export const GeneralTab: React.FC<{ onChange?: (hasChanges: boolean) => void }> 
             onChange={(e) => updateFormState("name", e.target.value)}
             required
           />
+        </FormField>
+
+        <FormField label="What's Included">
+          <textarea
+            className="h-32 input-text"
+            value={formState.whatsIncluded}
+            onChange={(e) => updateFormState("whatsIncluded", e.target.value)}
+            placeholder={"Daily Breakfast\nWelcome Drink & Fruit Basket\nReturn Airport Transfer"}
+          />
+          <span className="text-sm text-dark/60">One item per line.</span>
+        </FormField>
+
+        <FormField label="Good to Know">
+          <textarea
+            className="h-32 input-text"
+            value={formState.goodToKnow}
+            onChange={(e) => updateFormState("goodToKnow", e.target.value)}
+            placeholder={"Extra bed available upon request\nSmoking is only permitted in outdoor areas"}
+          />
+          <span className="text-sm text-dark/60">One item per line.</span>
         </FormField>
 
         <FormField label="Secondary name" required>

@@ -26,6 +26,7 @@ import {
   OrderPage,
   ReviewPage,
   InquiriesPage,
+  FinancialReportPage,
   BlogPage,
   WhatsappPage,
   PriceRulePage,
@@ -59,6 +60,7 @@ const App = () => {
           <Route path="/dashboard/main" element={<MainPage />} />
           <Route path="/dashboard/review" element={<ReviewPage />} />
           <Route path="/dashboard/inquiries" element={<InquiriesPage />} />
+          <Route path="/dashboard/financial-report" element={<FinancialReportPage />} />
           <Route path="/dashboard/management/blog" element={<BlogPage />} />
           <Route path="/dashboard/whatsapp" element={<WhatsappPage />} />
           <Route path="/dashboard/management/home-villa" element={<HomeVillaPage />} />

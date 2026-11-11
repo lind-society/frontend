@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import { TourLinks, splitTours } from "./tour-links";
 import { useCreateApi, usePersistentData, useUploads } from "../../../hooks";
 
 import { UploadPhoto } from "./upload-photo";
@@ -319,8 +320,13 @@ export const EditMediaTab: React.FC<MediaProps> = ({ persistedDataKey, editDataK
           type="video360s"
           title="360 Tour"
           description="360 Tour *"
-          fileUrl={formState.video360s}
-          setFileUrl={(video360s) => updateFormState({ video360s })}
+          fileUrl={splitTours(formState.video360s).files}
+          setFileUrl={(files) => updateFormState({ video360s: [...splitTours(formState.video360s).links, ...files] })}
+        />
+
+        <TourLinks
+          links={splitTours(formState.video360s).links}
+          onChange={(links) => updateFormState({ video360s: [...links, ...splitTours(formState.video360s).files] })}
         />
 
         <UploadPhoto

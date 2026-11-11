@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import toast from "react-hot-toast";
+
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useCreateApi, usePersistentData } from "../../../../../hooks";
@@ -120,7 +122,7 @@ export const AddActivityPage = () => {
           <Button className="btn-primary" onClick={() => navigate(-1)}>
             <FaArrowLeft size={20} />
           </Button>
-          <h1 className="head-title">Add Activity</h1>
+          <h1 className="head-title">Add New Activity</h1>
           {hasDraftContent && (
             <span className="flex items-center gap-2 px-3 py-1 text-sm text-yellow-800 bg-yellow-200 rounded-full">
               <FaFileAlt size={12} /> Draft — not published yet
@@ -134,6 +136,12 @@ export const AddActivityPage = () => {
               Discard Draft
             </Button>
           )}
+          <Button
+            onClick={() => toast.success("Draft saved. You can come back and finish it later.")}
+            className="flex items-center gap-2 btn-outline"
+          >
+            <FaFileAlt /> Save as Draft
+          </Button>
           {!tabValidationState["general"] && !tabValidationState["location"] && !tabValidationState["media"] && (
             <Button onClick={handlePublish} className="btn-primary">
               {isPending ? (
