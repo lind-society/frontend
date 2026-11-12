@@ -28,10 +28,10 @@ export const Sidebar = ({ openNav }: { openNav: boolean }) => {
           const isActive = pathname.includes(item.link);
           return (
             <div className="w-full px-4" key={index}>
-              <span className={`sidebar-menu group ${isActive ? "bg-light shadow-xs" : "bg-transparent"}`}>
+              <span className={`sidebar-menu ${isActive ? "bg-light shadow-xs" : "bg-transparent"}`}>
                 <Link to={`/dashboard${item.link}`} className="block w-full">
                   <p
-                    className={`text-sm group-hover:text-primary ${isActive ? "font-semibold text-primary" : "text-light/90"}`}
+                    className={`sidebar-label text-sm ${isActive ? "font-semibold text-primary" : "text-light/90"}`}
                   >
                     {item.title}
                   </p>

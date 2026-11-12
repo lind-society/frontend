@@ -208,7 +208,7 @@ input[type="number"]::-webkit-outer-spin-button {
     @apply flex items-center gap-2 px-4 py-2 text-sm font-semibold border-0 cursor-pointer rounded bg-gray text-primary hover:bg-primary/20;
   }
   .sidebar-menu {
-    @apply relative flex items-center justify-center py-2 overflow-hidden duration-300 rounded hover:bg-light;
+    @apply relative flex items-center justify-center py-2 overflow-hidden duration-300 rounded;
   }
   .pagination-number {
     @apply size-10 sm:size-12 flex items-center justify-center text-center transition-all border rounded shadow-xs border-gray/50 text-dark;
@@ -216,4 +216,19 @@ input[type="number"]::-webkit-outer-spin-button {
   .pagination-button {
     @apply px-4 py-1 flex items-center gap-1 justify-center transition-all duration-300 rounded bg-light;
   }
+}
+
+/*
+ * Sidebar hover. Plain CSS on purpose: the `@apply hover:bg-light` form used before
+ * was dropped by Tailwind 4, so the label turned bronze on hover while its white
+ * background never appeared, leaving bronze text on the bronze sidebar. These rules
+ * sit outside any layer so the label colour utilities cannot override them.
+ */
+.sidebar-menu:hover,
+.sidebar-menu:focus-within {
+  background-color: #ffffff;
+}
+.sidebar-menu:hover .sidebar-label,
+.sidebar-menu:focus-within .sidebar-label {
+  color: #a2754c;
 }
