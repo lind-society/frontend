@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import { useDeleteApi, useGetApi, usePersistentData, useSearchPagination } from "../../../../hooks";
+import { useDeleteApi, useGetApi, usePersistentData, useSearchPagination, readDraftDirty } from "../../../../hooks";
 
 import { CardContent, Layout, SearchBox } from "../../../../components/ui";
 import { Button, Modal, Pagination } from "../../../../components";
@@ -21,7 +21,7 @@ export const BuyPage = () => {
   // draft store is a single global slot) — surface which one, if any.
   const useEditDraft = usePersistentData<Property>("edit-property");
   const { data: editDraft } = useEditDraft();
-  const hasRealDraftContent = Object.entries(editDraft).some(([key, value]) => key !== "id" && Boolean(value));
+  const hasRealDraftContent = readDraftDirty("edit-property", editDraft.id);
   const draftPropertyId = hasRealDraftContent ? editDraft.id : undefined;
 
   const [deleteModal, setDeleteModal] = React.useState<boolean>(false);

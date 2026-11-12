@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 
-import { useDeleteApi, useGetApi, usePersistentData, useSearchPagination } from "../../../../hooks";
+import { useDeleteApi, useGetApi, usePersistentData, useSearchPagination, readDraftDirty } from "../../../../hooks";
 
 import { Layout, SearchBox } from "../../../../components/ui";
 import { Button, Img, Modal, Pagination } from "../../../../components";
@@ -113,7 +113,7 @@ export const ActivityPage = () => {
   // doesn't take opening the edit page to notice there's unfinished work.
   const useEditDraft = usePersistentData<Activity>("edit-activity");
   const { data: editDraft } = useEditDraft();
-  const hasRealDraftContent = Object.entries(editDraft).some(([key, value]) => key !== "id" && Boolean(value));
+  const hasRealDraftContent = readDraftDirty("edit-activity", editDraft.id);
   const draftActivityId = hasRealDraftContent ? editDraft.id : undefined;
 
   const [deleteModal, setDeleteModal] = React.useState<boolean>(false);

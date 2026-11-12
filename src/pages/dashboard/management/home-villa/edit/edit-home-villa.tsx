@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { useGetApi, usePersistentData, useUpdateApi } from "../../../../../hooks";
+import { useGetApi, usePersistentData, useUpdateApi, useEditDraftDirty, clearDraftBaseline } from "../../../../../hooks";
 
 import {
   EditKeyFeaturesTab,
@@ -66,10 +66,9 @@ export const EditHomeVillaPage = () => {
   // Tagging the draft with `id` lets every render tell "genuinely this
   // villa's" apart from "leftover from a different one" — including on the
   // very first render, before any effect below has run.
-  const isOwnDraft = data.id === id;
   // "edit-villa" only ever holds fields a tab has actually Saved locally —
   // exactly the staged, not-yet-Published changes Publish reads from below.
-  const hasDraftContent = isOwnDraft && Object.entries(data).some(([key, value]) => key !== "id" && Boolean(value));
+  const hasDraftContent = useEditDraftDirty("edit-villa", id, data as Record<string, unknown>);
 
   const [hadRestoredDraft] = React.useState(() => hasDraftContent);
 
@@ -92,6 +91,7 @@ export const EditHomeVillaPage = () => {
   const handleDiscardDraft = () => {
     if (!window.confirm("Discard all unpublished changes and revert every tab back to what's live?")) return;
     clearEditDraft();
+    clearDraftBaseline("edit-villa", id);
     window.location.reload();
   };
 
